@@ -658,6 +658,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       unique_ptr& operator=(const unique_ptr&) = delete;
     };
 
+  // Based on http://stackoverflow.com/questions/35386647/using-sfinae-in-c11-to-choose-between-two-functions-with-same-signature/35387466
+  template<class T, class = __void_t<>> struct __has_pointer_typedef : public false_type { };
+  template<class T> struct __has_pointer_typedef<T, __void_t<typename T::pointer>> : public true_type { };
+  template<class T> unique_ptr(T*) -> unique_ptr<T, default_delete<T>>;
+  template<class T, class V, enable_if_t<!__has_pointer_typedef<V>{}, int> = 0> unique_ptr(T*, V) -> unique_ptr<T, V>;   // If V::pointer is not valid
+  template<class U, class V, enable_if_t<__has_pointer_typedef<V>{}, int> = 0> unique_ptr(U, V) -> unique_ptr<typename pointer_traits<typename V::pointer>::element_type, V>;  // If V::pointer is valid
+  
   template<typename _Tp, typename _Dp>
     inline
 #if __cplusplus > 201402L || !defined(__STRICT_ANSI__) // c++1z or gnu++11
