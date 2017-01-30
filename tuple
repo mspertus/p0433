@@ -1247,7 +1247,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       { _Inherited::_M_swap(__in); }
     };
 
-
+  // TODO. Do I need decay here? make_tuple has it
+    template<typename ..._El>
+      tuple(_El&& ...) -> tuple<decay_t<_El> ...>;
+  
   /// class tuple_size
   template<typename... _Elements>
     struct tuple_size<tuple<_Elements...>>
