@@ -706,6 +706,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	return std::hash<typename shared_ptr<_Tp>::element_type*>()(__s.get());
       }
     };
+  
     template<class T> shared_ptr(T*) -> shared_ptr<T>;
 
   // @} group pointer_abstractions
