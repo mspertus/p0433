@@ -454,6 +454,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
     };
 
+  template<class _OuterAlloc, class... _InnerAllocs>
+    scoped_allocator_adaptor(_OuterAlloc&&, const _InnerAllocs&&...)
+      -> scoped_allocator_adaptor<remove_reference_t<_OuterAlloc>,
+				  remove_reference_t<_InnerAllocs>...>;
+
   template <typename _OutA1, typename _OutA2, typename... _InA>
     inline bool
     operator==(const scoped_allocator_adaptor<_OutA1, _InA...>& __a,
