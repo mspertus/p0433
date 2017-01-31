@@ -1194,9 +1194,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
       _RAIter _M_pat_end;
     };
 
-  template<typename _RAIter,
-	   typename _Hash,
-	   typename _BinaryPredicate>
+  template<typename _RAIter, typename _Hash, typename _BinaryPredicate>
     boyer_moore_searcher<_RAIter, _Hash, _BinaryPredicate>::
     boyer_moore_searcher(_RAIter __pat, _RAIter __pat_end,
 			 _Hash __hf, _BinaryPredicate __pred)
