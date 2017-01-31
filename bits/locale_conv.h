@@ -309,7 +309,10 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       bool			_M_with_cvtstate = false;
       bool			_M_with_strings = false;
     };
-
+template<class Codecvt>
+  wstring_convert(Codecvt *) -> wstring_convert<Codecvt, typename Codecvt::intern_type>;
+template<class Codecvt>
+  wstring_convert(Codecvt *, typename Codecvt::state_type) -> wstring_convert<Codecvt, typename Codecvt::intern_type>;
 _GLIBCXX_END_NAMESPACE_CXX11
 
   /// Buffer conversions
