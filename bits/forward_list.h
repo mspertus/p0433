@@ -1359,6 +1359,19 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
       }
     };
 
+  // Workaround gcc bug 79316
+  template<typename _InputIterator,
+	   typename  allocator_type,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    forward_list(_InputIterator, _InputIterator, const allocator_type &)
+      -> forward_list<typename std::iterator_traits<_InputIterator>::value_type, allocator_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    forward_list(_InputIterator, _InputIterator)
+      -> forward_list<typename std::iterator_traits<_InputIterator>::value_type,
+		      std::allocator<typename std::iterator_traits<_InputIterator>::value_type>>; 
+
   /**
    *  @brief  Forward list equality comparison.
    *  @param  __lx  A %forward_list
