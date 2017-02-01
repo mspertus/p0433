@@ -1863,6 +1863,21 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       }
 #endif
     };
+
+  // Workaround gcc bug 79316
+  template<typename _InputIterator,
+	   typename  allocator_type,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    list(_InputIterator, _InputIterator, const allocator_type &)
+      -> list<typename std::iterator_traits<_InputIterator>::value_type, allocator_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    list(_InputIterator, _InputIterator)
+      -> list<typename std::iterator_traits<_InputIterator>::value_type,
+	      std::allocator<typename std::iterator_traits<_InputIterator>::value_type>>; 
+ 
+
 _GLIBCXX_END_NAMESPACE_CXX11
 
   /**
