@@ -1361,6 +1361,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  const map<_K1, _T1, _C1, _A1>&);
     };
 
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    map(_InputIterator, _InputIterator)
+    -> map<typename std::iterator_traits<_InputIterator>::value_type::first_type,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+
   /**
    *  @brief  Map equality comparison.
    *  @param  __x  A %map.
