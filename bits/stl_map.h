@@ -1367,6 +1367,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     -> map<typename std::iterator_traits<_InputIterator>::value_type::first_type,
 	   typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
 
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Compare, typename _Alloc>
+    map(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
+    -> map<typename std::iterator_traits<_InputIterator>::value_type::first_type,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   _Compare, _Alloc>; 
+
   /**
    *  @brief  Map equality comparison.
    *  @param  __x  A %map.
