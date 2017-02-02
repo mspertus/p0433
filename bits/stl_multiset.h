@@ -875,6 +875,17 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
         operator< (const multiset<_K1, _C1, _A1>&,
 		   const multiset<_K1, _C1, _A1>&);
     };
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    multiset(_InputIterator, _InputIterator)
+    -> multiset<typename std::iterator_traits<_InputIterator>::value_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Compare, typename _Alloc>
+    multiset(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
+    -> multiset<typename std::iterator_traits<_InputIterator>::value_type,
+	   _Compare, _Alloc>; 
 
   /**
    *  @brief  Multiset equality comparison.

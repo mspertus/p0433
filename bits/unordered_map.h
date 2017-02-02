@@ -1870,6 +1870,31 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 					    _Hash1, _Pred1, _Alloc1>&);
     };
 
+    template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    unordered_map(_InputIterator, _InputIterator)
+      -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+		       typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+
+    template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    unordered_map(_InputIterator, _InputIterator,
+		  typename unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+		                         typename std::iterator_traits<_InputIterator>::value_type::second_type>::size_type)
+      -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+		       typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Hash, typename _KeyEqual, typename _Alloc>
+    unordered_map(_InputIterator, _InputIterator,
+		  typename unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+		                         typename std::iterator_traits<_InputIterator>::value_type::second_type>::size_type,
+		  const _KeyEqual&, const _Hash &, const _Alloc &)
+    -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+	             typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	             _KeyEqual, _Hash, _Alloc>; 
+
   template<class _Key, class _Tp, class _Hash, class _Pred, class _Alloc>
     inline void
     swap(unordered_map<_Key, _Tp, _Hash, _Pred, _Alloc>& __x,

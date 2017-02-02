@@ -1364,14 +1364,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>>
     map(_InputIterator, _InputIterator)
-    -> map<typename std::iterator_traits<_InputIterator>::value_type::first_type,
+    -> map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
 	   typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
 
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
 	   typename _Compare, typename _Alloc>
     map(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
-    -> map<typename std::iterator_traits<_InputIterator>::value_type::first_type,
+    -> map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
 	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
 	   _Compare, _Alloc>; 
 

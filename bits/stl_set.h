@@ -893,6 +893,18 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	operator<(const set<_K1, _C1, _A1>&, const set<_K1, _C1, _A1>&);
     };
 
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    set(_InputIterator, _InputIterator)
+    -> set<typename std::iterator_traits<_InputIterator>::value_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Compare, typename _Alloc>
+    set(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
+    -> set<typename std::iterator_traits<_InputIterator>::value_type,
+	   _Compare, _Alloc>; 
+
 
   /**
    *  @brief  Set equality comparison.
