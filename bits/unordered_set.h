@@ -1516,6 +1516,61 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		 const unordered_multiset<_Value1, _Hash1, _Pred1, _Alloc1>&);
     };
 
+  template<class _Value>
+  unordered_set(initializer_list<_Value>) -> unordered_set<_Value>;
+
+  template<class _Value>
+  unordered_set(initializer_list<_Value>, typename initializer_list<_Value>::size_type) -> unordered_set<_Value>;
+
+  template<class _Value, class _Hash, class _Pred, class _Alloc>
+  unordered_set(initializer_list<_Value>, typename initializer_list<_Value>::size_type, const _Hash &, const _Pred &, const _Alloc &) -> unordered_set<_Value, _Hash, _Pred, _Alloc>;
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    unordered_set(_InputIterator, _InputIterator)
+    -> unordered_set<typename std::iterator_traits<_InputIterator>::value_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    unordered_set(_InputIterator, _InputIterator,
+		  typename unordered_set<typename std::iterator_traits<_InputIterator>::value_type>::size_type)
+    -> unordered_set<typename std::iterator_traits<_InputIterator>::value_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _KeyEqual, typename _Compare, typename _Alloc>
+    unordered_set(_InputIterator, _InputIterator, const _KeyEqual &, const _Compare &, const _Alloc &)
+    -> unordered_set<typename std::iterator_traits<_InputIterator>::value_type,
+		     _KeyEqual, _Compare, _Alloc>; 
+
+  template<class _Value>
+  unordered_multiset(initializer_list<_Value>) -> unordered_multiset<_Value>;
+
+  template<class _Value>
+  unordered_multiset(initializer_list<_Value>, typename initializer_list<_Value>::size_type) -> unordered_multiset<_Value>;
+
+  template<class _Value, class _Hash, class _Pred, class _Alloc>
+  unordered_multiset(initializer_list<_Value>, typename initializer_list<_Value>::size_type, const _Hash &, const _Pred &, const _Alloc &) -> unordered_multiset<_Value, _Hash, _Pred, _Alloc>;
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    unordered_multiset(_InputIterator, _InputIterator)
+    -> unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    unordered_multiset(_InputIterator, _InputIterator,
+		  typename unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type>::size_type)
+    -> unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _KeyEqual, typename _Compare, typename _Alloc>
+    unordered_multiset(_InputIterator, _InputIterator, const _KeyEqual &, const _Compare &, const _Alloc &)
+    -> unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type,
+		     _KeyEqual, _Compare, _Alloc>; 
+
+
   template<class _Value, class _Hash, class _Pred, class _Alloc>
     inline void
     swap(unordered_set<_Value, _Hash, _Pred, _Alloc>& __x,
