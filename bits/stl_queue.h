@@ -298,6 +298,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif // __cplusplus >= 201103L
     };
 
+ template<class _Container, class _Alloc>
+   queue(const _Container &, const _Alloc &) -> queue<typename _Container::value_type, _Container>;
+ template<class _Container, class _Alloc>
+   queue(const _Container &&, const _Alloc &) -> queue<typename _Container::value_type, _Container>;
   /**
    *  @brief  Queue equality comparison.
    *  @param  __x  A %queue.
