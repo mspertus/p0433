@@ -1026,6 +1026,20 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  const multimap<_K1, _T1, _C1, _A1>&);
   };
 
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>>
+    multimap(_InputIterator, _InputIterator)
+    -> multimap<typename std::iterator_traits<_InputIterator>::value_type::first_type,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Compare, typename _Alloc>
+    multimap(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
+    -> multimap<typename std::iterator_traits<_InputIterator>::value_type::first_type,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   _Compare, _Alloc>; 
+
   /**
    *  @brief  Multimap equality comparison.
    *  @param  __x  A %multimap.
