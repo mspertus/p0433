@@ -204,7 +204,14 @@ void test_queue()
 {
   deque d({3, 1, 4, 1, 5});
   queue q(d, allocator<int>());
-  static_assert(is_same_v<decltype(q), queue<int>);
+  static_assert(is_same_v<decltype(q), queue<int>>);
+}
+
+void test_priority_queue()
+{
+  deque d({3, 1, 4, 1, 5});
+  priority_queue q(d.begin(), d.end());
+  static_assert(is_same_v<decltype(q), priority_queue<int>>);
 }
 
 void test_complex()
@@ -247,6 +254,8 @@ int main()
   test_unordered_set();
   test_multiset();
   test_unordered_multiset();
+  test_queue();
+  test_priority_queue();
   return 0;
 }
 
