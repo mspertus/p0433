@@ -230,6 +230,7 @@ void test_stack()
 
 void test_iterators()
 {
+  // Iterator adapters (24.5)
   vector v({1, 2, 3});
   reverse_iterator ri(v.end());
   static_assert(is_same_v<decltype(ri), reverse_iterator<vector<int>::iterator>>);
@@ -245,6 +246,11 @@ void test_iterators()
   static_assert(is_same_v<decltype(ii), insert_iterator<list<int>>>);
   move_iterator mi(l.begin());
   static_assert(is_same_v<decltype(mi), move_iterator<list<int>::iterator>>);
+
+  // Stream iterators (24.6)
+  istreambuf_iterator<char> isbi(cin);
+  static_assert(is_same_v<decltype(isbi), istreambuf_iterator<char>>);
+  
 }
 
 
