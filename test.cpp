@@ -17,6 +17,7 @@
 #include<set>
 #include<unordered_set>
 #include<queue>
+#include<stack>
 #include<complex>
 
 #include<typeinfo>
@@ -214,6 +215,17 @@ void test_priority_queue()
   static_assert(is_same_v<decltype(q), priority_queue<int>>);
 }
 
+void test_stack()
+{
+  deque d({3, 1, 4, 1, 5});
+  stack s(d, allocator<int>());
+  static_assert(is_same_v<decltype(s), stack<int>>);
+  stack s2{s, allocator<int>()};
+  int result;
+  cout << __cxa_demangle(typeid(s2).name(), nullptr, nullptr, &result) << endl;
+  // static_assert(is_same_v<decltype(s2), stack<int>>); // Compiler bug?
+}
+
 void test_complex()
 {
   complex c(2.5, 3.7);
@@ -256,6 +268,7 @@ int main()
   test_unordered_multiset();
   test_queue();
   test_priority_queue();
+  test_stack();
   return 0;
 }
 

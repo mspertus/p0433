@@ -274,6 +274,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif // __cplusplus >= 201103L
     };
 
+
+ template<typename _Container, typename _Alloc>
+ stack(const _Container &, const _Alloc&) -> stack<typename _Container::value_type, _Container>;
+
+ template<typename _Container, typename _Alloc>
+ stack(const _Container &&, const _Alloc&) -> stack<typename _Container::value_type, _Container>;
+
   /**
    *  @brief  Stack equality comparison.
    *  @param  __x  A %stack.
