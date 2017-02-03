@@ -1,3 +1,4 @@
+#include<cassert>
 #include<iostream>
 #include<memory>
 #include<tuple>
@@ -18,6 +19,7 @@
 #include<unordered_set>
 #include<queue>
 #include<stack>
+#include<iterator>
 #include<complex>
 
 #include<typeinfo>
@@ -226,6 +228,26 @@ void test_stack()
   // static_assert(is_same_v<decltype(s2), stack<int>>); // Compiler bug?
 }
 
+void test_iterators()
+{
+  vector v({1, 2, 3});
+  reverse_iterator ri(v.end());
+  static_assert(is_same_v<decltype(ri), reverse_iterator<vector<int>::iterator>>);
+  assert(*ri == 3);
+  back_insert_iterator biiv(v);
+  static_assert(is_same_v<decltype(biiv), back_insert_iterator<vector<int>>>);
+  back_insert_iterator biiv2(v);
+  static_assert(is_same_v<decltype(biiv2), back_insert_iterator<vector<int>>>);
+  front_insert_iterator fiiv(v);
+  static_assert(is_same_v<decltype(fiiv), front_insert_iterator<vector<int>>>);
+  list l({1, 2, 3}); // Why can't I say list l{1, 2, 3}? I can say list<int> l{1, 2, 3}
+  insert_iterator ii(l, next(l.begin())); // Based on http://en.cppreference.com/w/cpp/iterator/insert_iterator
+  static_assert(is_same_v<decltype(ii), insert_iterator<list<int>>>);
+  move_iterator mi(l.begin());
+  static_assert(is_same_v<decltype(mi), move_iterator<list<int>::iterator>>);
+}
+
+
 void test_complex()
 {
   complex c(2.5, 3.7);
@@ -269,6 +291,7 @@ int main()
   test_queue();
   test_priority_queue();
   test_stack();
+  test_iterators();
   return 0;
 }
 
