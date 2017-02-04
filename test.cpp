@@ -21,6 +21,7 @@
 #include<stack>
 #include<iterator>
 #include<complex>
+#include<random>
 
 #include<typeinfo>
 #include<cxxabi.h>
@@ -258,6 +259,93 @@ void test_complex()
 {
   complex c(2.5, 3.7);
   static_assert(is_same_v<decltype(c), complex<double>>);
+}
+
+void test_random()
+{
+  // Engines are not deducible because they all have non-type parameters
+  
+  uniform_int_distribution uid(5);
+  static_assert(is_same_v<decltype(uid), uniform_int_distribution<int>>);
+
+  uniform_real_distribution urd{};
+  static_assert(is_same_v<decltype(urd), uniform_real_distribution<double>>);
+
+  uniform_real_distribution urdf{2.6f};
+  static_assert(is_same_v<decltype(urdf), uniform_real_distribution<float>>);
+
+  // Bernoulli distribution is not a template
+  
+  binomial_distribution bd{7L};
+  static_assert(is_same_v<decltype(bd), binomial_distribution<long>>);
+
+  // geometric_distribution is not deducible
+  
+  negative_binomial_distribution nbd{7L, 0.2};
+  static_assert(is_same_v<decltype(nbd), negative_binomial_distribution<long>>);
+
+  // poisson_distribution is not deducible
+  
+  exponential_distribution ed{1.1};
+  static_assert(is_same_v<decltype(ed), exponential_distribution<double>>);
+
+  gamma_distribution gd{};
+  static_assert(is_same_v<decltype(gd), gamma_distribution<double>>);
+
+  gamma_distribution gdf{2.5f, .7f};
+  static_assert(is_same_v<decltype(gdf), gamma_distribution<float>>);
+
+  weibull_distribution wd{};
+  static_assert(is_same_v<decltype(wd), weibull_distribution<double>>);
+
+  weibull_distribution wdf{2.5f, .7f};
+  static_assert(is_same_v<decltype(wdf), weibull_distribution<float>>);
+
+  extreme_value_distribution evd{};
+  static_assert(is_same_v<decltype(evd), extreme_value_distribution<double>>);
+
+  extreme_value_distribution evdf{2.5f, .7f};
+  static_assert(is_same_v<decltype(evdf), extreme_value_distribution<float>>);
+
+  normal_distribution nd{};
+  static_assert(is_same_v<decltype(nd), normal_distribution<double>>);
+
+  normal_distribution ndf{2.5f, .7f};
+  static_assert(is_same_v<decltype(ndf), normal_distribution<float>>);
+
+  lognormal_distribution lnd{};
+  static_assert(is_same_v<decltype(lnd), lognormal_distribution<double>>);
+
+  lognormal_distribution lndf{2.5f, .7f};
+  static_assert(is_same_v<decltype(lndf), lognormal_distribution<float>>);
+
+  chi_squared_distribution csd{};
+  static_assert(is_same_v<decltype(csd), chi_squared_distribution<double>>);
+
+  chi_squared_distribution csdf(2.5f);
+  static_assert(is_same_v<decltype(csdf), chi_squared_distribution<float>>);  
+
+  cauchy_distribution cd{};
+  static_assert(is_same_v<decltype(cd), cauchy_distribution<double>>);
+
+  cauchy_distribution cdf{2.5f, .7f};
+  static_assert(is_same_v<decltype(cdf), cauchy_distribution<float>>);
+
+  fisher_f_distribution ffd{};
+  static_assert(is_same_v<decltype(ffd), fisher_f_distribution<double>>);
+
+  fisher_f_distribution ffdf{2.5f, .7f};
+  static_assert(is_same_v<decltype(ffdf), fisher_f_distribution<float>>);
+
+  student_t_distribution std{};
+  static_assert(is_same_v<decltype(std), student_t_distribution<double>>);
+
+  student_t_distribution stdf(2.5f);
+  static_assert(is_same_v<decltype(stdf), student_t_distribution<float>>);
+
+  // discrete_distribution is not deducible
+  // piecewise_constant_distribution is not deducible
+  // piecewise_linear_distribution is not deducible
 }
 
 unique_ptr up(new A<int>(3));
