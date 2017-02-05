@@ -25,6 +25,7 @@
 #include<valarray>
 #include<sstream>
 #include<fstream>
+#include<regex>
 
 #include<typeinfo>
 #include<cxxabi.h>
@@ -385,6 +386,19 @@ void test_io()
   // filesystem classes are not templates
 }
 
+void test_regex()
+{
+  basic_regex br("f.*r");
+  basic_regex br2("f.*r", 4);
+  basic_regex br3("f.*r"s);
+  string s = "f.*r";
+  basic_regex br4(s.begin(), s.end());
+  basic_regex br5(s.begin(), s.end(), regex_constants::icase);
+  string s2 = "xfoobary";
+  regex_iterator ri(s2.begin(), s2.end(), br5);
+  regex_token_iterator rti(s2.begin(), s2.end(), br5);
+}
+
 unique_ptr up(new A<int>(3));
 shared_ptr sp(new A<int>(3));
 int main()
@@ -425,6 +439,7 @@ int main()
   test_iterators();
   test_valarray();
   test_io();
+  test_regex();
   return 0;
 }
 

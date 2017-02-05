@@ -787,6 +787,11 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       _AutomatonPtr          _M_automaton;
     };
 
+  template<class ForwardIterator> // Requires forward iterator
+    basic_regex(ForwardIterator, ForwardIterator) -> basic_regex<typename iterator_traits<ForwardIterator>::value_type>;
+  template<class ForwardIterator> // Requires forward iterator
+    basic_regex(ForwardIterator, ForwardIterator, typename regex_constants::syntax_option_type)
+      -> basic_regex<typename iterator_traits<ForwardIterator>::value_type>;
   /** @brief Standard regular expressions. */
   typedef basic_regex<char>    regex;
 
