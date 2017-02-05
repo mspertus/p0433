@@ -26,6 +26,7 @@
 #include<sstream>
 #include<fstream>
 #include<regex>
+#include<atomic>
 
 #include<typeinfo>
 #include<cxxabi.h>
@@ -397,6 +398,11 @@ void test_regex()
   string s2 = "xfoobary";
   regex_iterator ri(s2.begin(), s2.end(), br5);
   regex_token_iterator rti(s2.begin(), s2.end(), br5);
+}
+
+void test_atomic()
+{
+  atomic a = 3;
 }
 
 unique_ptr up(new A<int>(3));
