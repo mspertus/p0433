@@ -27,6 +27,10 @@
 #include<fstream>
 #include<regex>
 #include<atomic>
+#include<thread>
+#include<mutex>
+#include<shared_mutex>
+#include<future>
 
 #include<typeinfo>
 #include<cxxabi.h>
@@ -405,6 +409,27 @@ void test_atomic()
   atomic a = 3;
 }
 
+void test_thread()
+{
+  mutex m;
+  {
+    lock_guard lg(m);
+  }
+  {
+    unique_lock ul(m);
+  }
+  shared_mutex sm;
+  {
+    shared_lock sl(sm);
+  }
+  {
+    // lock_guard lg2(m, sm); // Not yet supported by g++ in either lock_guard or scoped_lock
+  }
+  promise p{allocator_arg_t(), std::allocator<int>()};
+  // future and shared_future  not deducible
+  // Don't create function pointer deduction guide for packaged_task. Too narrow
+}
+
 unique_ptr up(new A<int>(3));
 shared_ptr sp(new A<int>(3));
 int main()
@@ -446,6 +471,8 @@ int main()
   test_valarray();
   test_io();
   test_regex();
+  test_atomic();
+  test_thread();
   return 0;
 }
 

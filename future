@@ -1119,6 +1119,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       }
     };
 
+  template<class _Alloc> promise(allocator_arg_t, const _Alloc &)
+    -> promise<typename _Alloc::value_type>;
+    
   template<typename _Res>
     inline void
     swap(promise<_Res>& __x, promise<_Res>& __y) noexcept
