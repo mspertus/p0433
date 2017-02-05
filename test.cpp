@@ -23,6 +23,8 @@
 #include<complex>
 #include<random>
 #include<valarray>
+#include<sstream>
+#include<fstream>
 
 #include<typeinfo>
 #include<cxxabi.h>
@@ -367,6 +369,22 @@ void test_valarray()
   valarray v8 = v[valarray({(size_t)1, (size_t)5, (size_t)2})];       // construction from indirect_array
 }
 
+void test_io()
+{
+  basic_ios bios{cout.rdbuf()};
+  // basic_streambuf constructors are not deducible
+  basic_istream bis{cin.rdbuf()};
+  basic_ostream bos{cout.rdbuf()};
+
+  string str = "foo";
+  auto bsb = basic_stringbuf(str);
+  auto biss = basic_istringstream(str);
+  auto boss = basic_ostringstream(str);
+
+  // basic_filebuf, basic_ifstream, basic_ofstream, and basic_fstream constructors are not deducible
+  // filesystem classes are not templates
+}
+
 unique_ptr up(new A<int>(3));
 shared_ptr sp(new A<int>(3));
 int main()
@@ -406,6 +424,7 @@ int main()
   test_stack();
   test_iterators();
   test_valarray();
+  test_io();
   return 0;
 }
 
