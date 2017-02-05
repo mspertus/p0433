@@ -22,6 +22,7 @@
 #include<iterator>
 #include<complex>
 #include<random>
+#include<valarray>
 
 #include<typeinfo>
 #include<cxxabi.h>
@@ -348,6 +349,24 @@ void test_random()
   // piecewise_linear_distribution is not deducible
 }
 
+void test_valarray()
+{
+  int ints[] = {1, 2, 3, 4, 5, 6, 7, 8};
+  int *ip = ints;
+  valarray v1(5, 6);
+  valarray v2(ints, 8);
+  valarray v3(ip, 8);
+  valarray v4({1, 2, 3, 4});
+  valarray v5(v2[slice(1, 3, 2)]);
+
+  // Adapted from example at http://en.cppreference.com/w/cpp/numeric/valarray/gslice
+  valarray v({ 111,112,113, 121,122,123, 131,132,133, 141,142,143,
+	       211,212,213, 221,222,223, 231,232,233, 241,242,243});
+  valarray v6 = v[gslice(0, {2, 4}, {4*3, 3})];
+  valarray v7 = v[v > 200];  // construction from mask_array
+  valarray v8 = v[valarray({(size_t)1, (size_t)5, (size_t)2})];       // construction from indirect_array
+}
+
 unique_ptr up(new A<int>(3));
 shared_ptr sp(new A<int>(3));
 int main()
@@ -386,6 +405,7 @@ int main()
   test_priority_queue();
   test_stack();
   test_iterators();
+  test_valarray();
   return 0;
 }
 
