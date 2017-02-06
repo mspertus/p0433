@@ -576,7 +576,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       lock() const noexcept
       { return shared_ptr<_Tp>(*this, std::nothrow); }
     };
-
+  template<class T> weak_ptr(const shared_ptr<T>&) -> weak_ptr<T>;
   // 20.7.2.3.6 weak_ptr specialized algorithms.
   template<typename _Tp>
     inline void

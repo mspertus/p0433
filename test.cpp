@@ -432,6 +432,7 @@ void test_thread()
 
 unique_ptr up(new A<int>(3));
 shared_ptr sp(new A<int>(3));
+weak_ptr wp{sp};
 int main()
 {
   int i{5};
