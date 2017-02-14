@@ -60,7 +60,7 @@ template<typename T> struct IL {  IL(initializer_list<T> il) {}};
 void test_initializer_list()
 {
   IL<int> il = { 1, 2, 3}; // Works
-  // IL il2 = { 1, 2, 3};     // Error: substitution failed
+  // IL il2 = { 1, 2, 3};     // Error: substitution failed. Jason says in process of being fixed
   IL il3({1, 2, 3});       // Works
   static_assert(is_same_v<decltype(il3), IL<int>>);
 }
@@ -134,6 +134,17 @@ void test_tuple()
   static_assert(is_same_v<decltype(pa9), tuple<int, double>>);
   tuple pa10{allocator_arg, allocator<int>(), pair(3, 5.2)};
   static_assert(is_same_v<decltype(pa10), tuple<int, double>>);
+}
+
+void test_optional()
+{
+  optional o(7);
+  static_assert(is_same_v<decltype(o), optional<int>>);
+  optional o2 = o;
+  static_assert(is_same_v<decltype(o2), optional<int>>);
+  optional o3(optional("foo"));
+  static_assert(is_same_v<decltype(o3), optional<const char *>>);
+  // optional o4(in_place); // Expect compile error
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
@@ -527,15 +538,12 @@ int main()
   A a(3);
   function af(&decltype(a)::foo);
   cout << af(a) << endl;
-  optional o(7);
-  static_assert(is_same_v<decltype(o), optional<int>>);
-  optional o2 = o;
-  static_assert(is_same_v<decltype(o2), optional<int>>);
 
   cout << up->t << endl;
   cout << "Hello, world" << endl;
   test_pair();
   test_tuple();
+  test_optional();
   test_searchers();
   test_wstring_convert();
   test_deque();

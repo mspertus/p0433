@@ -1257,7 +1257,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       tuple(allocator_arg_t, const _Alloc&, const pair<T1, T2>&) -> tuple<T1, T2>;
     template<typename _Alloc, typename ... _El>
       tuple(allocator_arg_t, const _Alloc&, const tuple<_El...>&) -> tuple<_El...>;
-  
+
   /// class tuple_size
   template<typename... _Elements>
     struct tuple_size<tuple<_Elements...>>
