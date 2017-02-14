@@ -44,10 +44,16 @@ template<typename T> struct S { S(T t) {} };
 
 template<typename T>
 struct A {
-  T foo() { return t; }
+  int foo() { return 7; }
   A(T t) : t{t} {}
   using pointer = T *;
   T t;
+};
+
+struct HasExplicitCopyConstructor
+{
+  HasExplicitCopyConstructor() {}
+  explicit HasExplicitCopyConstructor(const HasExplicitCopyConstructor &) {}
 };
 
 template<typename T> struct IL {  IL(initializer_list<T> il) {}};
@@ -57,6 +63,77 @@ void test_initializer_list()
   // IL il2 = { 1, 2, 3};     // Error: substitution failed
   IL il3({1, 2, 3});       // Works
   static_assert(is_same_v<decltype(il3), IL<int>>);
+}
+
+void test_pair()
+{
+  // Some odd seeming tests are to make sure N4387 is not causing any trouble
+  pair p(3, 7.5);
+  static_assert(is_same_v<decltype(p), pair<int, double>>);
+  pair p2 = { 10, -15};   // See N4387
+  static_assert(is_same_v<decltype(p2), pair<int, int>>);
+  pair p3 = { A(5), 7.2 };
+  static_assert(is_same_v<decltype(p3), pair<A<int>, double>>);
+  int ia[] = {1, 2, 3};
+  pair p4 = {ia, 2};
+  static_assert(is_same_v<decltype(p4), pair<int *, int>>);
+  pair p5 = { unique_ptr(new int), 2.2 }; // Check for non-copyable movable types
+  static_assert(is_same_v<decltype(p5), pair<unique_ptr<int>, double>>);
+  pair p6 = p4;
+  static_assert(is_same_v<decltype(p6), decltype(p4)>);
+  pair p7 = move(p5);   // Test pair's move constructor
+  static_assert(is_same_v<decltype(p7), decltype(p5)>);
+  pair p8{ HasExplicitCopyConstructor(), 2 };
+  static_assert(is_same_v<decltype(p8), pair<HasExplicitCopyConstructor, int>>);
+}
+
+
+void test_tuple()
+{
+  // Some odd seeming tests are to make sure N4387 is not causing any trouble
+  tuple p1(3, 7.5, 1);
+  static_assert(is_same_v<decltype(p1), tuple<int, double, int>>);
+  tuple p2 = { 10, -15, 2};   // See N4387
+  static_assert(is_same_v<decltype(p2), tuple<int, int, int>>);
+  tuple p3 = { A(5), 7.2, 1 };
+  static_assert(is_same_v<decltype(p3), tuple<A<int>, double, int>>);
+  int ia[] = {1, 2, 3};
+  tuple p4 = {ia, 2, 3};
+  static_assert(is_same_v<decltype(p4), tuple<int *, int, int>>);
+  tuple p5 = { unique_ptr(new int), 2.2, 1 }; // Check for non-copyable movable types
+  static_assert(is_same_v<decltype(p5), tuple<unique_ptr<int>, double, int>>);
+  tuple p6 = p4;
+  static_assert(is_same_v<decltype(p6), decltype(p4)>);
+  tuple p7 = move(p5);   // Test tuple's move constructor
+  static_assert(is_same_v<decltype(p7), decltype(p5)>);
+  tuple p8{ HasExplicitCopyConstructor(), 2, 1 };
+  static_assert(is_same_v<decltype(p8), tuple<HasExplicitCopyConstructor, int, int>>);
+  pair p = {3, 5.2};
+  tuple p9{p};
+  static_assert(is_same_v<decltype(p9), tuple<int, double>>);
+  tuple p10{pair(3, 5.2)};
+  static_assert(is_same_v<decltype(p10), tuple<int, double>>);
+
+  tuple pa1(allocator_arg, allocator<int>(), 3, 7.5, 1);
+  static_assert(is_same_v<decltype(pa1), tuple<int, double, int>>);
+  tuple pa2 = {allocator_arg, allocator<int>(), 10, -15, 2};   // See N4387
+  static_assert(is_same_v<decltype(pa2), tuple<int, int, int>>);
+  tuple pa3 = {allocator_arg, allocator<int>(), A(5), 7.2, 1 };
+  static_assert(is_same_v<decltype(pa3), tuple<A<int>, double, int>>);
+  tuple pa4 = {allocator_arg, allocator<int>(), ia, 2, 3};
+  static_assert(is_same_v<decltype(pa4), tuple<int *, int, int>>);
+  tuple pa5 = {allocator_arg, allocator<int>(), unique_ptr(new int), 2.2, 1 }; // Check for non-copyable movable types
+  static_assert(is_same_v<decltype(pa5), tuple<unique_ptr<int>, double, int>>);
+  tuple pa6 = {allocator_arg, allocator<int>(), pa4};
+  static_assert(is_same_v<decltype(pa6), decltype(pa4)>);
+  tuple pa7 = {allocator_arg, allocator<int>(), move(pa5)};   // Test tuple's move constructor
+  static_assert(is_same_v<decltype(pa7), decltype(pa5)>);
+  tuple pa8{allocator_arg, allocator<int>(), HasExplicitCopyConstructor(), 2, 1 };
+  static_assert(is_same_v<decltype(pa8), tuple<HasExplicitCopyConstructor, int, int>>);
+  tuple pa9{allocator_arg, allocator<int>(), p};
+  static_assert(is_same_v<decltype(pa9), tuple<int, double>>);
+  tuple pa10{allocator_arg, allocator<int>(), pair(3, 5.2)};
+  static_assert(is_same_v<decltype(pa10), tuple<int, double>>);
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
@@ -136,6 +213,12 @@ void test_vector()
   static_assert(is_same_v<decltype(d2), vector<int>>);
   vector d3 = d2;
   static_assert(is_same_v<decltype(d3), vector<int>>);
+  // Zhihao examples
+  auto v1 = vector(3ul, std::allocator<int>());
+  int result;
+  cout << __cxa_demangle(typeid(v1).name(), nullptr, nullptr, &result) << endl;
+  auto v2 = vector(3ul, 4, std::allocator<int>());
+  cout << __cxa_demangle(typeid(v2).name(), nullptr, nullptr, &result) << endl;
 }
   
 void test_map()
@@ -437,13 +520,13 @@ int main()
 {
   int i{5};
   basic_string_view bsv("foo");
+  //  basic_string bs("hello world", 2);
+  
   auto rw = reference_wrapper(i);
   allocator al = allocator<int>();
   A a(3);
   function af(&decltype(a)::foo);
   cout << af(a) << endl;
-  tuple t(3, 7.5);
-  pair p(3, 7.5);
   optional o(7);
   static_assert(is_same_v<decltype(o), optional<int>>);
   optional o2 = o;
@@ -451,6 +534,8 @@ int main()
 
   cout << up->t << endl;
   cout << "Hello, world" << endl;
+  test_pair();
+  test_tuple();
   test_searchers();
   test_wstring_convert();
   test_deque();
