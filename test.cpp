@@ -147,6 +147,16 @@ void test_optional()
   // optional o4(in_place); // Expect compile error
 }
 
+void test_unique_ptr()
+{
+  unique_ptr up(new A(3));
+  static_assert(is_same_v<decltype(up), unique_ptr<A<int>>>);
+  unique_ptr up2(move(up));
+  static_assert(is_same_v<decltype(up2), unique_ptr<A<int>>>);
+  unique_ptr up3(unique_ptr(new int));
+  static_assert(is_same_v<decltype(up3), unique_ptr<int>>);
+}
+
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
 typedef allocator<int> Alloc1;
 typedef vector<int, Alloc1 > Vec1;
@@ -544,6 +554,7 @@ int main()
   test_pair();
   test_tuple();
   test_optional();
+  test_unique_ptr();
   test_searchers();
   test_wstring_convert();
   test_deque();
