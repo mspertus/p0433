@@ -662,8 +662,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<class T, class = __void_t<>> struct __has_pointer_typedef : public false_type { };
   template<class T> struct __has_pointer_typedef<T, __void_t<typename T::pointer>> : public true_type { };
   template<class T> unique_ptr(T*) -> unique_ptr<T, default_delete<T>>;
-  template<class T, class V, enable_if_t<!__has_pointer_typedef<V>{}, int> = 0> unique_ptr(T*, V) -> unique_ptr<T, V>;   // If V::pointer is not valid
-  template<class U, class V, enable_if_t<__has_pointer_typedef<V>{}, int> = 0> unique_ptr(U, V) -> unique_ptr<typename pointer_traits<typename V::pointer>::element_type, V>;  // If V::pointer is valid
+  template<class T, class V, enable_if_t<!__has_pointer_typedef<V>{}, int> = 0> unique_ptr(T*, V) -> unique_ptr<T, V>;  
+  template<class U, class V, enable_if_t<__has_pointer_typedef<V>{}, int> = 0> unique_ptr(U, V) -> unique_ptr<typename pointer_traits<typename V::pointer>::element_type, V>;
+  template<typename T, typename U> unique_ptr(T*, default_delete<U>) -> unique_ptr<U, default_delete<U>>;
   
   template<typename _Tp, typename _Dp>
     inline

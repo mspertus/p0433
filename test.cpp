@@ -45,10 +45,15 @@ template<typename T> struct S { S(T t) {} };
 template<typename T>
 struct A {
   int foo() { return 7; }
+  A() {}
   A(T t) : t{t} {}
   using pointer = T *;
   T t;
 };
+
+bool operator !=(const A<int> &, nullptr_t) { return true; }
+
+struct B : public A<int> {};
 
 struct HasExplicitCopyConstructor
 {
@@ -147,6 +152,15 @@ void test_optional()
   // optional o4(in_place); // Expect compile error
 }
 
+struct FancyDeleter {
+  using pointer = A<int>;
+  void operator()(pointer & i) { cout << "deleting i" << endl; }
+};
+
+// Test handling of pointer typedef
+template<typename T> struct def_del_noptr : public default_delete<T> {};
+template<typename T> struct def_del_ptr : public default_delete<T> { using pointer = T *; };
+
 void test_unique_ptr()
 {
   unique_ptr up(new A(3));
@@ -155,6 +169,17 @@ void test_unique_ptr()
   static_assert(is_same_v<decltype(up2), unique_ptr<A<int>>>);
   unique_ptr up3(unique_ptr(new int));
   static_assert(is_same_v<decltype(up3), unique_ptr<int>>);
+  unique_ptr up4(new B(), default_delete<A<int>>());
+  static_assert(is_same_v<decltype(up4), unique_ptr<A<int>, default_delete<A<int>>>>);
+  unique_ptr up5(new int[5], default_delete<int[]>());
+  static_assert(is_same_v<decltype(up5), unique_ptr<int[]>>);
+  unique_ptr up6{A<int>(), FancyDeleter()};
+  static_assert(is_same_v<decltype(up6), unique_ptr<int, FancyDeleter>>);
+  unique_ptr up7{new B(), def_del_noptr<A<int>>()};
+  static_assert(is_same_v<decltype(up7), unique_ptr<B, def_del_noptr<A<int>>>>);
+  unique_ptr up8{new B(), def_del_ptr<A<int>>()};
+  static_assert(is_same_v<decltype(up8), unique_ptr<A<int>, def_del_ptr<A<int>>>>);
+  
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
