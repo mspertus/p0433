@@ -152,9 +152,11 @@ void test_optional()
   // optional o4(in_place); // Expect compile error
 }
 
+// Bizarre deleter to help touch all the bases
 struct FancyDeleter {
   using pointer = A<int>;
   void operator()(pointer & i) { cout << "deleting i" << endl; }
+  void operator()(B *i) { cout << "deleting i for shared pointer test" << endl; }
 };
 
 // Test handling of pointer typedef
@@ -179,7 +181,23 @@ void test_unique_ptr()
   static_assert(is_same_v<decltype(up7), unique_ptr<B, def_del_noptr<A<int>>>>);
   unique_ptr up8{new B(), def_del_ptr<A<int>>()};
   static_assert(is_same_v<decltype(up8), unique_ptr<A<int>, def_del_ptr<A<int>>>>);
-  
+}
+
+void test_shared_ptr()
+{
+  shared_ptr sp1(new int);
+  static_assert(is_same_v<decltype(sp1), shared_ptr<int>>);
+  shared_ptr sp2(sp1);
+  static_assert(is_same_v<decltype(sp2), decltype(sp1)>);
+  shared_ptr sp3(move(sp1));
+  static_assert(is_same_v<decltype(sp3), decltype(sp1)>);
+  shared_ptr sp4{new B(), default_delete<A<int>>()};
+  static_assert(is_same_v<decltype(sp4), shared_ptr<A<int>>>);
+  shared_ptr sp5(new int[5], default_delete<int[]>());
+  static_assert(is_same_v<decltype(sp5), shared_ptr<int[]>>);
+  shared_ptr sp6{new B(), FancyDeleter()};
+  static_assert(is_same_v<decltype(sp6), shared_ptr<B>>);
+ 
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
@@ -580,6 +598,7 @@ int main()
   test_tuple();
   test_optional();
   test_unique_ptr();
+  test_shared_ptr();
   test_searchers();
   test_wstring_convert();
   test_deque();

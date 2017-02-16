@@ -708,6 +708,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
   
     template <class T> shared_ptr(T*) -> shared_ptr<T>;
+    template<typename T, typename U> shared_ptr(T*, default_delete<U>) -> shared_ptr<U>;
     template <class T, class D> shared_ptr(T*, D) -> shared_ptr<T>;
     template <class T, class D, class A> shared_ptr(T*, D, A) -> shared_ptr<T>;
     template <class T, class P> shared_ptr(const shared_ptr<T>, P*) -> shared_ptr<T>;
