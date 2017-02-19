@@ -1,6 +1,7 @@
 #include<cassert>
 #include<iostream>
 #include<memory>
+#include<experimental/memory_resource> // Not in g++ yet
 #include<tuple>
 #include<optional>
 #include<vector>
@@ -234,6 +235,13 @@ void test_owner_less() // Implicit
   static_assert(is_same_v<decltype(ol2), decltype(oli)>);
   owner_less ol3{owner_less<shared_ptr<int>>{}};  // implicit
   static_assert(is_same_v<decltype(ol3), owner_less<shared_ptr<int>>>);
+}
+
+void test_polymorphic_allocator() { // Implicit
+  experimental::pmr::memory_resource *mr = experimental::pmr::new_delete_resource();
+  experimental::pmr::polymorphic_allocator<int> pai(mr);
+  experimental::pmr::polymorphic_allocator pai1(pai); // implicit. Only copy constructor to test
+  static_assert(is_same_v<decltype(pai1), decltype(pai)>);
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
@@ -637,6 +645,7 @@ int main()
   test_shared_ptr();
   test_weak_ptr();
   test_owner_less();
+  test_polymorphic_allocator();
   test_searchers();
   test_wstring_convert();
   test_deque();
