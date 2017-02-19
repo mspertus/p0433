@@ -244,12 +244,15 @@ void test_polymorphic_allocator() { // Implicit
   static_assert(is_same_v<decltype(pai1), decltype(pai)>);
 }
 
-// Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
-typedef allocator<int> Alloc1;
-typedef vector<int, Alloc1 > Vec1;
-
-scoped_allocator_adaptor alloc2{Alloc1(), Alloc1()};
-typedef vector<Vec1, decltype(alloc2) > Vec2;
+void test_scoped_allocator_adaptor() // Explicit
+{
+  scoped_allocator_adaptor sai1{allocator<vector<string>>(), allocator<char>()}; // explicit
+  static_assert(is_same_v<decltype(sai1), scoped_allocator_adaptor<allocator<vector<string>>, allocator<char>>>);
+  scoped_allocator_adaptor sai2 = sai1; // implicit
+  static_assert(is_same_v<decltype(sai2), decltype(sai1)>);
+  scoped_allocator_adaptor sai3(move(sai1)); // implicit
+  static_assert(is_same_v<decltype(sai3), decltype(sai1)>);
+}
 
 // Adapted from example at
 // http://en.cppreference.com/w/cpp/experimental/boyer_moore_searcher
@@ -646,6 +649,7 @@ int main()
   test_weak_ptr();
   test_owner_less();
   test_polymorphic_allocator();
+  test_scoped_allocator_adaptor();
   test_searchers();
   test_wstring_convert();
   test_deque();
