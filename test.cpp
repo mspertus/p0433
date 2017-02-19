@@ -213,6 +213,17 @@ void test_shared_ptr()
   static_assert(is_same_v<decltype(sp12), shared_ptr<int>>);
 }
 
+void test_weak_ptr()
+{
+  shared_ptr sp(new int);
+  weak_ptr wp1(sp);  // explicit
+  static_assert(is_same_v<decltype(wp1), weak_ptr<int>>);
+  weak_ptr wp2(wp1);  // implicit
+  static_assert(is_same_v<decltype(wp2), decltype(wp1)>);
+  weak_ptr wp3(move(wp1));  // implicit
+  static_assert(is_same_v<decltype(wp3), decltype(wp1)>);
+}
+
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
 typedef allocator<int> Alloc1;
 typedef vector<int, Alloc1 > Vec1;
@@ -612,6 +623,7 @@ int main()
   test_optional();
   test_unique_ptr();
   test_shared_ptr();
+  test_weak_ptr();
   test_searchers();
   test_wstring_convert();
   test_deque();
