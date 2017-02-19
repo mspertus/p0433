@@ -71,23 +71,23 @@ void test_initializer_list()
   static_assert(is_same_v<decltype(il3), IL<int>>);
 }
 
-void test_pair()
+void test_pair() // Explicit
 {
   // Some odd seeming tests are to make sure N4387 is not causing any trouble
-  pair p(3, 7.5);
+  pair p(3, 7.5);  // explicit (Don't label most of the followign as they use same constructor)
   static_assert(is_same_v<decltype(p), pair<int, double>>);
   pair p2 = { 10, -15};   // See N4387
   static_assert(is_same_v<decltype(p2), pair<int, int>>);
-  pair p3 = { A(5), 7.2 };
+  pair p3 = { A(5), 7.2 }; 
   static_assert(is_same_v<decltype(p3), pair<A<int>, double>>);
   int ia[] = {1, 2, 3};
   pair p4 = {ia, 2};
   static_assert(is_same_v<decltype(p4), pair<int *, int>>);
   pair p5 = { unique_ptr(new int), 2.2 }; // Check for non-copyable movable types
   static_assert(is_same_v<decltype(p5), pair<unique_ptr<int>, double>>);
-  pair p6 = p4;
+  pair p6 = p4; // implicit
   static_assert(is_same_v<decltype(p6), decltype(p4)>);
-  pair p7 = move(p5);   // Test pair's move constructor
+  pair p7 = move(p5);   //  implicit. p7 and p8 test pair's move constructor
   static_assert(is_same_v<decltype(p7), decltype(p5)>);
   pair p8{ HasExplicitCopyConstructor(), 2 };
   static_assert(is_same_v<decltype(p8), pair<HasExplicitCopyConstructor, int>>);
@@ -188,7 +188,7 @@ void test_shared_ptr()
 {
   shared_ptr sp1(new int);  // explicit
   static_assert(is_same_v<decltype(sp1), shared_ptr<int>>);
-  // shared_ptr<int> sp1e = new int; // Error expected because shared_ptr<T>::shared_ptr(U*) is explicit
+  // shared_ptr<int> sp1e = new int; // Expect compile error because shared_ptr<T>::shared_ptr(U*) is explicit
   shared_ptr sp2(sp1);
   static_assert(is_same_v<decltype(sp2), decltype(sp1)>);
   shared_ptr sp3(move(sp1));
@@ -252,6 +252,16 @@ void test_scoped_allocator_adaptor() // Explicit
   static_assert(is_same_v<decltype(sai2), decltype(sai1)>);
   scoped_allocator_adaptor sai3(move(sai1)); // implicit
   static_assert(is_same_v<decltype(sai3), decltype(sai1)>);
+}
+
+void test_reference_wrapper() // Implicit
+{
+  int i;
+  reference_wrapper rw1(i); // implicit
+  static_assert(is_same_v<decltype(rw1), reference_wrapper<int>>);
+  // reference_wrapper rw1m(move(i)); // Expect compile error due to deleted constructor
+  reference_wrapper rw2 = rw1; // implicit
+  static_assert(is_same_v<decltype(rw2), decltype(rw1)>);
 }
 
 // Adapted from example at
@@ -650,6 +660,7 @@ int main()
   test_owner_less();
   test_polymorphic_allocator();
   test_scoped_allocator_adaptor();
+  test_reference_wrapper();
   test_searchers();
   test_wstring_convert();
   test_deque();
