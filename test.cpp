@@ -185,8 +185,9 @@ void test_unique_ptr()
 
 void test_shared_ptr()
 {
-  shared_ptr sp1(new int);
+  shared_ptr sp1(new int);  // explicit
   static_assert(is_same_v<decltype(sp1), shared_ptr<int>>);
+  // shared_ptr<int> sp1e = new int; // Error expected because shared_ptr<T>::shared_ptr(U*) is explicit
   shared_ptr sp2(sp1);
   static_assert(is_same_v<decltype(sp2), decltype(sp1)>);
   shared_ptr sp3(move(sp1));
@@ -209,6 +210,7 @@ void test_shared_ptr()
   weak_ptr wp(sp10);
   shared_ptr sp11(wp);
   static_assert(is_same_v<decltype(sp11), shared_ptr<int>>);
+  // shared_ptr sp11e = wp; // Error expected because shared_ptr<T>::shared_ptr(weak_ptr<U>) is explicit
   shared_ptr sp12(unique_ptr(new int));
   static_assert(is_same_v<decltype(sp12), shared_ptr<int>>);
 }
@@ -222,6 +224,16 @@ void test_weak_ptr()
   static_assert(is_same_v<decltype(wp2), decltype(wp1)>);
   weak_ptr wp3(move(wp1));  // implicit
   static_assert(is_same_v<decltype(wp3), decltype(wp1)>);
+}
+
+void test_owner_less() // Implicit
+{
+  // owner_less ol{};  // implicit Resolve: Why doesn't this work?
+  owner_less<shared_ptr<int>> oli;
+  owner_less ol2 = oli; // implicit
+  static_assert(is_same_v<decltype(ol2), decltype(oli)>);
+  owner_less ol3{owner_less<shared_ptr<int>>{}};  // implicit
+  static_assert(is_same_v<decltype(ol3), owner_less<shared_ptr<int>>>);
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
@@ -624,6 +636,7 @@ int main()
   test_unique_ptr();
   test_shared_ptr();
   test_weak_ptr();
+  test_owner_less();
   test_searchers();
   test_wstring_convert();
   test_deque();
