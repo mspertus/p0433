@@ -711,7 +711,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     template<typename T, typename U> shared_ptr(T*, default_delete<U>) -> shared_ptr<U>;
     template <class T, class D> shared_ptr(T*, D) -> shared_ptr<T>;
     template <class T, class D, class A> shared_ptr(T*, D, A) -> shared_ptr<T>;
-    template <class T, class P> shared_ptr(const shared_ptr<T>, P*) -> shared_ptr<T>;
+    template <class T, class U, class A> shared_ptr(T*, default_delete<U>, A) -> shared_ptr<U>;
+    template <class T, class P> shared_ptr(const shared_ptr<T> &, P *) -> shared_ptr<P>;
     /* explicit */ template <class T> shared_ptr(const weak_ptr<T> &) -> shared_ptr<T>;
     template <class T, class D> shared_ptr(unique_ptr<T, D>&&) -> shared_ptr<T>;
   // @} group pointer_abstractions

@@ -197,7 +197,20 @@ void test_shared_ptr()
   static_assert(is_same_v<decltype(sp5), shared_ptr<int[]>>);
   shared_ptr sp6{new B(), FancyDeleter()};
   static_assert(is_same_v<decltype(sp6), shared_ptr<B>>);
- 
+  shared_ptr sp7{new B(), default_delete<A<int>>(), allocator<A<int>>()};
+  static_assert(is_same_v<decltype(sp7), shared_ptr<A<int>>>);
+  shared_ptr sp8(new int[5], default_delete<int[]>(), allocator<int>());
+  static_assert(is_same_v<decltype(sp8), shared_ptr<int[]>>);
+  shared_ptr sp9{new B(), FancyDeleter(), allocator<B>()};
+  static_assert(is_same_v<decltype(sp9), shared_ptr<B>>);
+  int *ip = new int{};
+  shared_ptr sp10(sp9, ip);
+  static_assert(is_same_v<decltype(sp10), shared_ptr<int>>);
+  weak_ptr wp(sp10);
+  shared_ptr sp11(wp);
+  static_assert(is_same_v<decltype(sp11), shared_ptr<int>>);
+  shared_ptr sp12(unique_ptr(new int));
+  static_assert(is_same_v<decltype(sp12), shared_ptr<int>>);
 }
 
 // Adapted from http://stackoverflow.com/questions/13181248/construct-inner-allocator-from-a-scoped-allocator-adaptor
