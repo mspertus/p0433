@@ -264,6 +264,47 @@ void test_reference_wrapper() // Implicit
   static_assert(is_same_v<decltype(rw2), decltype(rw1)>);
 }
 
+void test_arithmetic_operations() // 20.14.6
+{
+  // class plus: Implicit
+  // plus p1{};  // implicit Resolve: Why doesn't this work?
+  plus<int> pi;
+  plus p1  = pi; // implicit
+  static_assert(is_same_v<decltype(p1), decltype(pi)>);
+
+  // class minus: Implicit
+  // minus m1{};  // implicit Resolve: Why doesn't this work?
+  minus<int> mi;
+  minus m1  = mi; // implicit
+  static_assert(is_same_v<decltype(m1), decltype(mi)>);
+
+  // class multiplies: Implicit
+  // multiplies mu1{};  // implicit Resolve: Why doesn't this work?
+  multiplies<int> mui;
+  multiplies mu1  = mui; // implicit
+  static_assert(is_same_v<decltype(mu1), decltype(mui)>);
+
+  // class divides: Implicit
+  // divides d1{};  // implicit Resolve: Why doesn't this work?
+  divides<int> di;
+  divides d1  = di; // implicit
+  static_assert(is_same_v<decltype(d1), decltype(di)>);
+
+  // class modulus: Implicit
+  // modulus mo1{};  // implicit Resolve: Why doesn't this work?
+  modulus<int> moi;
+  modulus mo1  = moi; // implicit
+  static_assert(is_same_v<decltype(mo1), decltype(moi)>);
+
+  // class negate: Implicit
+  // negate n1{};  // implicit Resolve: Why doesn't this work?
+  negate<int> ni;
+  negate n1  = ni; // implicit
+  static_assert(is_same_v<decltype(n1), decltype(ni)>);
+  
+}
+
+
 // Adapted from example at
 // http://en.cppreference.com/w/cpp/experimental/boyer_moore_searcher
 void test_searchers()
@@ -661,6 +702,7 @@ int main()
   test_polymorphic_allocator();
   test_scoped_allocator_adaptor();
   test_reference_wrapper();
+  test_arithmetic_operations();
   test_searchers();
   test_wstring_convert();
   test_deque();
