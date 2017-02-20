@@ -46,6 +46,7 @@ template<typename T> struct S { S(T t) {} };
 template<typename T>
 struct A {
   int foo() { return 7; }
+  int bar(int i) noexcept { return i; }
   A() {}
   A(T t) : t{t} {}
   using pointer = T *;
@@ -389,6 +390,18 @@ void test_bit_operations() // 20.14.9
   bit_not bn1  = bni; // implicit
   static_assert(is_same_v<decltype(bn1), decltype(bni)>);
 }
+
+int fidi(double d, int i) { return i; }
+
+void test_function() // Explicit - 20.14.13.2
+{
+  function ffidi(fidi); // explicit
+  static_assert(is_same_v<decltype(ffidi), function<int(double, int)>>);
+  function af(&A<int>::foo); // explicit
+  static_assert(is_same_v<decltype(af), function<int(A<int>&)>>);
+  // TODO ...
+}
+
 
 // Adapted from example at
 // http://en.cppreference.com/w/cpp/experimental/boyer_moore_searcher
@@ -771,9 +784,6 @@ int main()
   
   auto rw = reference_wrapper(i);
   allocator al = allocator<int>();
-  A a(3);
-  function af(&decltype(a)::foo);
-  cout << af(a) << endl;
 
   cout << up->t << endl;
   cout << "Hello, world" << endl;
@@ -791,6 +801,7 @@ int main()
   test_comparisons();
   test_logical_operations();
   test_bit_operations();
+  test_function();
   test_searchers();
   test_wstring_convert();
   test_deque();
