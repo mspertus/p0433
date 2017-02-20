@@ -300,16 +300,74 @@ void test_arithmetic_operations() // 20.14.6
   // negate n1{};  // implicit Resolve: Why doesn't this work?
   negate<int> ni;
   negate n1  = ni; // implicit
-  static_assert(is_same_v<decltype(n1), decltype(ni)>);
-  
+  static_assert(is_same_v<decltype(n1), decltype(ni)>);  
 }
 
+void test_comparisons() // 20.14.7
+{
+  // class equal_to: Implicit
+  // equal_to et1{};  // implicit Resolve: Why doesn't this work?
+  equal_to<int> eti;
+  equal_to et1  = eti; // implicit
+  static_assert(is_same_v<decltype(et1), decltype(eti)>);
+
+  // class not_equal_to: Implicit
+  // not_equal_to net1{};  // implicit Resolve: Why doesn't this work?
+  not_equal_to<int> neti;
+  not_equal_to net1  = neti; // implicit
+  static_assert(is_same_v<decltype(net1), decltype(neti)>);
+
+  // class greater: Implicit
+  // greater g1{};  // implicit Resolve: Why doesn't this work?
+  greater<int> gi;
+  greater g1  = gi; // implicit
+  static_assert(is_same_v<decltype(g1), decltype(gi)>);
+
+  // class less : Implicit
+  // less l1{};  // implicit Resolve: Why doesn't this work?
+  less<int> li;
+  less l1  = li; // implicit
+  static_assert(is_same_v<decltype(l1), decltype(li)>);
+
+  // class greater_equal: Implicit
+  // greater_equal ge1{};  // implicit Resolve: Why doesn't this work?
+  greater_equal<int> gei;
+  greater_equal ge1  = gei; // implicit
+  static_assert(is_same_v<decltype(ge1), decltype(gei)>);
+
+  // class less_equal: Implicit
+  // less_equal le1{};  // implicit Resolve: Why doesn't this work?
+  less_equal<int> lei;
+  less_equal le1  = lei; // implicit
+  static_assert(is_same_v<decltype(le1), decltype(lei)>);
+}
+
+void test_logical_operations() // 20.14.8
+{
+  // class logical_and: Implicit
+  // logical_and la1{};  // implicit Resolve: Why doesn't this work?
+  logical_and<int> lai;
+  logical_and la1  = lai; // implicit
+  static_assert(is_same_v<decltype(la1), decltype(lai)>);
+
+  // class logical_or: Implicit
+  // logical_or lo1{};  // implicit Resolve: Why doesn't this work?
+  logical_or<int> loi;
+  logical_or lo1  = loi; // implicit
+  static_assert(is_same_v<decltype(lo1), decltype(loi)>);
+
+  // class logical_not: Implicit
+  // logical_not ln1{};  // implicit Resolve: Why doesn't this work?
+  logical_not<int> lni;
+  logical_not ln1  = lni; // implicit
+  static_assert(is_same_v<decltype(ln1), decltype(lni)>);
+}
 
 // Adapted from example at
 // http://en.cppreference.com/w/cpp/experimental/boyer_moore_searcher
 void test_searchers()
 {
-    std::string in = "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+    std::string in = "Lorem ipsum dolor sit amge, consectetur adipiscing elit,"
                      " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
     std::string needle = "pisci";
     auto bms = boyer_moore_searcher(needle.begin(), needle.end());
@@ -703,6 +761,8 @@ int main()
   test_scoped_allocator_adaptor();
   test_reference_wrapper();
   test_arithmetic_operations();
+  test_comparisons();
+  test_logical_operations();
   test_searchers();
   test_wstring_convert();
   test_deque();
