@@ -363,6 +363,33 @@ void test_logical_operations() // 20.14.8
   static_assert(is_same_v<decltype(ln1), decltype(lni)>);
 }
 
+void test_bit_operations() // 20.14.9
+{
+  // class bit_and: Implicit
+  // bit_and ba1{};  // implicit Resolve: Why doesn't this work?
+  bit_and<int> bai;
+  bit_and ba1  = bai; // implicit
+  static_assert(is_same_v<decltype(ba1), decltype(bai)>);
+
+  // class bit_or: Implicit
+  // bit_or bo1{};  // implicit Resolve: Why doesn't this work?
+  bit_or<int> boi;
+  bit_or bo1  = boi; // implicit
+  static_assert(is_same_v<decltype(bo1), decltype(boi)>);
+
+  // class bit_xor: Implicit
+  // bit_xor bx1{};  // implicit Resolve: Why doesn't this work?
+  bit_xor<int> bxi;
+  bit_xor bx1  = bxi; // implicit
+  static_assert(is_same_v<decltype(bx1), decltype(bxi)>);
+
+  // class bit_not: Implicit
+  // bit_not bn1{};  // implicit Resolve: Why doesn't this work?
+  bit_not<int> bni;
+  bit_not bn1  = bni; // implicit
+  static_assert(is_same_v<decltype(bn1), decltype(bni)>);
+}
+
 // Adapted from example at
 // http://en.cppreference.com/w/cpp/experimental/boyer_moore_searcher
 void test_searchers()
@@ -763,6 +790,7 @@ int main()
   test_arithmetic_operations();
   test_comparisons();
   test_logical_operations();
+  test_bit_operations();
   test_searchers();
   test_wstring_convert();
   test_deque();
