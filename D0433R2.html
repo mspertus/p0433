@@ -575,7 +575,14 @@ add the following <em>deduction-guide</em>:
 <blockquote><pre>    void clear() noexcept;
   };
   
-<span class="ins">  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+<span class="ins">  template&lt;class Allocator&gt; deque(Alloc)
+    -&gt; deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  
+  template&lt;class Allocator&gt; 
+  deque(typename deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
+    -&gt; deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  
+  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   deque(InputIterator, InputIterator,
         const Allocator&amp; = Allocator())
     -&gt; deque&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
