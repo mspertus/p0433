@@ -1864,6 +1864,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 #endif
     };
 
+  template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    list(_Alloc)
+      -> list<typename allocator_traits<_Alloc>::value_type, _Alloc>;
+
+  template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    list(typename list<typename allocator_traits<_Alloc>::value_type, _Alloc>::size_type, _Alloc)
+      -> list<typename allocator_traits<_Alloc>::value_type, _Alloc>;
+  
   // Workaround gcc bug 79316
   template<typename _InputIterator,
 	   typename  allocator_type,
