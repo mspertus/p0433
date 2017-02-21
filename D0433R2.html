@@ -635,6 +635,7 @@ add the following <em>deduction-guide</em>:
   vector(InputIterator, InputIterator,
          const Allocator&amp; = Allocator())
     -&gt; vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
+	Note that with the above guides <tt>vector&lt;bool&gt;</tt> behaves properly as well.
 <h3>&sect;23.4 [associative]</h3>
 First, we note that associative containers cannot always deduce their template parameters from an initializer list as illustrated by
 	the following code.
