@@ -540,6 +540,30 @@ void test_vector() // Explicit
   static_assert(is_same_v<decltype(v10), vector<int>>);
   vector v11({ 1, 2, 3, 4, 5}, scoped_allocator_adaptor<allocator<int>>()); // implicit
   static_assert(is_same_v<decltype(v11), vector<int, scoped_allocator_adaptor<allocator<int>>>>);
+
+  // vector<bool>
+  vector vb1{allocator<bool>()}; 
+  static_assert(is_same_v<decltype(vb1), vector<bool, allocator<bool>>>);
+  auto vb2 = vector(3ul, std::allocator<bool>());
+  static_assert(is_same_v<decltype(vb2), vector<bool, allocator<bool>>>);
+  vector vb3(3, true, allocator<bool>());
+  static_assert(is_same_v<decltype(vb3), vector<bool, allocator<bool>>>);;
+  vector vb4(vb1.begin(), vb1.end()); 
+  static_assert(is_same_v<decltype(vb4), decltype(vb1)>);
+  vector vb5(vb1.begin(), vb1.end(), scoped_allocator_adaptor<allocator<bool>>()); 
+  static_assert(is_same_v<decltype(vb5), vector<bool, scoped_allocator_adaptor<allocator<bool>>>>);
+  vector vb6 = vb2;
+  static_assert(is_same_v<decltype(vb6), decltype(vb2)>);
+  vector vb7 = move(vb1);
+  static_assert(is_same_v<decltype(vb7), decltype(vb1)>);
+  vector vb8 = {vb2, allocator<bool>()};
+  static_assert(is_same_v<decltype(vb8), decltype(vb2)>);
+  vector vb9 = {move(vb7), allocator<bool>()};
+  static_assert(is_same_v<decltype(vb9), decltype(vb7)>);
+  vector vb10({ false, true, true});
+  static_assert(is_same_v<decltype(vb10), vector<bool>>);
+  vector vb11({ false, true, true}, scoped_allocator_adaptor<allocator<bool>>());
+  static_assert(is_same_v<decltype(vb11), vector<bool, scoped_allocator_adaptor<allocator<bool>>>>);
 }
   
 void test_map()
