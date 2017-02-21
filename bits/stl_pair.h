@@ -426,7 +426,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename T1, typename T2>
-    pair(const T1&, const T2&) -> pair<decay_t<T1>, decay_t<T2>>;
+  pair(T1, T2) -> pair<T1, T2>;
 
   /// Two pairs of the same type are equal iff their members are equal.
   template<typename _T1, typename _T2>

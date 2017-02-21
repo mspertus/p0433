@@ -1248,15 +1248,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
     template<typename ..._El>
-      tuple(const _El& ...) -> tuple<decay_t<_El> ...>;
+      tuple(const _El...) -> tuple<_El...>;
     template<typename T1, typename T2>
-      tuple(const pair<T1, T2>&) -> tuple<T1, T2>;
+      tuple(pair<T1, T2>) -> tuple<T1, T2>;
     template<typename _Alloc, typename ..._El>
-      tuple(allocator_arg_t, const _Alloc&, const _El&...) -> tuple<decay_t<_El> ...>;
+      tuple(allocator_arg_t, _Alloc, _El...) -> tuple<_El...>;
     template<typename _Alloc, typename T1, typename T2>
-      tuple(allocator_arg_t, const _Alloc&, const pair<T1, T2>&) -> tuple<T1, T2>;
+      tuple(allocator_arg_t, _Alloc, pair<T1, T2>) -> tuple<T1, T2>;
     template<typename _Alloc, typename ... _El>
-      tuple(allocator_arg_t, const _Alloc&, const tuple<_El...>&) -> tuple<_El...>;
+      tuple(allocator_arg_t, _Alloc, tuple<_El...>) -> tuple<_El...>;
 
   /// class tuple_size
   template<typename... _Elements>

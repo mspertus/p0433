@@ -73,10 +73,12 @@ void test_initializer_list()
   static_assert(is_same_v<decltype(il3), IL<int>>);
 }
 
-void test_pair() // Explicit
+void test_pair() // Explicit  20.4
 {
   // Some odd seeming tests are to make sure N4387 is not causing any trouble
-  pair p(3, 7.5);  // explicit (Don't label most of the followign as they use same constructor)
+  pair p(3, 7.5);  // explicit (Don't label most of the following as they use same constructor)
+  int r;
+  cout << __cxa_demangle(typeid(p).name(), nullptr, nullptr, &r) << endl;
   static_assert(is_same_v<decltype(p), pair<int, double>>);
   pair p2 = { 10, -15};   // See N4387
   static_assert(is_same_v<decltype(p2), pair<int, int>>);
@@ -96,7 +98,7 @@ void test_pair() // Explicit
 }
 
 
-void test_tuple()
+void test_tuple()  // Explicit 20.5
 {
   // Some odd seeming tests are to make sure N4387 is not causing any trouble
   tuple p1(3, 7.5, 1);
@@ -231,7 +233,7 @@ void test_weak_ptr()
 
 void test_owner_less() // Implicit
 {
-  // owner_less ol{};  // implicit Resolve: Why doesn't this work?
+  // owner_less ol{};  // implicit Resolve: Accepted by clang but not g++
   owner_less<shared_ptr<int>> oli;
   owner_less ol2 = oli; // implicit
   static_assert(is_same_v<decltype(ol2), decltype(oli)>);
@@ -269,37 +271,37 @@ void test_reference_wrapper() // Implicit
 void test_arithmetic_operations() // 20.14.6
 {
   // class plus: Implicit
-  // plus p1{};  // implicit Resolve: Why doesn't this work?
+  // plus p1{};  // implicit Resolve: Accepted by clang but not g++
   plus<int> pi;
   plus p1  = pi; // implicit
   static_assert(is_same_v<decltype(p1), decltype(pi)>);
 
   // class minus: Implicit
-  // minus m1{};  // implicit Resolve: Why doesn't this work?
+  // minus m1{};  // implicit Resolve: Accepted by clang but not g++
   minus<int> mi;
   minus m1  = mi; // implicit
   static_assert(is_same_v<decltype(m1), decltype(mi)>);
 
   // class multiplies: Implicit
-  // multiplies mu1{};  // implicit Resolve: Why doesn't this work?
+  // multiplies mu1{};  // implicit Resolve: Accepted by clang but not g++
   multiplies<int> mui;
   multiplies mu1  = mui; // implicit
   static_assert(is_same_v<decltype(mu1), decltype(mui)>);
 
   // class divides: Implicit
-  // divides d1{};  // implicit Resolve: Why doesn't this work?
+  // divides d1{};  // implicit Resolve: Accepted by clang but not g++
   divides<int> di;
   divides d1  = di; // implicit
   static_assert(is_same_v<decltype(d1), decltype(di)>);
 
   // class modulus: Implicit
-  // modulus mo1{};  // implicit Resolve: Why doesn't this work?
+  // modulus mo1{};  // implicit Resolve: Accepted by clang but not g++
   modulus<int> moi;
   modulus mo1  = moi; // implicit
   static_assert(is_same_v<decltype(mo1), decltype(moi)>);
 
   // class negate: Implicit
-  // negate n1{};  // implicit Resolve: Why doesn't this work?
+  // negate n1{};  // implicit Resolve: Accepted by clang but not g++
   negate<int> ni;
   negate n1  = ni; // implicit
   static_assert(is_same_v<decltype(n1), decltype(ni)>);  
@@ -308,37 +310,37 @@ void test_arithmetic_operations() // 20.14.6
 void test_comparisons() // 20.14.7
 {
   // class equal_to: Implicit
-  // equal_to et1{};  // implicit Resolve: Why doesn't this work?
+  // equal_to et1{};  // implicit Resolve: Accepted by clang but not g++
   equal_to<int> eti;
   equal_to et1  = eti; // implicit
   static_assert(is_same_v<decltype(et1), decltype(eti)>);
 
   // class not_equal_to: Implicit
-  // not_equal_to net1{};  // implicit Resolve: Why doesn't this work?
+  // not_equal_to net1{};  // implicit Resolve: Accepted by clang but not g++
   not_equal_to<int> neti;
   not_equal_to net1  = neti; // implicit
   static_assert(is_same_v<decltype(net1), decltype(neti)>);
 
   // class greater: Implicit
-  // greater g1{};  // implicit Resolve: Why doesn't this work?
+  // greater g1{};  // implicit Resolve: Accepted by clang but not g++
   greater<int> gi;
   greater g1  = gi; // implicit
   static_assert(is_same_v<decltype(g1), decltype(gi)>);
 
   // class less : Implicit
-  // less l1{};  // implicit Resolve: Why doesn't this work?
+  // less l1{};  // implicit Resolve: Accepted by clang but not g++
   less<int> li;
   less l1  = li; // implicit
   static_assert(is_same_v<decltype(l1), decltype(li)>);
 
   // class greater_equal: Implicit
-  // greater_equal ge1{};  // implicit Resolve: Why doesn't this work?
+  // greater_equal ge1{};  // implicit Resolve: Accepted by clang but not g++
   greater_equal<int> gei;
   greater_equal ge1  = gei; // implicit
   static_assert(is_same_v<decltype(ge1), decltype(gei)>);
 
   // class less_equal: Implicit
-  // less_equal le1{};  // implicit Resolve: Why doesn't this work?
+  // less_equal le1{};  // implicit Resolve: Accepted by clang but not g++
   less_equal<int> lei;
   less_equal le1  = lei; // implicit
   static_assert(is_same_v<decltype(le1), decltype(lei)>);
@@ -347,19 +349,19 @@ void test_comparisons() // 20.14.7
 void test_logical_operations() // 20.14.8
 {
   // class logical_and: Implicit
-  // logical_and la1{};  // implicit Resolve: Why doesn't this work?
+  // logical_and la1{};  // implicit Resolve: Accepted by clang but not g++
   logical_and<int> lai;
   logical_and la1  = lai; // implicit
   static_assert(is_same_v<decltype(la1), decltype(lai)>);
 
   // class logical_or: Implicit
-  // logical_or lo1{};  // implicit Resolve: Why doesn't this work?
+  // logical_or lo1{};  // implicit Resolve: Accepted by clang but not g++
   logical_or<int> loi;
   logical_or lo1  = loi; // implicit
   static_assert(is_same_v<decltype(lo1), decltype(loi)>);
 
   // class logical_not: Implicit
-  // logical_not ln1{};  // implicit Resolve: Why doesn't this work?
+  // logical_not ln1{};  // implicit Resolve: Accepted by clang but not g++
   logical_not<int> lni;
   logical_not ln1  = lni; // implicit
   static_assert(is_same_v<decltype(ln1), decltype(lni)>);
@@ -368,25 +370,25 @@ void test_logical_operations() // 20.14.8
 void test_bit_operations() // 20.14.9
 {
   // class bit_and: Implicit
-  // bit_and ba1{};  // implicit Resolve: Why doesn't this work?
+  // bit_and ba1{};  // implicit Resolve: Accepted by clang but not g++
   bit_and<int> bai;
   bit_and ba1  = bai; // implicit
   static_assert(is_same_v<decltype(ba1), decltype(bai)>);
 
   // class bit_or: Implicit
-  // bit_or bo1{};  // implicit Resolve: Why doesn't this work?
+  // bit_or bo1{};  // implicit Resolve: Accepted by clang but not g++
   bit_or<int> boi;
   bit_or bo1  = boi; // implicit
   static_assert(is_same_v<decltype(bo1), decltype(boi)>);
 
   // class bit_xor: Implicit
-  // bit_xor bx1{};  // implicit Resolve: Why doesn't this work?
+  // bit_xor bx1{};  // implicit Resolve: Accepted by clang but not g++
   bit_xor<int> bxi;
   bit_xor bx1  = bxi; // implicit
   static_assert(is_same_v<decltype(bx1), decltype(bxi)>);
 
   // class bit_not: Implicit
-  // bit_not bn1{};  // implicit Resolve: Why doesn't this work?
+  // bit_not bn1{};  // implicit Resolve: Accepted by clang but not g++
   bit_not<int> bni;
   bit_not bn1  = bni; // implicit
   static_assert(is_same_v<decltype(bn1), decltype(bni)>);
