@@ -527,10 +527,15 @@ All of the headers in &sect;23 are listed in
     <tr><td>23.5</td><td>Unordered associative containers</td><td><tt>&lt;unordered_map&gt;<br>&lt;unordered_set&gt;</tt></td></tr>
     <tr><td>23.6</td><td>Container adaptors</td><td><tt>&lt;queue&gt;<br>&lt;stack&gt;</tt></td></tr>
     </tbody></table>
-The only wording change in &sect;23 is to add deduction guides for constructing
+Wording changes are needed in &sect;23 for two purposes
+<ol><li>Add deduction guides for constructing
 containers from iterators as described in &ldquo;Explicitly specified Deduction Guides&rdquo;
-in <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html">P0091R3</a>,
-but we have to make that change many times as follows:
+	in <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html">P0091R3</a></li>
+	<li>Prevent allocators from confusing things (as is their wont). As Zhihao Yuan has pointed out,
+		with only implicit guides, 
+		<span style="white-space:nowrap"><tt>vector(5, allocator&lt;int&gt;())</tt></span> would, presumably unintentionally, deduce
+	<tt>vector&lt;allocator&lt;int&gt;&gt;</tt></li></ol>
+but we have to make those changes many times as follows:
 <h3>&sect;23.2 [container.requirements]</h3>
 Modify &sect;23.2.3p14 [sequence.reqmts] as follows:
 <blockquote>For every sequence container defined in this clause and in clause 21:
@@ -598,7 +603,14 @@ add the following <em>deduction-guide</em>:
 <blockquote><pre>    void clear() noexcept;
   };
   
-<span class="ins">  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+<span class="ins">  template&lt;class Allocator&gt; vector(Alloc)
+    -&gt; vector&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  
+  template&lt;class Allocator&gt; 
+  vector(typename vector&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
+    -&gt; vector&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  
+  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   vector(InputIterator, InputIterator,
          const Allocator&amp; = Allocator())
     -&gt; vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
