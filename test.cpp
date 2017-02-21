@@ -7,6 +7,7 @@
 #include<vector>
 #include<scoped_allocator>
 #include<functional>
+#include<chrono>
 #include<string_view>
 #include<locale>
 #include<codecvt>
@@ -465,20 +466,30 @@ void test_list()
   static_assert(is_same_v<decltype(d3), list<int>>);
 }
   
-void test_vector()
+void test_vector() // Explicit
 {
-  vector d1({ 1, 2, 3, 4, 5});
-  static_assert(is_same_v<decltype(d1), vector<int>>);
-  vector d2(d1.begin(), d1.end());
-  static_assert(is_same_v<decltype(d2), vector<int>>);
-  vector d3 = d2;
-  static_assert(is_same_v<decltype(d3), vector<int>>);
-  // Zhihao examples
-  auto v1 = vector(3ul, std::allocator<int>());
-  int result;
-  cout << __cxa_demangle(typeid(v1).name(), nullptr, nullptr, &result) << endl;
-  auto v2 = vector(3ul, 4, std::allocator<int>());
-  cout << __cxa_demangle(typeid(v2).name(), nullptr, nullptr, &result) << endl;
+  vector v1{allocator<string>()}; // explicit
+  static_assert(is_same_v<decltype(v1), vector<string, allocator<string>>>);
+  auto v2 = vector(3ul, std::allocator<int>());  // explicit
+  static_assert(is_same_v<decltype(v2), vector<int, allocator<int>>>);
+  vector v3(3, 'c', allocator<char>()); // implicit
+  static_assert(is_same_v<decltype(v3), vector<char, allocator<char>>>);
+  vector v4(v1.begin(), v1.end()); // explicit
+  static_assert(is_same_v<decltype(v4), decltype(v1)>);
+  vector v5(v1.begin(), v1.end(), scoped_allocator_adaptor<allocator<string>>()); // same as previous once gcc bug 79316 resolved
+  static_assert(is_same_v<decltype(v5), vector<string, scoped_allocator_adaptor<allocator<string>>>>);
+  vector v6 = v2; // implicit
+  static_assert(is_same_v<decltype(v6), decltype(v2)>);
+  vector v7 = move(v1); // implicit
+  static_assert(is_same_v<decltype(v7), decltype(v1)>);
+  vector v8 = {v2, allocator<int>()}; // implicit
+  static_assert(is_same_v<decltype(v8), decltype(v2)>);
+  vector v9 = {move(v7), allocator<string>()}; // implicit
+  static_assert(is_same_v<decltype(v9), decltype(v7)>);
+  vector v10({ 1, 2, 3, 4, 5}); // implicit
+  static_assert(is_same_v<decltype(v10), vector<int>>);
+  vector v11({ 1, 2, 3, 4, 5}, scoped_allocator_adaptor<allocator<int>>()); // implicit
+  static_assert(is_same_v<decltype(v11), vector<int, scoped_allocator_adaptor<allocator<int>>>>);
 }
   
 void test_map()

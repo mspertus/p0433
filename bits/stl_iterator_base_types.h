@@ -232,6 +232,72 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       enable_if<is_convertible<typename
 		iterator_traits<_InIter>::iterator_category,
 			       input_iterator_tag>::value>::type;
+  // Based on
+template <class T>
+struct __has_allocate
+{
+private:
+  template <class U> static std::false_type test(...);
+  template <class U> static std::true_type test(decltype(std::declval<U>().allocate(0)));
+public:
+  enum { value = decltype(test<T>(0))::value };
+};
+
+
+template <class T>
+struct __has_value_type
+{
+private:
+  template <class U> static std::false_type test(...);
+  template <class U> static std::true_type test(typename U::value_type*);
+public:
+  enum { value = decltype(test<T>(0))::value };
+};
+
+
+template <class T, bool HasAllocate = __has_allocate<T>::value>
+struct __has_deallocate
+{
+private:
+
+  typedef decltype(std::declval<T>().allocate(0)) pointer;
+
+  template <class Alloc, class Pointer>
+  static auto
+    test(Alloc&& a, Pointer&& p)
+    -> decltype(a.deallocate(p, 0), std::true_type());
+
+  template <class Alloc, class Pointer>
+  static auto
+    test(const Alloc& a, Pointer&& p)
+    ->std::false_type;
+
+public:
+  enum { value = decltype(test<T>(std::declval<T>(), std::declval<pointer>()))::value };
+};
+
+
+template <class T>
+struct __has_deallocate<T, false>
+{
+  enum { value = false };
+};
+
+
+
+
+template <class T>
+struct __is_allocator
+{
+  enum {
+    value = __has_value_type<T>::value
+    && __has_allocate<T>::value
+    && __has_deallocate<T>::value
+  };
+};
+
+template<typename T> constexpr bool __is_allocator_v = __is_allocator<T>::value;
+
 #endif
 
 _GLIBCXX_END_NAMESPACE_VERSION
