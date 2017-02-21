@@ -438,14 +438,30 @@ void test_wstring_convert()
   // cout << str << endl;
 }
 
-void test_deque()
+void test_deque() // Explicit 23.3.8
 {
-  deque d1({ 1, 2, 3, 4, 5});
-  static_assert(is_same_v<decltype(d1), deque<int>>);
-  deque d2(d1.begin(), d1.end());
-  static_assert(is_same_v<decltype(d2), deque<int>>);
-  deque d3 = d2;
-  static_assert(is_same_v<decltype(d3), deque<int>>);
+  deque v1{allocator<string>()}; // explicit
+  static_assert(is_same_v<decltype(v1), deque<string, allocator<string>>>);
+  auto v2 = deque(3ul, std::allocator<int>());  // explicit
+  static_assert(is_same_v<decltype(v2), deque<int, allocator<int>>>);
+  deque v3(3, 'c', allocator<char>()); // implicit
+  static_assert(is_same_v<decltype(v3), deque<char, allocator<char>>>);
+  deque v4(v1.begin(), v1.end()); // explicit
+  static_assert(is_same_v<decltype(v4), decltype(v1)>);
+  deque v5(v1.begin(), v1.end(), scoped_allocator_adaptor<allocator<string>>()); // same as previous once gcc bug 79316 resolved
+  static_assert(is_same_v<decltype(v5), deque<string, scoped_allocator_adaptor<allocator<string>>>>);
+  deque v6 = v2; // implicit
+  static_assert(is_same_v<decltype(v6), decltype(v2)>);
+  deque v7 = move(v1); // implicit
+  static_assert(is_same_v<decltype(v7), decltype(v1)>);
+  deque v8 = {v2, allocator<int>()}; // implicit
+  static_assert(is_same_v<decltype(v8), decltype(v2)>);
+  deque v9 = {move(v7), allocator<string>()}; // implicit
+  static_assert(is_same_v<decltype(v9), decltype(v7)>);
+  deque v10({ 1, 2, 3, 4, 5}); // implicit
+  static_assert(is_same_v<decltype(v10), deque<int>>);
+  deque v11({ 1, 2, 3, 4, 5}, scoped_allocator_adaptor<allocator<int>>()); // implicit
+  static_assert(is_same_v<decltype(v11), deque<int, scoped_allocator_adaptor<allocator<int>>>>);
 }
   
 void test_forward_list()
