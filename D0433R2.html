@@ -1,0 +1,952 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+  <style type="text/css">
+
+.comment { color: #999999; font-style: italic; }
+.pre { color: #000099; }
+.string { color: #009900; }
+.char { color: #009900; }
+.float { color: #996600; }
+.int { color: #999900; }
+.bool { color: #000000; font-weight: bold; }
+.type { color: #FF6633; }
+.flow { color: #FF0000; }
+.keyword { color: #990000; }
+.operator { color: #663300; font-weight: bold; }
+.operator { color: #663300; font-weight: bold; }
+pre.code {
+    border: 2px solid #666;
+    background-color: #F4F4F4;
+    padding-left: 10px;
+    padding-top: 0px;
+}
+code {
+    border: 2px solid #d0d0d0;
+    background-color: LightYellow;
+    padding: 2px;
+    padding-left: 10px;
+    display:table;
+    white-space:pre;
+    margin:2px;
+    margin-bottom:10px;
+}
+dt {
+    font-weight: bold;
+}
+.ins {
+    background-color:#A0FFA0;
+}
+.del {
+    background-color:#FFA0A0;
+    text-decoration:line-through
+}
+.TODO {
+    background-color: LightYellow;
+    color: red;
+}
+	  
+</style>
+
+<title>Toward a resolution of US7 and US14: Integrating template
+deduction for class templates into the standard library</title>
+</head>
+
+<body>
+<p>Document number: P00433R1 <br>
+Date: 2017-02-06<br>
+Reply-To:<br>
+&nbsp;&nbsp;&nbsp;Mike Spertus, Symantec (<a href="mailto:mike_spertus@symantec.com">mike_spertus@symantec.com</a>)<br>
+&nbsp;&nbsp;&nbsp;Walter E. Brown<a href="mailto:webrown.cpp@gmail.com"> (webrown.cpp@gmail.com</a>)<br>
+Audience: {Library Evolution, Library} Working Group
+</p>
+
+<h1>Toward a resolution of US7 and US14: Integrating template
+deduction for class templates into the standard library</h1>
+<h2>Introduction</h2>
+<p>
+National body comments US7 and US14 request analysis of the standard library 
+to determine what changes might be desirable
+in light of the C++17 adoption of <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html">P0091R3</a>
+(Template argument deduction for class templates (rev. 6)).
+In this paper, we perform such an analysis and recommend wording changes
+for the standard library clauses.
+</p>
+<a name="Background"></a><h1>Background</h1>
+General background is provided in <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0433r0.html">P0433R0</a>.
+We list here new items not reflected in that paper.
+<ul>
+	<li>A sample implementation is available at <a href="https://github.com/mspertus/p0433">https://github.com/mspertus/p0433</a>. The primary impressions from implementation experience are that classes focused on a particular &ldquo;application domain&rdquo;
+		generally work just as one would hope without any changes, which we believe bodes well for C++ programmers developing
+		applications. E.g.,
+		<code>string needle = "foo";
+auto bms = boyer_moore_searcher(needle.begin(), needle.end());
+gamma_distribution gdf{2.5f, .7f};
+</code> while heavily-metaprogrammed STL classes (e.g., <tt>vector</tt>) generally require some explicit deduction guides but
+	that generally proved straightforward. Adapting the entire standard library took about 40 hours, most of which was
+	spent on writing test cases.</li>
+	<li>P0091R4 discusses some possible language extensions. Our recommendations in this paper for integrating template
+		deduction for class templates are not affected in any way
+	by the adoption or non-adoption of the extensions in that paper. However, it should be noted that these language extensions
+	were motivated by experience with the standard library. See the next bullet as well as the discussion of <tt>valarray</tt>
+	below for more information.</li>
+	<li>As has been noted multiple times on the reflector, scenarios like the following can arise with standard library types
+	that act as containers for values (e.g., <tt>optional</tt>):
+<code>optional o(3);  <span class="comment">// Deduces optional&lt;int&gt;</span>
+optional o2 = o;  <span class="comment">// Deduces optional&lt;int&gt;</span></code></li>
+
+ However, note that writers of template libraries may have to continue to specify some
+	object constructions in the traditional fashion as illustrated here:
+<code>template&lt;typename T&gt; void foo(T t)
+{
+  optional o = t; <span class="comment">// T=optional&lt;int&gt; => o is optional&lt;int&gt;, which may not be desired in generic code</span>
+  optional&lt;T&gt; o2 = t; <span class="comment">// o2 is optional&lt;optional&lt;int&gt;&gt;</span>
+}</code>
+We feel this is the right tradeoff as application programmers consuming template libraries get full benefit
+of deduction and template library writers are not worse off than in C++14. P0091R4 suggests a language
+extension to extend deduction to the example above. However, note that this does not impact the present proposal.</ul>
+<h1>Wording</h1>
+The remainder of this paper walks through the 
+standard library clauses and proposes wording changes to take advantage of template 
+deduction for class templates. 
+Even where no wording changes are required, we sometimes call out classes 
+that benefit from implicitly
+generated deduction guides. Note that library vendors may choose to add additional explicit
+ deduction guides to maintain the &ldquo;as-if&rdquo; rule. See &sect;21 below for an example of this.
+<h2>&sect;17 [library]</h2>
+    This clause requires no changes
+    because it specifies only C libraries and so no class templates are involved.
+
+<h2>&sect;18 [language.support]</h2>
+    No changes are required to &sect;18 [language.support].
+
+    <p>
+    <b>Rationale:</b> All of the headers in &sect;18 are listed in
+    &ldquo;Table 30 &mdash; Language support library summary&rdquo; in &sect;18.1
+    [support.general]:
+    </p>
+
+    <table border="1"><tbody><tr><th></th><th>Subclause</th><th>Header(s)</th></tr>
+    <tr><td>18.2</td><td>Common definitions</td><td><tt>&lt;cstddef&gt;</tt></td></tr>
+    <tr><td>18.3</td><td>Implementation properties</td><td><tt>&lt;limits&gt;<br>&lt;climits&gt;<br>&lt;cfloat&gt;</tt></td></tr><tr><td>18.4</td><td>Integer types</td><td><tt>&lt;cstdint&gt;</tt></td></tr>
+    <tr><td>18.5</td><td>Start and termination</td><td><tt>&lt;cstdlib&gt;</tt></td></tr>
+    <tr><td>18.6</td><td>Dynamic memory management</td><td><tt>&lt;new&gt;</tt></td></tr>
+    <tr><td>18.7</td><td>Type identification</td><td><tt>&lt;typeinfo&gt;</tt></td></tr>
+    <tr><td>18.8</td><td>Exception handling</td><td><tt>&lt;exception&gt;</tt></td></tr>
+    <tr><td>18.9</td><td>Initializer lists</td><td><tt>&lt;initializer_list&gt;</tt></td></tr>
+    <tr><td>18.10</td><td>Other runtime support</td><td><tt>&lt;csignal&gt;<br>&lt;csetjmps&gt;<br>&lt;cstdalign&gt;<br>&lt;cstdarg&gt;<br>&lt;cstdbool&gt;<br>&lt;cstdlib&gt;</tt></td></tr>
+    </tbody></table>
+
+    <h3><tt>&lt;limits&gt;</tt></h3>
+    The only class template in <tt>&lt;limits&gt;</tt>
+    is <tt>numeric_limits</tt>.
+    It has no non-default constructors (and only static members),
+    so no changes are needed.
+
+    <h3><tt>&lt;intializer_list&gt;</tt></h3>
+    The &lt;initializer_list&gt; class template
+    has only a default constructor
+    and &ldquo;magic&rdquo; construction
+    (from braced initializer lists)
+    that already does template constructor deduction,
+    so no changes are required.
+
+    <h3>Remaining headers in this clause</h3>
+    None of the <tt>&lt;c&hellip;&gt;</tt> headers or <tt>&lt;new&gt;</tt>,
+    <tt>&lt;typeinfo&gt;</tt>, or <tt>&lt;exception&gt;</tt> define class templates,
+    so they are unaffected by template constructor deduction.
+
+<h2>&sect;19 [diagnostics]</h2>
+    No changes are required to &sect;19 [diagnostics].<p>
+
+    <b>Rationale:</b> All of the headers in &sect;19 are listed in
+    &ldquo;Table 31 &mdash; Diagnostics library summary&rdquo; in &sect;19.1:
+    </p><table border="1"><tbody><tr><th></th><th>Subclause</th><th>Header(s)</th></tr>
+    <tr><td>19.2</td><td>Exception classes</td><td><tt>&lt;stdexcept&gt;</tt></td></tr>
+    <tr><td>19.3</td><td>Assertions</td><td><tt>&lt;cassert&gt;</tt></td></tr>
+    <tr><td>19.4</td><td>Error numbers</td><td><tt>&lt;cerrno&gt;</tt></td></tr>
+    <tr><td>19.5</td><td>System error support</td><td><tt>&lt;system_error&gt;</tt></td></tr>
+    </tbody></table>
+
+    <h3><tt>&lt;stdexcept&gt;</tt>,
+    <tt>&lt;cassert&gt;</tt>,
+    <tt>&lt;cerrno&gt;</tt></h3>
+    <p>
+    None of these define any class templates,
+    so they are unaffected by template constructor deduction.
+    </p>
+
+    <h3><tt>&lt;system_error&gt;</tt></h3>
+    <p>
+    This header defines the class templates <tt>is_error_code_enum</tt>,
+    <tt>is_error_condition_enum</tt>,
+    and specializations of <tt>std::hash</tt>,
+    all of which have  only default constructors.
+    </p>
+
+<h2>&sect;20 [utilities]</h2>
+    No changes are required to &sect;19 [diagnostics].<p>
+
+    <b>Rationale:</b> All of the headers in &sect;20 are listed in
+    &ldquo;Table 32 &mdash; General utilities library summary&rdquo; in &sect;20.1:
+    </p><table border="1"><tbody><tr><th></th><th>Subclause</th><th>Header(s)</th></tr>
+    <tr><td>20.2</td><td>Utilities components</td><td><tt>&lt;utility&gt;</tt></td></tr>
+    <tr><td>20.3</td><td>Compile-time integer sequences</td><td><tt>&lt;utility&gt;</tt></td></tr>
+    <tr><td>20.4</td><td>Pairs</td><td><tt>&lt;utility&gt;</tt></td></tr>
+    <tr><td>20.5</td><td>Tuples</td><td><tt>&lt;tuple&gt;</tt></td></tr>
+    <tr><td>20.6</td><td>Optional objects</td><td><tt>&lt;optional&gt;</tt></td></tr>
+    <tr><td>20.7</td><td>Variants</td><td><tt>&lt;variant&gt;</tt></td></tr>
+    <tr><td>20.8</td><td>Storage for any type</td><td><tt>&lt;any&gt;</tt></td></tr>
+    <tr><td>20.9</td><td>Fixed-size sequences of bits</td><td><tt>&lt;bitset&gt;</tt></td></tr>
+    <tr><td>20.10</td><td>Memory</td><td><tt>&lt;memory&gt;<br>&lt;cstdlib&gt;</tt></td></tr>
+    <tr><td>20.11</td><td>Smart pointers</td><td><tt>&lt;memory&gt;</tt></td></tr>
+    <tr><td>20.12</td><td>Memory resources</td><td><tt>&lt;memory_resource&gt;</tt></td></tr>
+    <tr><td>20.13</td><td>Scoped allocators</td><td><tt>&lt;scoped_allocator&gt;</tt></td></tr>
+    <tr><td>20.14</td><td>Function objects</td><td><tt>&lt;functional&gt;</tt></td></tr>
+    <tr><td>20.15</td><td>Type traits</td><td><tt>&lt;type_traits&gt;</tt></td></tr>
+    <tr><td>20.16</td><td>Compile-time rational arithmetic</td><td><tt>&lt;ratio&gt;</tt></td></tr>
+    <tr><td>20.17</td><td>Time utilities</td><td><tt>&lt;chrono&gt;<br>&lt;ctime&gt;</tt></td></tr>
+    <tr><td>20.18</td><td>Type indexes</td><td><tt>&lt;typeindex&gt;</tt></td></tr>
+    <tr><td>20.19</td><td>Execution policies</td><td><tt>&lt;execution&gt;</tt></td></tr>
+    </tbody></table>
+
+<h3>&sect;20.2 [utility]</h3>
+    No changes are required in this subclause as it specifies no class templates.
+
+
+<h3>&sect;20.3 [intseq]</h3>
+    No changes are required in &sect;20.3.
+    Although <tt>integer_sequence</tt> is a class template,
+    it has no non-default constructors.
+    Interestingly, while the name <tt>make_integer_sequence</tt>
+    &ldquo;looks like&rdquo; a make function,
+    which is what the paper is trying to replace,
+    it is actually a type and therefore a different beast altogether.
+
+<h3>&sect;20.4 [pairs]</h3>
+ Per LWG, we no longer propose that the pair constructor unwrap <tt>reference_wrapper</tt>. We do
+	add the following guide which handles some cases missed by the implicit guide, including: Non-copyable arguments
+	(<tt>tuple&lt;const T&amp;...&gt;</tt> is excluded from overload resolution for non-copyable types) and
+	array to pointer conversion. This draft adopts Zhihao Yuan's suggestion of taking template parameters
+	by value to automatically get the decay.<p>
+Make the following change
+    to the definition
+    of <tt>std::pair</tt> in &sect;20.4.2 [pairs.pair]:
+
+    <blockquote><pre>    void swap(pair&amp; p) noexcept(<em>see below</em>);
+    };
+
+<span class="ins">  template&lt;class T1, class T2&gt;
+  pair(T1, T2) -&gt; pair&lt;T1, T2&gt;;</span>
+}</pre></blockquote>
+
+</p><h3>&sect;20.5 [tuple]</h3>
+<tt>tuple</tt> is handled similary to <tt>pair</tt>.    To accomplish that,
+    make the following change
+    to the definition
+    of <tt>std::tuple</tt> in &sect;20.5.2 [tuple.tuple]:
+
+    <blockquote><pre>    void swap(tuple&amp;) noexcept(<em>see below</em>);
+    };
+
+<span class="ins">  template&lt;class... UTypes&gt;
+    tuple(UTypes...) -&gt; tuple&lt;Utypes...&gt;;
+  template&lt;class T1, class T2&gt;
+    tuple(pair&lt;T1, T2&gt;) -&gt; tuple&lt;T1, T2&gt;;
+  template&lt;class Alloc, class... UTypes&gt;
+    tuple(allocator_arg_t, Alloc, UTypes...) -&gt; tuple&lt;Utypes...&gt;;
+  template&lt;class Alloc, class T1, class T2&gt;
+    tuple(allorcator_arg_t, Alloc, pair&lt;T1, T2&gt;) -&gt; tuple&lt;T1, T2&gt;;
+  template&lt;class Alloc, class... UTypes&gt;
+    tuple(allocator_arg_t, Alloc, UTypes...) -&gt; tuple&lt;Utypes...&gt;;</span>
+}</pre></blockquote>
+
+
+<h3>&sect;20.6 [optional]</h3>
+<tt>optional</tt> is handled similarly to pair.  Modify &sect;20.6.3 [optional.optional] as follows:
+<blockquote><pre>  T *val; <span class="comment">// exposition only</span>
+};
+<span class="ins">
+template&lt;class T&gt; optional(T&amp;&amp; t) -&gt; optional&lt;decay_t&lt;T&gt;&gt;;</span></pre></blockquote>
+
+	<b>Note:</b> See the <a href="#Background">Background</a> above for additional
+discussion of <tt>optional</tt>.
+
+
+<h3>&sect;20.7 [variant]</h3>
+No changes required in this subclause. Note that we do not expect <tt>variant</tt>s to leverage
+template type deduction for constructors (outside of copy and move constructors) because
+their <em>raison d'etre</em> is their ability to hold types beyond those they were
+initialized with.
+<h3>&sect;20.8 [any]</h3>
+    No changes are required in &sect;20.8
+    as it defines no class templates.
+<h3>&sect;20.9 [template.bitset]</h3>
+No changes required in this subclause. It would be tempting to have <tt>bitset("01101"s)</tt>
+deduce <tt>bitset&lt;5&gt;</tt>. However, we feel this is best left for a future proposal, likely
+after a clearer consensus around compile-time strings has been achieved.
+<h3>&sect;20.10 [memory]</h3>
+<tt>allocator</tt> requires no changes as only the copy constructor is
+	appropriate for deduction.
+
+<h3>&sect;20.11 [smartptr]</h3>
+The primary question we considered was whether code like the following should be valid:
+<code>int *ip = new int();
+unique_ptr uip{ip};  <scan class="comment">// Deduce unique_ptr&lt;int&gt;</scan></code>
+	On the positive side, the code is natural, useful (although not at object creation, when <tt>make_unique</tt> is
+	preferable), and we have already received
+	a request from the community for it. The downside is that it will fail to deduce an array type
+<code>int *ip = new int[5];
+unique_ptr uip{ip};  <scan class="comment">// Still deduces unique_ptr&lt;int&gt;</scan></code>
+If we do not desire deduction for <tt>unique_ptr</tt>, so that the risk of incorrectly deducing a non-array type
+	is eliminated, then no deduction guides need to be added. While we would value feedback from the committee, 
+	we suspect that programmers
+	using smart pointers instead of raw pointers would likely also prefer to avoid raw arrays, so
+	we think it is better to optimize for the far more typical case of non-array <tt>unique_ptr</tt>s,
+	as there are still good ways to create array <tt>unique-ptr</tt>s.
+<code>int *ip = new int;
+unique_ptr uip{ip};  <span class="comment">// Deduces unique_ptr&lt;int&gt;</span>
+unique_ptr&lt;int[]&gt; aip{new int[5]};  <span class="comment">// Ok. Deduces unique_ptr&lt;int[]&gt;</span>
+unique_ptr aip2{new int[5], default_delete&lt;int[]&gt;};  <span class="comment">// Ok. Deduces unique_ptr&lt;int[]&gt;</span>
+	
+	</code>
+At the end of the <tt>unique_ptr</tt> class definition in &sect;20.11.1.2 [unique.ptr.single],
+add the following:
+<blockquote><pre>    <span class="comment">// disable copy from lvalue</span>
+    unique_ptr(const unique_ptr&amp;) = delete;
+	unique_ptr&amp; operator=(const unique_ptr&amp;) = delete;
+  };
+ 
+<span class="ins"><span class="comment">  // 20.11.1.3.5, deduction guides</span>
+  template&lt;class T, class U = T&gt; unique_ptr(T*, default_delete&lt;U&gt; = default_delete&lt;T&gt;()) -&gt; unique_ptr&lt;U&gt;;
+  template&lt;class T, class V&gt; unique_ptr(T*, V) -&gt; unique_ptr&lt;T, V&gt;; 
+  template&lt;class U, class V&gt; unique_ptr(U, V) -&gt; unique_ptr&lt;typename pointer_traits&lt;V::pointer&gt;::element_type, V&gt;; </span>
+}</pre></blockquote>
+Add a section
+<blockquote><span class="ins"><b>20.11.1.3.5  <tt>unique_ptr</tt> deduction guides      [unique.ptr.deduction.guides]</b></span><br/>
+<pre><span class="ins">template&lt;class T, class V&gt;
+  unique_ptr(T*, V) -&gt; unique_ptr&lt;T, V&gt;;
+</span></pre>
+<blockquote><span class="ins"><em>Remarks: </em> This deduction guide shall not participate in overload resolution unless <tt>V::pointer</tt> is not valid 
+	or does not denote a type.</span></blockquote><pre><span class="ins">template&lt;class U, class V&gt;
+  unique_ptr(U, V) -&gt; unique_ptr&lt;typename pointer_traits&lt;V::pointer&gt;::element_type, V&gt;;
+</span></pre>
+<blockquote><span class="ins"><em>Remarks: </em> This deduction guide shall not participate in overload resolution unless <tt>V::pointer</tt> is valid and denotes a type.</span></blockquote></blockquote>
+For <tt>shared_ptr</tt>, make the following modifications to &sect;20.11.2.2 [util.smartptr.shared]:
+<blockquote><pre>  template&lt;class U&gt; bool owner_before(const shared_ptr&lt;U&gt;&amp; b) const;
+  template&lt;class U&gt; bool owner_before(const weak_ptr&lt;U&gt;&amp; b) const;
+};
+
+<span class="ins">template &lt;class T&gt; shared_ptr(T*) -&gt; shared_ptr&lt;T&gt;;
+template &lt;typename T, typename U&gt; shared_ptr(T*, default_delete&lt;U&gt;) -> shared_ptr&lt;U&gt;;
+template &lt;class T, class D&gt; shared_ptr(T*, D) -&gt;  shared_ptr&lt;T&gt;;
+template &lt;class T, class D, class A&gt; shared_ptr(T*, D, A) -&gt;  shared_ptr&lt;T&gt;;
+template &lt;class T, class U, class A&gt; shared_ptr(T*, default_delete&lt;U&gt;, A) -&gt;  shared_ptr&lt;U&gt;;
+template &lt;class T, class P&gt; shared_ptr(const shared_ptr&lt;T&gt;&amp;, P*) -&gt;  shared_ptr&lt;P&gt;;
+explicit template &lt;class T&gt; shared_ptr(const weak_ptr&lt;T&gt; &amp;) -&gt;  shared_ptr&lt;T&gt;;
+template &lt;class T, class D&gt; shared_ptr(unique_ptr&lt;T, D&gt;&amp;&amp;) -&gt;  shared_ptr&lt;T&gt;;</span></pre></blockquote>
+For <tt>weak_ptr</tt>, make the following modification to &sect;20.11.2.3 [util.smartptr.weak]
+<blockquote><pre>    template&lt;class U&gt; bool owner_before(const weak_ptr&lt;U&gt;&amp; b) const;
+  };
+  
+  <span class="ins">template&lt;class T&gt; weak_ptr(const shared_ptr&lt;T&gt;&amp;) -&gt; weak_ptr&lt;T&gt;;</span></pre></blockquote>
+<p>For completeness, <tt>owner_less</tt> relies on implicit deduction guides. <tt>enable_shared_from_this</tt> does
+	not really require any guides, but the implicit ones certainly do no harm.
+<h3>&sect;20.12 [memory.resource]</h3>
+No changes are required in this subclause as the <tt>polymorphic_allocator&lt;Tp&gt;</tt> constructors do not contain any information about <tt>Tp</tt> (except when constructed
+from other <tt>polymorphic_allocator</tt> objects, in which case deduction is properly
+done without any changes required)
+<h3>&sect;20.13 [allocator.adaptor]</h3>
+We supply an explicit deduction guide so that <tt>scoped_allocator_adaptor</tt> can
+deduce its outer allocator. At the end of the definition of class <tt>scoped_allocator_adaptor</tt>
+in &sect;20.13.1 [allocator.adaptor.syn], add
+<blockquote><pre>    scoped_allocator_adaptor select_on_container_copy_construction() const;
+  };
+ 
+<span class="ins">template&lt;class OuterAlloc, class... InnerAllocs&gt; scoped_allocator_adaptor(OuterAlloc&amp;&amp;, const InnerAllocs&amp;&amp;)
+  -&gt; scoped_allocator_adaptor&lt;decay_t&lt;OuterAlloc&gt;, decay_t&lt;InnerAllocs&gt;...&gt;;</span></pre></blockquote>If a different outer allocator is desired, then
+it can still be specified explicitly. 
+<h3>&sect;20.14 [function.objects]</h3>
+<tt>reference_wrapper</tt> benefits from template deduction for 
+constructors with no wording changes. 
+We suggest allowing <tt>function</tt> to deduce its template argument when initialized
+by a function or member pointer. Add the following deduction guides at the end of the
+class definition for <tt>function</tt> in &sect;20.14.12.2 [func.wrap.func]
+<blockquote><pre>    template&lt;class T&gt; const T* target() const noexcept;
+
+  };
+  
+<span class="ins">  template&lt;class R, class... ArgTypes&gt; 
+    function(R(*)(ArgTypes...)) -&gt; function&lt;R(ArgTypes...)&gt;;
+  template&lt;class R, class C, class... ArgTypes&gt;
+    function(R(C::*)(ArgTypes...)) -&gt; function&lt;R(C &amp;, ArgTypes...)&gt;;
+  template&lt;class R, class C, class... ArgTypes&gt; 
+    function(R(C::*)(ArgTypes...) const) -&gt; function&lt;R(C const &amp;, ArgTypes...)&gt;;
+  template&lt;class R, class C, class... ArgTypes&gt;
+    function(R(C::*)(ArgTypes...) volatile) -&gt; function&lt;R(C volatile &amp;, ArgTypes...)&gt;;
+  template&lt;class R, class C, class... ArgTypes&gt;
+    function(R(C::*)(ArgTypes...) const volatile) -&gt; function&lt;R(C const volatile &amp;, ArgTypes...)&gt;
+  template&lt;class R, class C&gt; function(R C::*)) -&gt;
+    function&lt;R&amp;(C &amp;)&gt;
+  template&lt;class R, class C&gt;
+    function(const R C::*)) -&gt; function&lt;const R&amp;(C const &amp;)&gt;
+  template&lt;class R, class C&gt;
+    function(volatile R C::*)) -&gt; function&lt;volatile R&amp;(volatile C &amp;)&gt;
+  template&lt;class R, class C&gt;
+    function(const volatile R C::*)) -&gt; function&lt;const volatile R&amp;(const volatile C &amp;)&gt;
+</span></pre></blockquote>
+<b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
+would be interested to see if the comittee agrees with having deduction guides for member
+pointers in addition to function pointers, and if so, whether these are the right choices.<p>
+Since template constructor deduction can be used to construct objects of type <tt>default_searcher</tt>, <tt>boyer_moore_searcher</tt>,
+and <tt>boyer_moore_horspool_searcher</tt>, we propose getting rid of the searcher creation functions by
+modifying &sect;20.14p2 as follows:
+</p><blockquote><pre>  <span class="comment">// 20.14.13 searchers:</span>
+  template&lt;class ForwardIterator, class BinaryPredicate = equal_to&lt;&gt;&gt;
+    class default_searcher;
+  template&lt;class RandomAccessIterator,
+              class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
+			  class BinaryPredicate = equal_to&lt;&gt;&gt;
+    class boyer_moore_searcher;
+  template&lt;class RandomAccessIterator,
+              class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
+			  class BinaryPredicate = equal_to&lt;&gt;&gt;
+    class boyer_moore_horspool_searcher;
+	
+<span class="del">  template&lt;class ForwardIterator, class BinaryPredicate = equal_to&lt;&gt;&gt;
+  default_searcher&lt;ForwardIterator, BinaryPredicate&gt;
+  make_default_searcher(ForwardIterator pat_first, ForwardIterator pat_last,
+	                      BinaryPredicate pred = BinaryPredicate());
+  template&lt;class RandomAccessIterator,
+              class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
+	          class BinaryPredicate = equal_to&lt;&gt;&gt;
+  boyer_moore_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;
+  make_boyer_moore_searcher(
+    RandomAccessIterator pat_first, RandomAccessIterator pat_last,
+	  Hash hf = Hash(), BinaryPredicate pred = BinaryPredicate());
+  template&lt;class RandomAccessIterator,
+              class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
+	          class BinaryPredicate = equal_to&lt;&gt;&gt;
+  boyer_moore_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;
+  make_boyer_moore_horspool_searcher(
+      RandomAccessIterator pat_first, RandomAccessIterator pat_last,
+	  Hash hf = Hash(), BinaryPredicate pred = BinaryPredicate());</span>
+    
+  <span class="comment">// 20.14.14, hash function primary template:</span>
+	</pre></blockquote>
+Delete &sect;20.14.13.1.1 [func.searchers.default.creation]
+<blockquote><span class="del"><b>2014.13.2.1  <tt>boyer_moore_searcher</tt> creation functions [func.searcher.boyer_moore.creation]</b></span>
+	<pre><span class="del">  template&lt;class ForwardIterator, class BinaryPredicate = equal_to&lt;&gt;&gt;
+  default_searcher&lt;ForwardIterator, BinaryPredicate&gt;
+  make_default_searcher(ForwardIterator pat_first, RandomAccessIterator pat_last,
+	                    BinaryPredicate pred = BinaryPredicate());</span></pre>
+<blockquote><span class="del"><em>Effects:</em> Equivalent to:</span><pre><span class="del">
+  return default_searcher&lt;ForwardIterator, BinaryPredicate&gt;(pat_first, pat_last, pred);</span></pre></blockquote></blockquote>
+Delete &sect;20.14.13.2.1 [func.searchers.boyer_moore.creation]
+<blockquote><span class="del"><b>2014.13.2.1  <tt>boyer_moore_searcher</tt> creation functions [func.searcher.boyer_moore.creation]</b></span>
+	<pre><span class="del">  template&lt;class RandomAccessIterator,
+           class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
+           class BinaryPredicate = equal_to&lt;&gt;&gt;
+  boyer_moore_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;
+  make_boyer_moore_searcher(
+    RandomAccessIterator pat_first, RandomAccessIterator pat_last,
+	  Hash hf = Hash(), BinaryPredicate pred = BinaryPredicate());</span></pre>
+<blockquote><span class="del"><em>Effects:</em> Equivalent to:</span><pre><span class="del">
+  return boyer_moore_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;(
+           pat_first, pat_last, hf, pred);</span></pre></blockquote></blockquote>
+Delete &sect;20.14.13.3.1 [func.searchers.boyer_moore_horspool.creation]
+<blockquote><span class="del"><b>2014.13.2.1  <tt>boyer_moore_searcher</tt> creation functions [func.searcher.boyer_moore.creation]</b></span>
+	<pre><span class="del">  template&lt;class RandomAccessIterator,
+           class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
+           class BinaryPredicate = equal_to&lt;&gt;&gt;
+  boyer_moore_horspool_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;
+  make_boyer_moore_horspool_searcher(
+    RandomAccessIterator pat_first, RandomAccessIterator pat_last,
+	  Hash hf = Hash(), BinaryPredicate pred = BinaryPredicate());</span></pre>
+<blockquote><span class="del"><em>Effects:</em> Equivalent to:</span><pre><span class="del">
+  return boyer_moore_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;(
+           pat_first, pat_last, hf, pred);</span></pre></blockquote></blockquote><p>
+</p><h3>&sect;20.15 [meta]</h3>
+Since the classes in this subclause are designed primarily for compile-time metaprogramming, they do not have
+constructors that require special treatment as a result of template deduction for constructors.
+
+<h3>&sect;20.16 [ratio]</h3>
+Since the classes in this subclause are designed primarily for compile-time metaprogramming, they do not have
+constructors that require special treatment as a result of template deduction for constructors.
+
+<h3>&sect;20.17 [time]</h3>
+No wording changes necessary for &sect;20.17 to leverage template 
+deduction for constructors. Constructs like <tt>duration(5L)</tt> behave as expected
+from the compiler-generated implicit deduction guides..
+<h3>&sect;20.18 [type.index]</h3>
+There are no class templates defined in this subclause, so nothing to do.
+
+<h3>&sect;20.19 [execpol]</h3>
+The only class template in this subclause is the type trait <tt>is_execution_policy</tt>, so no changes are required as 
+described in &sect;20.15 above.
+<h2>&sect;21 [strings]</h2>
+The string library can take advantage of template argument deduction for constructors with no wording
+changes. For example, <tt>basic_string_view("foo")</tt> correctly deduces that <tt>charT</tt> is <tt>char</tt>.
+<p>It is worth noting that, while no wording changes are required, a library vendor may 
+choose to make code changes in accordance with the &ldquo;as-if&rdquo;
+rule (&sect;1.9 footnote 5) as illustrated by the following example. Suppose
+a vendor has previously leveraged the
+&ldquo;as-if&rdquo; rule to implement the constructor
+<code>basic_string&lt;charT, traits, Allocator&gt;::basic_string(const charT* str, const Allocator&amp; a = Allocator());</code> using the equivalent but non-deducible type <tt>value_type</tt> in place of <tt>charT</tt>
+as follows:
+<code>basic_string&lt;charT, traits, Allocator&gt;::basic_string(const value_type* str, const Allocator&amp; a = Allocator());</code>
+The vendor could maintain this convention while continuing to satisfy the &ldquo;as-if&rdquo; rule in C++17
+by adding the following <em>deduction-guide</em>
+<code>template&lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt;&gt;
+  basic_string(const charT*, const Allocator&amp; = Allocator()) -&gt; basic_string&lt;charT, Allocator&gt;;</code>
+Similar considerations apply to <tt>basic_string_view</tt>.
+</p><h2>&sect;22 [localization]</h2>
+Add the following to the end of the definition of class <tt>wstring_convert</tt> in &sect;22.3.3.2.2
+[conversions.string] 
+<blockquote><pre>    size_t cvtcount;      <span class="comment">// exposition only</span>
+  };
+  
+<span class="ins">  template&lt;class Codecvt&gt;
+    wstring_convert(Codecvt *) 
+      -&gt; wstring_convert&lt;Codecvt, typename Codecvt::intern_type&gt;;
+
+  template&lt;class Codecvt&gt;
+    wstring_convert(Codecvt *, typename Codecvt::state_type) 
+      -&gt; wstring_convert&lt;Codecvt, typename Codecvt::intern_type&gt;;
+</span></pre></blockquote>
+In addition to the above explicit deduction guide, <tt>wstring_convert</tt>
+and <tt>wbuffer_convert</tt> (&sect;22.3.3.2.3) benefit from additional implicit deduction guides.
+
+<h2>&sect;23 [containers]</h2>
+All of the headers in &sect;23 are listed in
+    &ldquo;Table 102 &mdash; Containers library summary&rdquo; in &sect;23.1:
+    <p></p><table border="1"><tbody><tr><th></th><th>Subclause</th><th>Header(s)</th></tr>
+    <tr><td>23.2</td><td>Requirements</td><td></td></tr>
+    <tr><td>23.3</td><td>Sequence containers</td><td><tt>&lt;array&gt;<br>&lt;deque&gt;<br>&lt;forward_list&gt;<br>&lt;list&gt;<br>&lt;vector&gt;</tt></td></tr>
+    <tr><td>23.4</td><td>Associative containers</td><td><tt>&lt;map&gt;<br>&lt;set&gt;</tt></td></tr>
+    <tr><td>23.5</td><td>Unordered associative containers</td><td><tt>&lt;unordered_map&gt;<br>&lt;unordered_set&gt;</tt></td></tr>
+    <tr><td>23.6</td><td>Container adaptors</td><td><tt>&lt;queue&gt;<br>&lt;stack&gt;</tt></td></tr>
+    </tbody></table>
+The only wording change in &sect;23 is to add deduction guides for constructing
+containers from iterators as described in &ldquo;Explicitly specified Deduction Guides&rdquo;
+in <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html">P0091R3</a>,
+but we have to make that change many times as follows:
+<h3>&sect;23.2 [container.requirements]</h3>
+Modify &sect;23.2.3p14 [sequence.reqmts] as follows:
+<blockquote>For every sequence container defined in this clause and in clause 21:
+<ul><li>If the constructor<blockquote><pre>template &lt;class InputIterator&gt;
+X(InputIterator first, InputInterator last,
+  const allocator_type&amp; alloc = allocator_type())</pre></blockquote>
+    is called with a type <tt>InputIterator</tt> that does not qualify as an
+    input iterator, then the constructor shall not participate in overload resolution.</li>
+<li><span class="ins">If the <em>deduction-guide </em><blockquote><pre><span class="ins">template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+X(InputIterator, InputIterator,
+  const Allocator&amp; = Allocator())
+    -&gt; X&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
+    is called with a type <tt>InputIterator</tt> that does not qualify as an
+    input iterator, then the <em>deduction-guide</em> shall not participate in overload resolution.</span></li>
+<li>If the member functions of the forms:</li></ul></blockquote>
+	
+Add a paragraph to the end of &sect;23.2.6  [associative.reqmts]
+<blockquote><div class="ins">A deduction guide for an associative container shall not participate in overload resolution if it
+	has an <tt>InputIterator</tt> template
+parameter that is called with a type that does not qualify as an input iterator, or if it has an <tt>Allocator</tt>
+	template parameter that is called with a type that does not qualify as an allocator (&sect;17.5.3.5 [allocator.requirements]),
+	or if it has a <tt>Compare</tt> template parameter that is called with a type that does qualify as an allocator.
+	</div></blockquote>
+Add a paragraph to the end of &sect;23.2.7  [unord.req]
+<blockquote><div class="ins">A deduction guide for an unordered associative container shall not participate in overload resolution if any
+	of the following are true. <ul><li>It
+	has an <tt>InputIterator</tt> template
+parameter that is called with a type that does not qualify as an input iterator</li><li>it has an <tt>Allocator</tt>
+	template parameter that is called with a type that does not qualify as an allocator (&sect;17.5.3.5 [allocator.requirements])</li>
+	<li>It has a <tt>Hash</tt> template parameter that is called with a type that does qualify as an allocator</li>
+	<li>It has a <tt>Pred</tt> template parameter that is called with a type that does qualify as an allocator</li>
+	</ul></div></blockquote>
+
+<h3>&sect;23.3 [sequences]</h3>
+At the end of the definition of class <tt>deque</tt> in &sect;23.3.8.1 [deque.overview],
+add the following <em>deduction-guide</em>:
+<blockquote><pre>    void clear() noexcept;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  deque(InputIterator, InputIterator,
+        const Allocator&amp; = Allocator())
+    -&gt; deque&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
+
+At the end of the definition of class <tt>forward_list</tt> in &sect;23.3.9.1 [forwardlist.overview],
+add the following <em>deduction-guide</em>:
+<blockquote><pre>    void reverse() noexcept;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  forward_list(InputIterator, InputIterator,
+               const Allocator&amp; = Allocator())
+    -&gt; forward_list&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
+At the end of the definition of class <tt>list</tt> in &sect;23.3.10.1 [list.overview],
+add the following <em>deduction-guide</em>s:
+<blockquote><pre>    void reverse() noexcept;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  list(InputIterator first, InputIterator last,
+       const Allocator&amp; = Allocator())
+    -&gt; list&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
+At the end of the definition of class <tt>vector</tt> in &sect;23.3.11.1 [vector.overview],
+add the following <em>deduction-guide</em>:
+<blockquote><pre>    void clear() noexcept;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  vector(InputIterator, InputIterator,
+         const Allocator&amp; = Allocator())
+    -&gt; vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
+<h3>&sect;23.4 [associative]</h3>
+First, we note that associative containers cannot always deduce their template parameters from an initializer list as illustrated by
+	the following code.
+	<code>map m = {{"foo", 2}, {"bar", 3}, {"baz", 4}}; <span class="comment">// Error: initializer_list not reified in type system</span>
+map m2 = {pair{"foo", 2}, pair{"bar", 3}, pair{"baz", 4}}; <span class="comment">// OK </span></code>
+Hopefully, this may be addressed by a future language extension in the post-C++17 timeline. Note also
+that we apply <tt>remove_const_t</tt> to the keys in order to find the proper comparator (or hash in case
+	of unordered containers).<p>
+Proceeding to the wording changes, at the end of the definition of class <tt>map</tt> in &sect;23.4.4.1 [map.overview],
+add the following <em>deduction-guide</em>s:
+<blockquote><pre>    template &lt;class K&gt;
+      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Compare = default_order_t&lt;remove_const_t&lttypename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  map(InputIterator, InputIterator, 
+      const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
+    -&gt; map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           Compare, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  map(InputIterator, InputIterator, const Allocator&amp;)
+    -&gt; map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;, Allocator&gt;;</span></pre>
+</blockquote>
+
+At the end of the definition of class <tt>multimap</tt> in &sect;23.4.5.1 [multimap.overview],
+add the following <em>deduction-guide</em>s:
+</p><blockquote><pre>    template &lt;class K&gt;
+      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Compare = default_order_t&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  multimap(InputIterator, InputIterator, 
+      const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
+    -&gt; multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           Compare, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  multimap(InputIterator, InputIterator, const Allocator&amp;)
+    -&gt; multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;, Allocator&gt;;</span></pre></blockquote>
+
+At the end of the definition of class <tt>set</tt> in &sect;23.4.6.1 [set.overview],
+add the following <em>deduction-guide</em>:
+<blockquote><pre>    template &lt;class K&gt;
+      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  set(InputIterator, InputIterator, 
+      const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
+    -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Compare, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  set(InputIterator, InputIterator, const Allocator&amp;)
+    -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre></blockquote>
+
+At the end of the definition of class <tt>multiset</tt> in &sect;23.4.7.1 [multiset.overview],
+add the following <em>deduction-guide</em>:
+<blockquote><pre>    template &lt;class K&gt;
+      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  multiset(InputIterator, InputIterator, 
+      const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
+    -&gt; multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Compare, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  multiset(InputIterator, InputIterator, const Allocator&amp;)
+    -&gt; multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre></blockquote>
+
+<h3>&sect;23.5 [unord]</h3>
+At the end of the definition of class <tt>unordered_map</tt> in &sect;23.5.4.1 [unord.map.overview],
+add the following <em>deduction-guide</em>s:
+<blockquote><pre>    void reserve(size_type n);
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Hash = hash&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+        class Pred = std::equal_to&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  unordered_map(InputIterator, InputIterator,
+      size_type = <em>see below</em>,
+      const Hash&amp; = Hash(), const Pred&amp; = Pred(), const Allocator&amp; = Allocator())
+    -&gt; unordered_map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           Hash, Pred, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  unordered_map(InputIterator, InputIterator, size_type, const Allocator&amp;)
+    -&gt; unordered_map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           hash&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+           std::equal_to&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+           Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Hash, class Allocator&gt;
+  unordered_map(InputIterator, InputIterator, size_type, const Hash&amp;, const Allocator&amp;)
+    -&gt; unordered_map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type, Hash,
+           std::equal_to&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+		   Allocator&gt;;</span>
+</pre>
+</blockquote>
+At the end of the definition of class <tt>unordered_multimap</tt> in &sect;23.5.5.1 [unord.multimap.overview],
+add the following <em>deduction-guide</em>:s
+</p><blockquote><pre>    void reserve(size_type n);
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Hash = hash&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+        class Pred = std::equal_to&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  unordered_multimap(InputIterator, InputIterator,
+      size_type = <em>see_below</em>,
+      const Hash&amp; = Hash(), const Pred&amp; = Pred(), const Allocator&amp; = Allocator())
+    -&gt; unordered_multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           Hash, Pred, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  unordered_multimap(InputIterator, InputIterator, size_type, const Allocator&amp;)
+    -&gt; unordered_multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
+           hash&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+           std::equal_to&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt',
+           Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Hash, class Allocator&gt;
+  unordered_multimap(InputIterator, InputIterator, size_type, const Hash&amp;, const Allocator&amp;)
+    -&gt; unordered_multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+           typename iterator_traits&lt;InputIterator&gt;::value_type::second_type, Hash,
+           std::equal_to&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;, Allocator&gt;;</span>
+</pre>
+</blockquote>
+At the end of the definition of class <tt>unordered_set</tt> in &sect;23.5.6.1 [unord.set.overview],
+add the following <em>deduction-guide</em>s:
+<blockquote><pre>    void reserve(size_type n);
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Hash = hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Pred = std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  unordered_set(InputIterator, InputIterator,
+      size_type = <em>see_below</em>,
+      const Hash&amp; = Hash(), const Pred&amp; = Pred(), const Allocator&amp; = Allocator())
+    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type,
+           Hash, Pred, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  unordered_set(InputIterator, InputIterator, size_type, const Allocator&amp;)
+    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+           hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+           std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+           Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Hash, class Allocator&gt;
+  unordered_set(InputIterator, InputIterator, size_type, const Hash&amp;, const Allocator&amp;)
+    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
+           std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span>
+</pre></blockquote>
+
+At the end of the definition of class <tt>unordered_multiset</tt> in &sect;23.5.7.1 [unord.multiset.overview],
+add the following <em>deduction-guide</em>s:
+<blockquote><pre>    void reserve(size_type n);
+  };
+  
+<span class="ins">  template &lt;class InputIterator, 
+        class Hash = hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Pred = std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  unordered_multiset(InputIterator, InputIterator,
+      size_type = <em>see_below</em>,
+      const Hash&amp; = Hash(), const Pred&amp; = Pred(), const Allocator&amp; = Allocator())
+    -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type,
+           Hash, Pred, Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+  unordered_multiset(InputIterator, InputIterator, size_type,
+       const Allocator&amp; = Allocator())
+    -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+           hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+           std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+           Allocator&gt;;</span>
+
+<span class="ins">  template &lt;class InputIterator, class Hash, class Allocator&gt;
+  unordered_multiset(InputIterator, InputIterator, size_type, const Hash&amp;, const Allocator&amp;)
+    -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
+           std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span>
+</pre></blockquote>
+
+<h3>&sect;23.6 [container.adaptors]</h3>
+At the end of &sect;23.6.1 [container.adaptors.general], and the following paragraph
+<blockquote><div class="ins">A deduction guide for an container adaptor shall not participate in overload resolution if any
+	of the following are true. <ul><li>It
+	has an <tt>InputIterator</tt> template
+parameter that is called with a type that does not qualify as an input iterator</li>
+	<li>It has a <tt>Container</tt> template parameter that does not qualify as a container</li>
+	<li>It has an <tt>Allocator</tt>
+	template parameter that is called with a type that does not qualify as an allocator (&sect;17.5.3.5 [allocator.requirements])</li>
+	</ul></div></blockquote>
+At the end of the definition of class <tt>queue</tt> in &sect;23.6.4.1 [queue.defn] insert
+<blockquote><pre>    void swap(queue&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt;)
+      { using std::swap; swap(c, q.c); }
+  };
+
+  <span class="ins">explicit template&lt;class Container&gt; queue(const Container&amp;&amp;)
+    -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;
+ explicit template&lt;class Alloc&gt; queue(const Alloc&amp;) 
+   -&gt; queue&lt;typename Alloc::value_type&gt; 
+ template&lt;class Container, class Alloc&gt; queue(Container&amp;&amp; const Alloc&amp;) 
+   -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt; 
+  </span></pre></blockquote>
+At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
+[priority.queue], add the following <em>deduction-guide</em>s:
+<blockquote><pre>    void swap(priority_queue&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt; &amp;&amp;
+                                              is_nothrow_swappable_v&lt;Compare&gt;)
+      { using std::swap; swap(c, q.c); swap(comp, q.comp); }
+    };</pre></blockquote>
+ <blockquote><pre>
+<span class="ins">template &lt; class Container, class Compare = default_order_t&lt;typename Container::value_type&gt;&gt;
+  priority_queue(const Compare&amp;, Container&amp;&amp;
+    -&gt; priority_queue&lt;typename Container::value_type, Container, Compare);
+	
+  template&lt;class InputIterator, 
+           class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+           class Container = vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+    priority_queue(InputIterator, InputIterator, const Compare&amp; = Compare(), Container&amp;&amp; = Container())
+	  -&gt; priority_queue&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Container&gt;;
+	  
+  template&lt;class Compare, class Alloc&gt;
+    priority_queue(const Compare&amp;, const Alloc&amp;) -&gt; priority_queue&lt;typename Alloc::value_type&gt;
+
+template&lt;class Compare, class Container, class Alloc&gt;
+    priority_queue(const Compare&amp;, Container&amp;&amp;, const Alloc&amp;) -&gt; priority_queue&lt;typename Container::value_type, Container&gt;
+	</span>
+  
+</pre></blockquote>
+At the end of the definition of class <tt>stack</tt> in &sect; 23.6.6.1 [stack.defn], add
+
+<blockquote><pre>    void swap(stack&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt;)
+      { using std::swap; swap(c, q.c); }
+  };
+  
+<span class="ins">template&lt;class Container&gt; 
+  stack(Container&amp;&amp; = Container()) -&gt; stack&lt;typename Container::value_type, Container&gt;
+template&lt;class Container, class Alloc&gt; 
+  stack(Container&amp;&amp;, const Alloc &amp;) -&gt; stack&lt;typename Container::value_type, Container&gt;
+</span>
+</pre></blockquote>
+<h2>&sect;24 [iterators]</h2>
+No changes are required in clause 24 as the implicitly generated deduction guides provide the necessary deduction.
+<h2>&sect;25 [algorithms]</h2>
+No changes are required in clause 25 due to lack of template classes in this clause.
+<h2>&sect;26 [numerics]</h2>
+We consider the sections with instantiable template classes. 
+<h3>&sect;26.5 [complex.numbers]</h3>
+Class <tt>complex</tt>
+does not require explicit deduction guides as the implicity generated deduction guides provide the necessary deduction.<p>
+<h3>&sect;26.6 [rand]</h3>
+This section does not require explicit deduction guides. The random number engines (&sect; 26.6.3 [rand.eng]) all
+	have non-type template parameters and are therefore not suitable for template parameter deduction. All of the
+	distributions (&sect;26.6.8 [rand.dist]) that could in principle be deduced from constructor arguments are
+	properly deduced by their implicitly generated deduction guides.<p>
+<h3>&sect;26.7 [numarray]</h3>
+We consider <tt>valarray</tt>. We first note that the implicit deduction guides imply the following:
+<code>int iarr[] = {1, 2, 3};
+int *ip = iarr;
+	valarray va(ip, 3); <span class="comment">// Deduces valarray&lt;int&gt;</span></code>
+The point is that the <tt>valarray&lt;T&gt;::valarray(const T *, size_t)</tt> constructor is a better match
+than the <tt>valarray&lt;T&gt;::valarray(const T &amp;, size_t)</tt> constructor. We think this is preferable
+because we believe that is the much more common default. Note that P0091R4 discusses a language extension (<tt>= delete</tt>
+for the <tt>valarray(const T *, size_t)</tt> deduction guide) that would facilitate suppressing deduction in this case.
+However, as above, we believe the appropriate deduction is produced by the implicitly-generated deduction guides.<p>
+We do add a deduction guide to enable the following deduction:
+<code>int iarr[] = {1, 2, 3};
+valarray va(iarr, 3); <span class="comment">// Needs explicit deduction guide to deduce valarray&lt;int&gt;</span></code>
+	At the end of the definition of class <tt>valarray</tt> in &sect;26.7.2.1 [template.valarray.overview], insert the following
+<blockquote><pre>    void resize(size_t sz, T c = T());
+  };
+  
+  <span class="ins">template&lt;typename T, size_t cnt&gt; valarray(T(&amp;)[cnt], size_t) -> valarray&lt;remove_const_t&lt;T&gt;&gt;;</span></pre></blockquote>
+<h2>&sect;27 [input.output]</h2>
+No changes are required in clause 27 as the implicitly generated deduction guides provide the necessary deduction.
+<h2>&sect;28 [re]</h2>
+At the end of the definition of class <tt>basic_regex</tt> in &sect;28.8 [re.regex], insert the following:
+<blockquote><pre>
+    <span class="comment">// 28.8.6, swap</span>
+    void swap(basic_regex&amp;);
+  };
+  
+  <span class="comment">// 28.8.8 deduction guides</span>
+  <span class="ins">template &lt;class ForwardIterator&gt;
+    basic_regex(ForwardIterator, ForwardIterator) -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;
+  template&lt;class ForwardIterator&gt; 
+    basic_regex(ForwardIterator, ForwardIterator, typename regex_constants::syntax_option_type)
+      -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;</span></pre></blockquote>
+Insert a new section:
+<blockquote><span class="ins"><b>28.8.8 <tt>basic_regex</tt> deduction guides   [re.regex.deduction.guides]</b></span>
+<pre>  <span class="ins">template &lt;class ForwardIterator&gt;
+    basic_regex(ForwardIterator, ForwardIterator) -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;
+  template&lt;class ForwardIterator&gt; 
+    basic_regex(ForwardIterator, ForwardIterator, typename regex_constants::syntax_option_type)
+      -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;</span></pre>
+<blockquote><span class="ins"><em>Remarks: </em> These deduction guides shall not participate in overload resolution
+	unless <tt>ForwardIterator</tt> is a valid iterator.</span></blockquote></blockquote>
+</pre></blockquote>
+<h2>&sect;29 [atomics]</h2>
+No changes are required in clause 29 as the implicitly generated deduction guides provide the necessary deduction.
+<h2>&sect;30 [thread]</h2>
+The implicitly generated deduction guides do the job except for <tt>promise</tt>. At the end of the
+defintion of class &lt;promise&gt; in &sect;30.6.5 [futures.promise], insert the following:
+<blockquote><pre>    <span class="comment">// setting the result with deferred notification</span>
+    void set_vale_at_thread_exit(<em>see below</em>);
+    void set_exception_at_thread_exit(exception_ptr p);
+  };
+  
+<span class="ins">  template &lt;class Alloc&gt; promise(allocator_arg_t, const Alloc&amp;)
+    -&gt; promise&lt;typename Alloc::value_type&gt;;</span>
+	
+  template &lt;class R&gt;
+    void  swap(promise&lt;R&gt;&amp; x,  promise&lt;R&gt;&amp; y) noexcept;
+  </pre></blockquote>
+<!--<h2>TODO:</h2> <ul><li>Is LWG Issue 181 relevant? </li>
+<li>Can I use return type deduction for <tt>make_pair</tt> to simplify standard language?</li>
+	<li>Should we consider having rvalue references SFINAE to only matching rvalue
+	references rather than universal references?</li>
+</ul>
+-->
+
+</body></html>
