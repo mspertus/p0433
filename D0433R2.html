@@ -640,32 +640,50 @@ add the following <em>deduction-guide</em>:
 First, we note that associative containers cannot always deduce their template parameters from an initializer list as illustrated by
 	the following code.
 	<code>map m = {{"foo", 2}, {"bar", 3}, {"baz", 4}}; <span class="comment">// Error: initializer_list not reified in type system</span>
-map m2 = {pair{"foo", 2}, pair{"bar", 3}, pair{"baz", 4}}; <span class="comment">// OK </span></code>
+map m2 = initializer_list&lt;pair&lt;char *const, int&gt;&gt;({{"foo", 2}, {"bar", 3}, {"baz", 4}}); <span class="comment">// OK </span></code>
 Hopefully, this may be addressed by a future language extension in the post-C++17 timeline. Note also
 that we apply <tt>remove_const_t</tt> to the keys in order to find the proper comparator (or hash in case
 	of unordered containers).<p>
 Proceeding to the wording changes, at the end of the definition of class <tt>map</tt> in &sect;23.4.4.1 [map.overview],
+	
 add the following <em>deduction-guide</em>s:
 <blockquote><pre>    template &lt;class K&gt;
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
   
-<span class="ins">  template &lt;class InputIterator, 
-        class Compare = default_order_t&lt;remove_const_t&lttypename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
+<span class="ins">  template&lt;class K, class V, class C, class A&gt;
+  map(map&lt;Key, T, Compare, Allocator&gt;, Allocator) -> map&lt;Key, T, Compare, Allocator&gt;;
+  
+  template &lt;class InputIterator, 
+        class Compare = default_order_t&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   map(InputIterator, InputIterator, 
       const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
     -&gt; map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
            typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
-           Compare, Allocator&gt;;</span>
-
-<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+           Compare, Allocator&gt;;
+  
+  template&lt;typename Allocator&gt;
+  map(Allocator)
+    -> map&lt;remove_const_t&lt;typename allocator_traits&lt;_Alloc&gt;::value_type::first_type&gt;,
+	   typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
+	   default_order_t&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;&gt;, Allocator&gt;;
+  <!-- Check with STL about defaults-placement -->
+  template&lt;class Key, class T, class Compare = default_order_t&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
+  map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Compare = Compare(), Allocator = Allocator())
+    -> map&lt;Key, T, Compare, Allocator&gt;;
+  
+  template &lt;class InputIterator, class Allocator&gt;
   map(InputIterator, InputIterator, const Allocator&amp;)
     -&gt; map&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
            typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
-           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;, Allocator&gt;;</span></pre>
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;, Allocator&gt;;
+  
+  template&lt;class Key, class T, class Allocator&gt;
+  map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Allocator)
+    -> map&lt;Key, T, default_order_t&lt;Key&gt;, Allocator&gt;;</span></pre>
 </blockquote>
-
+<!-- Note: The need for the first deduction guide above is still under discussion -->
 At the end of the definition of class <tt>multimap</tt> in &sect;23.4.5.1 [multimap.overview],
 add the following <em>deduction-guide</em>s:
 </p><blockquote><pre>    template &lt;class K&gt;
