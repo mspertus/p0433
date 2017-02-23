@@ -893,11 +893,16 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	operator<(const set<_K1, _C1, _A1>&, const set<_K1, _C1, _A1>&);
     };
 
+  template<typename _Comp, typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    set(_Comp, _Alloc)
+    -> set<typename allocator_traits<_Alloc>::value_type, _Comp,  _Alloc>;
+
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>>
     set(_InputIterator, _InputIterator)
     -> set<typename std::iterator_traits<_InputIterator>::value_type>; 
 
+  // Next two guides are to workaround gcc bug 79316
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
 	   typename _Compare, typename _Alloc>
@@ -905,6 +910,41 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     -> set<typename std::iterator_traits<_InputIterator>::value_type,
 	   _Compare, _Alloc>; 
 
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Compare,
+	   enable_if_t<!__is_allocator_v<_Compare>> * = nullptr>
+    set(_InputIterator, _InputIterator, const _Compare &)
+    -> set<typename std::iterator_traits<_InputIterator>::value_type, _Compare>; 
+
+  template<typename _Alloc,  enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    set(_Alloc) -> set<typename allocator_traits<_Alloc>::value_type,
+		       /* default_order_t */ less<typename allocator_traits<_Alloc>::value_type>,
+		       _Alloc>;
+
+  // May not be necessary with proposed deduction rules
+  template<typename _T, typename _C, typename _A>
+    set(set<_T, _C, _A>, _A) -> set<_T, _C, _A>;
+
+  template<typename _T, typename _C, typename _A,  enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    set(initializer_list<_T>, _C /* = ... */, _A /* = ... */) -> set<_T, _C, _A>;
+
+  // The following guide goes away with the fix to gcc bug 79316
+  template<typename _T, typename _C, enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    set(initializer_list<_T>, _C) -> set<_T, _C>;
+
+  template<typename _InputIterator,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   typename _Allocator,
+	   enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
+    set(_InputIterator, _InputIterator, const _Allocator &)
+    -> set<typename std::iterator_traits<_InputIterator>::value_type,
+	   /* default_order_t */ less<typename std::iterator_traits<_InputIterator>::value_type>,
+	   _Allocator>; 
+
+  template<typename _T, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+    set(initializer_list<_T>, _A)
+    -> set<_T, /* default_order_t */ less<_T>, _A>;
 
   /**
    *  @brief  Set equality comparison.

@@ -656,6 +656,49 @@ void test_multimap() // Explicit 23.4.5
   static_assert(is_same_v<decltype(m14), multimap<string, int, /* default_order_t */less<string>,
 		          scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
 }
+
+void test_set() // Explicit 23.4.6
+{
+  set s1{greater<int>(), scoped_allocator_adaptor<allocator<int>>()};  // explicit
+  static_assert(is_same_v<decltype(s1), set<int, greater<int>,  scoped_allocator_adaptor<allocator<int>>>>);
+  set s2(s1.begin(), s1.end());  // explicit
+  static_assert(is_same_v<decltype(s2), set<int>>);
+  set s3(s1.begin(), s1.end(), greater<int>());
+  static_assert(is_same_v<decltype(s3), set<int, greater<int>>>);
+  set s4(s1.begin(), s1.end(), greater<int>(), scoped_allocator_adaptor<allocator<int>>());
+  static_assert(is_same_v<decltype(s4), set<int, greater<int>,  scoped_allocator_adaptor<allocator<int>>>>);
+  set s5(s1);  // implicit
+  static_assert(is_same_v<decltype(s5), decltype(s1)>);
+  set s6{move(s1)}; // implicit
+  static_assert(is_same_v<decltype(s6), decltype(s1)>);
+  set s7{scoped_allocator_adaptor<allocator<int>>()}; // explicit
+  static_assert(is_same_v<decltype(s7),
+                set< int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  set s8{ s6, scoped_allocator_adaptor<allocator<int>>{}};
+  static_assert(is_same_v<decltype(s8), decltype(s6)>);
+  set s9{ move(s6), scoped_allocator_adaptor<allocator<int>>{}};
+  static_assert(is_same_v<decltype(s9), decltype(s6)>);
+  set s10({ 1, 2, 3});
+  static_assert(is_same_v<decltype(s10), set<int>>);
+  set s11{ {1, 2, 3}, greater<int>()};
+  static_assert(is_same_v<decltype(s11), set<int, greater<int>>>);
+  set s12{ {1, 2, 3}, greater<int>(), scoped_allocator_adaptor<allocator<int>>()};
+  static_assert(is_same_v<decltype(s12), set<int, greater<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  set s13{ s9.begin(), s9.end(), scoped_allocator_adaptor<allocator<int>>() };
+  static_assert(is_same_v<decltype(s13),
+                          set<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  set s14{ {1, 2, 3}, scoped_allocator_adaptor<allocator<int>>()};
+  static_assert(is_same_v<decltype(s14),
+                          set<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+#if 0
+  set s1({1, 2, 3, 4});
+
+  set s3 = s2;
+  static_assert(is_same_v<decltype(s3), set<int>>);
+#endif
+}
+
+
 		
 void test_unordered_map()
 {
@@ -674,15 +717,6 @@ void test_unordered_multimap()
   static_assert(is_same_v<decltype(m2), unordered_multimap<string, int>>);
   unordered_multimap m3 = m2;
   static_assert(is_same_v<decltype(m3), unordered_multimap<string, int>>);
-}
-
-void test_set()
-{
-  set s1({1, 2, 3, 4});
-  set s2(s1.begin(), s1.end());
-  static_assert(is_same_v<decltype(s2), set<int>>);
-  set s3 = s2;
-  static_assert(is_same_v<decltype(s3), set<int>>);
 }
 
 void test_unordered_set()
