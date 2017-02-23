@@ -696,20 +696,43 @@ add the following <em>deduction-guide</em>s:
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
   
-<span class="ins">  template &lt;class InputIterator, 
+<span class="ins">  template&lt; class Compare, class Allocator&gt;
+  multimap(Compare, Allocator)
+    -&gt; multimap&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;,
+           typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
+           Compare, Allocator&gt;;
+  
+  template&lt;class K, class V, class C, class A&gt;
+  multimap(multimap&lt;Key, T, Compare, Allocator&gt;, Allocator) -> multimap&lt;Key, T, Compare, Allocator&gt;;
+  
+  template &lt;class InputIterator, 
         class Compare = default_order_t&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   multimap(InputIterator, InputIterator, 
       const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
     -&gt; multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
            typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
-           Compare, Allocator&gt;;</span>
-
-<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+           Compare, Allocator&gt;;
+  
+  template&lt;class Allocator&gt;
+  multimap(Allocator)
+    -> multimap&lt;remove_const_t&lt;typename allocator_traits&lt;_Alloc&gt;::value_type::first_type&gt;,
+	   typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
+	   default_order_t&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;&gt;, Allocator&gt;;
+  <!-- Check with STL about defaults-placement -->
+  template&lt;class Key, class T, class Compare = default_order_t&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
+  multimap(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Compare = Compare(), Allocator = Allocator())
+    -> multimap&lt;Key, T, Compare, Allocator&gt;;
+  
+  template &lt;class InputIterator, class Allocator&gt;
   multimap(InputIterator, InputIterator, const Allocator&amp;)
     -&gt; multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
            typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
-           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;, Allocator&gt;;</span></pre></blockquote>
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;, Allocator&gt;;
+  
+  template&lt;class Key, class T, class Allocator&gt;
+  multimap(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Allocator)
+    -> multimap&lt;Key, T, default_order_t&lt;Key&gt;, Allocator&gt;;</span></pre></blockquote>
 
 At the end of the definition of class <tt>set</tt> in &sect;23.4.6.1 [set.overview],
 add the following <em>deduction-guide</em>:
