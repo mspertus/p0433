@@ -651,7 +651,13 @@ add the following <em>deduction-guide</em>s:
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
   
-<span class="ins">  template&lt;class K, class V, class C, class A&gt;
+<span class="ins">  template&lt; class Compare, class Allocator&gt;
+  map(Compare, Allocator)
+    -&gt; map&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;,
+           typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
+           Compare, Allocator&gt;;
+  
+  template&lt;class K, class V, class C, class A&gt;
   map(map&lt;Key, T, Compare, Allocator&gt;, Allocator) -> map&lt;Key, T, Compare, Allocator&gt;;
   
   template &lt;class InputIterator, 
@@ -663,7 +669,7 @@ add the following <em>deduction-guide</em>s:
            typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
            Compare, Allocator&gt;;
   
-  template&lt;typename Allocator&gt;
+  template&lt;class Allocator&gt;
   map(Allocator)
     -> map&lt;remove_const_t&lt;typename allocator_traits&lt;_Alloc&gt;::value_type::first_type&gt;,
 	   typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
