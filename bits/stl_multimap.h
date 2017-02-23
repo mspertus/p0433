@@ -1026,20 +1026,65 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  const multimap<_K1, _T1, _C1, _A1>&);
   };
 
+  template<typename _Comp, typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    multimap(_Comp, _Alloc)
+    -> multimap<remove_const_t<typename allocator_traits<_Alloc>::value_type::first_type>,
+	    typename allocator_traits<_Alloc>::value_type::second_type,
+	    _Comp,  _Alloc>;
+
+  // Whether this guide is necessary depends on overload precedence rules still being discussed
+  template<typename _K, typename _T, typename _C, typename _A>
+    multimap(multimap<_K, _T, _C, _A>, _A) -> multimap<_K, _T, _C, _A>;
+  // Workaround gcc bug 79316
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>>
     multimap(_InputIterator, _InputIterator)
     -> multimap<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-		typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+
+  template<typename _InputIterator, typename _Comp,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   enable_if_t<!__is_allocator_v<_Comp>> * = nullptr>
+    multimap(_InputIterator, _InputIterator, _Comp)
+    -> multimap<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   _Comp>; 
 
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
 	   typename _Compare, typename _Alloc>
     multimap(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
     -> multimap<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-		typename std::iterator_traits<_InputIterator>::value_type::second_type,
-		_Compare, _Alloc>; 
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   _Compare, _Alloc>; 
 
+  // Note: default_order_t not yet in lib
+  template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    multimap(_Alloc)
+    -> multimap<remove_const_t<typename allocator_traits<_Alloc>::value_type::first_type>,
+	    typename allocator_traits<_Alloc>::value_type::second_type,
+	   /*default_order_t*/ less<remove_const_t<typename allocator_traits<_Alloc>::value_type::first_type>>,  _Alloc>;
+
+  template<typename _K, typename _V, typename _C, typename _A,  enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    multimap(initializer_list<pair<const _K, _V>>, _C /* = ... */, _A /* = ... */) -> multimap<_K, _V, _C, _A>;
+
+  // The following guide goes away with the fix to gcc bug 79316
+  template<typename _K, typename _V, typename _C, enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    multimap(initializer_list<pair<const _K, _V>>, _C)
+      -> multimap<_K, _V, _C>;
+
+  template<typename _InputIterator, typename _Alloc,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    multimap(_InputIterator, _InputIterator, _Alloc)
+    -> multimap<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   /* default_order_t */ less<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>>,
+	   _Alloc>; 
+
+  template<typename _K, typename _V, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+    multimap(initializer_list<pair<const _K, _V>>, _A) -> multimap<_K, _V, /* default_order_t */ less<_K>, _A>;
+  
   /**
    *  @brief  Multimap equality comparison.
    *  @param  __x  A %multimap.

@@ -613,7 +613,50 @@ void test_map() // Explicit 23.4.4
   static_assert(is_same_v<decltype(m14), map<string, int, /* default_order_t */less<string>,
 		          scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
 }
-  
+
+void test_multimap() // Explicit 23.4.5
+{
+  multimap m1{less<int>(), std::allocator<pair<const int, string>>()};  // explicit
+  static_assert(is_same_v<decltype(m1), multimap<int, string>>);
+  multimap m2(m1.begin(), m1.end()); 
+  static_assert(is_same_v<decltype(m2), multimap<int, string>>);
+  multimap m3(m1.begin(), m1.end(), greater<int>()); 
+  static_assert(is_same_v<decltype(m3), multimap<int, string, greater<int>>>);
+  multimap m4(m1.begin(), m1.end(), greater<int>(), scoped_allocator_adaptor<allocator<pair<const int, string>>>()); // explicit
+  static_assert(is_same_v<decltype(m4),
+		          multimap<int, string, greater<int>,
+		scoped_allocator_adaptor<allocator<pair<const int, string>>>>>);
+  multimap m5 = m1;  // implicit
+  static_assert(is_same_v<decltype(m5), decltype(m1)>);
+  multimap m6 = move(m1);  // implicit
+  static_assert(is_same_v<decltype(m6), decltype(m1)>);
+  multimap m7{scoped_allocator_adaptor<std::allocator<pair<const int, string>>>()};  // explicit
+  static_assert(is_same_v<decltype(m7),
+		          multimap<int, string, less<int>,
+		             scoped_allocator_adaptor<std::allocator<pair<const int, string>>>>>);
+  multimap m8{m6, std::allocator<pair<const int, string>>()};  // depends
+  static_assert(is_same_v<decltype(m8), decltype(m8)>);
+  multimap m9{ move(m6), std::allocator<pair<const int, string>>()};  // depends
+  static_assert(is_same_v<decltype(m9), decltype(m6)>);
+  multimap m10 = initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
+  static_assert(is_same_v<decltype(m10), multimap<string, int>>); // explicit
+  multimap m11 = {initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}},
+	     greater<string>(), scoped_allocator_adaptor<allocator<pair<const string, int>>>()}; // explicit
+  static_assert(is_same_v<decltype(m11), multimap<string, int, greater<string>,
+		          scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
+  multimap m12 = {initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}},
+	    greater<string>()};
+  static_assert(is_same_v<decltype(m12), multimap<string, int, greater<string>>>);
+  multimap m13(m1.begin(), m1.end(), scoped_allocator_adaptor<allocator<pair<const int, string>>>()); // explicit
+  static_assert(is_same_v<decltype(m13),
+	                  multimap<int, string, /* default_order_t */less<int>,
+		              scoped_allocator_adaptor<allocator<pair<const int, string>>>>>);
+  multimap m14 = {initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}},
+	     scoped_allocator_adaptor<allocator<pair<const string, int>>>()}; // explicit
+  static_assert(is_same_v<decltype(m14), multimap<string, int, /* default_order_t */less<string>,
+		          scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
+}
+		
 void test_unordered_map()
 {
   unordered_map<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
@@ -624,15 +667,6 @@ void test_unordered_map()
   static_assert(is_same_v<decltype(m3), unordered_map<string, int>>);
 }
   
-void test_multimap()
-{
-  multimap<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
-  multimap m2(m1.begin(), m1.end());
-  static_assert(is_same_v<decltype(m2), multimap<string, int>>);
-  multimap m3 = m2;
-  static_assert(is_same_v<decltype(m3), multimap<string, int>>);
-}
-
 void test_unordered_multimap()
 {
   unordered_multimap<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
