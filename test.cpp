@@ -12,6 +12,7 @@
 #include<locale>
 #include<codecvt>
 #include<type_traits>
+#include<array>
 #include<deque>
 #include<forward_list>
 #include<list>
@@ -44,6 +45,7 @@ struct X {};
 template<typename T> struct S { S(T t) {} };
 // template<typename T> S(T, int = 7) -> S<T>; // Why doesn't this work
 
+int r; // For __cxa_demangle
 template<typename T>
 struct A {
   int foo() { return 7; }
@@ -490,7 +492,7 @@ void test_forward_list()  // Explicit 23.3.9
   static_assert(is_same_v<decltype(v11), forward_list<int, scoped_allocator_adaptor<allocator<int>>>>);
 }
   
-void test_list()
+void test_list() // Explicit 23.3.10
 {
   list v1{allocator<string>()}; // explicit
   static_assert(is_same_v<decltype(v1), list<string, allocator<string>>>);
@@ -516,7 +518,7 @@ void test_list()
   static_assert(is_same_v<decltype(v11), list<int, scoped_allocator_adaptor<allocator<int>>>>);
 }
   
-void test_vector() // Explicit
+void test_vector() // Explicit 23.3.11
 {
   vector v1{allocator<string>()}; // explicit
   static_assert(is_same_v<decltype(v1), vector<string, allocator<string>>>);
@@ -565,16 +567,51 @@ void test_vector() // Explicit
   vector vb11({ false, true, true}, scoped_allocator_adaptor<allocator<bool>>());
   static_assert(is_same_v<decltype(vb11), vector<bool, scoped_allocator_adaptor<allocator<bool>>>>);
 }
-  
-void test_map()
+
+void test_map() // Explicit 23.4.4
 {
-  // auto il = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}; // Error. Prevents deducing maps from braced initializers
-  //  map m1({ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}); // Like this
-  map<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
-  map m2(m1.begin(), m1.end());
-  static_assert(is_same_v<decltype(m2), map<string, int>>);
-  map m3 = m2;
-  static_assert(is_same_v<decltype(m3), map<string, int>>);
+  map m1{less<int>(), std::allocator<pair<const int, string>>()};  // explicit
+  static_assert(is_same_v<decltype(m1), map<int, string>>);
+  map m2(m1.begin(), m1.end()); 
+  static_assert(is_same_v<decltype(m2), map<int, string>>);
+  map m3(m1.begin(), m1.end(), greater<int>()); 
+  static_assert(is_same_v<decltype(m3), map<int, string, greater<int>>>);
+  map m4(m1.begin(), m1.end(), greater<int>(), scoped_allocator_adaptor<allocator<pair<const int, string>>>()); // explicit
+  static_assert(is_same_v<decltype(m4),
+		          map<int, string, greater<int>,
+		scoped_allocator_adaptor<allocator<pair<const int, string>>>>>);
+  map m5 = m1;  // implicit
+  static_assert(is_same_v<decltype(m5), decltype(m1)>);
+  map m6 = move(m1);  // implicit
+  static_assert(is_same_v<decltype(m6), decltype(m1)>);
+  map m7{scoped_allocator_adaptor<std::allocator<pair<const int, string>>>()};  // explicit
+  static_assert(is_same_v<decltype(m7),
+		          map<int, string, less<int>,
+		             scoped_allocator_adaptor<std::allocator<pair<const int, string>>>>>);
+  map m8{m6, std::allocator<pair<const int, string>>()};  // depends
+  static_assert(is_same_v<decltype(m8), decltype(m8)>);
+  map m9{ move(m6), std::allocator<pair<const int, string>>()};  // depends
+  static_assert(is_same_v<decltype(m9), decltype(m6)>);
+
+  // auto il = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}; // Ill-formed. Prevents deducing maps from braced initializers
+  //  map m({ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}); // Like this
+  map m10 = initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
+  static_assert(is_same_v<decltype(m10), map<string, int>>); // explicit
+  map m11 = {initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}},
+	     greater<string>(), scoped_allocator_adaptor<allocator<pair<const string, int>>>()}; // explicit
+  static_assert(is_same_v<decltype(m11), map<string, int, greater<string>,
+		          scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
+  map m12 = {initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}},
+	    greater<string>()};
+  static_assert(is_same_v<decltype(m12), map<string, int, greater<string>>>);
+  map m13(m1.begin(), m1.end(), scoped_allocator_adaptor<allocator<pair<const int, string>>>()); // explicit
+  static_assert(is_same_v<decltype(m13),
+	                  map<int, string, /* default_order_t */less<int>,
+		              scoped_allocator_adaptor<allocator<pair<const int, string>>>>>);
+  map m14 = {initializer_list<pair<const string, int>>{ {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}},
+	     scoped_allocator_adaptor<allocator<pair<const string, int>>>()}; // explicit
+  static_assert(is_same_v<decltype(m14), map<string, int, /* default_order_t */less<string>,
+		          scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
 }
   
 void test_unordered_map()

@@ -1361,11 +1361,29 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  const map<_K1, _T1, _C1, _A1>&);
     };
 
+  template<typename _Comp, typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    map(_Comp, _Alloc)
+    -> map<remove_const_t<typename allocator_traits<_Alloc>::value_type::first_type>,
+	    typename allocator_traits<_Alloc>::value_type::second_type,
+	    _Comp,  _Alloc>;
+
+  // Whether this guide is necessary depends on overload precedence rules still being discussed
+  template<typename _K, typename _T, typename _C, typename _A>
+    map(map<_K, _T, _C, _A>, _A) -> map<_K, _T, _C, _A>;
+  // Workaround gcc bug 79316
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>>
     map(_InputIterator, _InputIterator)
     -> map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
 	   typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
+
+  template<typename _InputIterator, typename _Comp,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   enable_if_t<!__is_allocator_v<_Comp>> * = nullptr>
+    map(_InputIterator, _InputIterator, _Comp)
+    -> map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   _Comp>; 
 
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
@@ -1374,6 +1392,33 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     -> map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
 	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
 	   _Compare, _Alloc>; 
+
+  // Note: default_order_t not yet in lib
+  template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    map(_Alloc)
+    -> map<remove_const_t<typename allocator_traits<_Alloc>::value_type::first_type>,
+	    typename allocator_traits<_Alloc>::value_type::second_type,
+	   /*default_order_t*/ less<remove_const_t<typename allocator_traits<_Alloc>::value_type::first_type>>,  _Alloc>;
+
+  template<typename _K, typename _V, typename _C, typename _A,  enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    map(initializer_list<pair<const _K, _V>>, _C /* = ... */, _A /* = ... */) -> map<_K, _V, _C, _A>;
+
+  // The following guide goes away with the fix to gcc bug 79316
+  template<typename _K, typename _V, typename _C, enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    map(initializer_list<pair<const _K, _V>>, _C)
+      -> map<_K, _V, _C>;
+
+  template<typename _InputIterator, typename _Alloc,
+	   typename = std::_RequireInputIter<_InputIterator>,
+	   enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    map(_InputIterator, _InputIterator, _Alloc)
+    -> map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
+	   typename std::iterator_traits<_InputIterator>::value_type::second_type,
+	   /* default_order_t */ less<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>>,
+	   _Alloc>; 
+
+  template<typename _K, typename _V, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+    map(initializer_list<pair<const _K, _V>>, _A) -> map<_K, _V, /* default_order_t */ less<_K>, _A>;
 
   /**
    *  @brief  Map equality comparison.
