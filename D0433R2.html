@@ -742,17 +742,37 @@ add the following <em>deduction-guide</em>:
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
   
-<span class="ins">  template &lt;class InputIterator, 
+<span class="ins">  template&lt;class Compare, class Allocator&gt;
+  set(Compare, Allocator)
+    -&gt; set&lt;typename Allocator::value_type, Compare, Allocator&gt;;
+  
+  template &lt;class InputIterator, 
         class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   set(InputIterator, InputIterator, 
       const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
-    -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Compare, Allocator&gt;;</span>
-
-<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
+    -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Compare, Allocator&gt;;
+  
+  template&lt;class Allocator&gt;
+  set(Allocator)
+    -&gt; set&lt;typename Allocator::value_type, less&lt;typename Allocator::value_type&gt;, Allocator&gt;;
+  
+  template&lt;class Key, class Compare, class Allocator&gt;
+  set(set&lt;Key, Compare, Allocator&gt;, Allocator)
+    -&gt; set&lt;Key, Compare, Allocator&gt;;
+  
+  template&lt;class Key, class Compare = less&lt;Key&gt;, class Allocator = allocator&lt;Key&gt;&gt;
+  set(initializer_list&lt;Key&gt;, Compare = Compare(), Allocator = Allocator())
+    -&gt; set&lt;Key, Compare, Allocator&gt;;
+  
+  template&lt;class T, class C, class A&gt;
   set(InputIterator, InputIterator, const Allocator&amp;)
     -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
-           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre></blockquote>
+           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
+  
+  template&lt;class Key, class Allocator&gt;
+  set(initializer_list&lt;Key&gt;, Allocator) -&gt; set&lt;Key, less&lt;Key&gt;, Allocator&gt;;
+</span></pre></blockquote>
 
 At the end of the definition of class <tt>multiset</tt> in &sect;23.4.7.1 [multiset.overview],
 add the following <em>deduction-guide</em>:
