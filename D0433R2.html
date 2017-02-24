@@ -241,24 +241,23 @@ Make the following change
 }</pre></blockquote>
 
 </p><h3>&sect;20.5 [tuple]</h3>
-<tt>tuple</tt> is handled similary to <tt>pair</tt>.    To accomplish that,
+<tt>tuple</tt> is handled similarly to <tt>pair</tt>.    To accomplish that,
     make the following change
     to the definition
     of <tt>std::tuple</tt> in &sect;20.5.2 [tuple.tuple]:
 
     <blockquote><pre>    void swap(tuple&amp;) noexcept(<em>see below</em>);
     };
-
 <span class="ins">  template&lt;class... UTypes&gt;
-    tuple(UTypes...) -&gt; tuple&lt;Utypes...&gt;;
+    tuple(UTypes...) -&gt; tuple&lt;UTypes...&gt;;
   template&lt;class T1, class T2&gt;
     tuple(pair&lt;T1, T2&gt;) -&gt; tuple&lt;T1, T2&gt;;
   template&lt;class Alloc, class... UTypes&gt;
-    tuple(allocator_arg_t, Alloc, UTypes...) -&gt; tuple&lt;Utypes...&gt;;
+    tuple(allocator_arg_t, Alloc, UTypes...) -&gt; tuple&lt;UTypes...&gt;;
   template&lt;class Alloc, class T1, class T2&gt;
-    tuple(allorcator_arg_t, Alloc, pair&lt;T1, T2&gt;) -&gt; tuple&lt;T1, T2&gt;;
+    tuple(allocator_arg_t, Alloc, pair&lt;T1, T2&gt;) -&gt; tuple&lt;T1, T2&gt;;
   template&lt;class Alloc, class... UTypes&gt;
-    tuple(allocator_arg_t, Alloc, UTypes...) -&gt; tuple&lt;Utypes...&gt;;</span>
+    tuple(allocator_arg_t, Alloc, tuple&lt;UTypes...&gt;) -&gt; tuple&lt;UTypes...&gt;;</span>
 }</pre></blockquote>
 
 
@@ -290,6 +289,7 @@ after a clearer consensus around compile-time strings has been achieved.
 	appropriate for deduction.
 
 <h3>&sect;20.11 [smartptr]</h3>
+<!-- STL wants as an = delete -->
 The primary question we considered was whether code like the following should be valid:
 <code>int *ip = new int();
 unique_ptr uip{ip};  <scan class="comment">// Deduce unique_ptr&lt;int&gt;</scan></code>
@@ -306,7 +306,7 @@ If we do not desire deduction for <tt>unique_ptr</tt>, so that the risk of incor
 	as there are still good ways to create array <tt>unique-ptr</tt>s.
 <code>int *ip = new int;
 unique_ptr uip{ip};  <span class="comment">// Deduces unique_ptr&lt;int&gt;</span>
-unique_ptr&lt;int[]&gt; aip{new int[5]};  <span class="comment">// Ok. Deduces unique_ptr&lt;int[]&gt;</span>
+unique_ptr&lt;int[]&gt; aip{new int[5]};  <span class="comment">// Ok. Explicitly specified</span>
 unique_ptr aip2{new int[5], default_delete&lt;int[]&gt;};  <span class="comment">// Ok. Deduces unique_ptr&lt;int[]&gt;</span>
 	
 	</code>
@@ -343,7 +343,7 @@ template &lt;class T, class D&gt; shared_ptr(T*, D) -&gt;  shared_ptr&lt;T&gt;;
 template &lt;class T, class D, class A&gt; shared_ptr(T*, D, A) -&gt;  shared_ptr&lt;T&gt;;
 template &lt;class T, class U, class A&gt; shared_ptr(T*, default_delete&lt;U&gt;, A) -&gt;  shared_ptr&lt;U&gt;;
 template &lt;class T, class P&gt; shared_ptr(const shared_ptr&lt;T&gt;&amp;, P*) -&gt;  shared_ptr&lt;P&gt;;
-explicit template &lt;class T&gt; shared_ptr(const weak_ptr&lt;T&gt; &amp;) -&gt;  shared_ptr&lt;T&gt;;
+template &lt;class T&gt; shared_ptr(const weak_ptr&lt;T&gt; &amp;) -&gt;  shared_ptr&lt;T&gt;;
 template &lt;class T, class D&gt; shared_ptr(unique_ptr&lt;T, D&gt;&amp;&amp;) -&gt;  shared_ptr&lt;T&gt;;</span></pre></blockquote>
 For <tt>weak_ptr</tt>, make the following modification to &sect;20.11.2.3 [util.smartptr.weak]
 <blockquote><pre>    template&lt;class U&gt; bool owner_before(const weak_ptr&lt;U&gt;&amp; b) const;
@@ -355,7 +355,7 @@ For <tt>weak_ptr</tt>, make the following modification to &sect;20.11.2.3 [util.
 <h3>&sect;20.12 [memory.resource]</h3>
 No changes are required in this subclause as the <tt>polymorphic_allocator&lt;Tp&gt;</tt> constructors do not contain any information about <tt>Tp</tt> (except when constructed
 from other <tt>polymorphic_allocator</tt> objects, in which case deduction is properly
-done without any changes required)
+done without any changes required).
 <h3>&sect;20.13 [allocator.adaptor]</h3>
 We supply an explicit deduction guide so that <tt>scoped_allocator_adaptor</tt> can
 deduce its outer allocator. At the end of the definition of class <tt>scoped_allocator_adaptor</tt>
@@ -363,10 +363,11 @@ in &sect;20.13.1 [allocator.adaptor.syn], add
 <blockquote><pre>    scoped_allocator_adaptor select_on_container_copy_construction() const;
   };
  
-<span class="ins">template&lt;class OuterAlloc, class... InnerAllocs&gt; scoped_allocator_adaptor(OuterAlloc&amp;&amp;, const InnerAllocs&amp;&amp;)
+<span class="ins">template&lt;class OuterAlloc, class... InnerAllocs&gt; scoped_allocator_adaptor(OuterAlloc&amp;&amp;, InnerAllocs&amp;&amp;...)
   -&gt; scoped_allocator_adaptor&lt;decay_t&lt;OuterAlloc&gt;, decay_t&lt;InnerAllocs&gt;...&gt;;</span></pre></blockquote>If a different outer allocator is desired, then
 it can still be specified explicitly. 
 <h3>&sect;20.14 [function.objects]</h3>
+	<!-- STL only wants the first guide -->
 <tt>reference_wrapper</tt> benefits from template deduction for 
 constructors with no wording changes. 
 We suggest allowing <tt>function</tt> to deduce its template argument when initialized
@@ -516,7 +517,7 @@ Add the following to the end of the definition of class <tt>wstring_convert</tt>
 </span></pre></blockquote>
 In addition to the above explicit deduction guide, <tt>wstring_convert</tt>
 and <tt>wbuffer_convert</tt> (&sect;22.3.3.2.3) benefit from additional implicit deduction guides.
-
+<!-- STL points at 23.2.3/14 (Try to callocate with a size_t) -->
 <h2>&sect;23 [containers]</h2>
 All of the headers in &sect;23 are listed in
     &ldquo;Table 102 &mdash; Containers library summary&rdquo; in &sect;23.1:
@@ -563,7 +564,7 @@ Add a paragraph to the end of &sect;23.2.7  [unord.req]
 <blockquote><div class="ins">A deduction guide for an unordered associative container shall not participate in overload resolution if any
 	of the following are true. <ul><li>It
 	has an <tt>InputIterator</tt> template
-parameter that is called with a type that does not qualify as an input iterator</li><li>it has an <tt>Allocator</tt>
+parameter that is called with a type that does not qualify as an input iterator</li><li>It has an <tt>Allocator</tt>
 	template parameter that is called with a type that does not qualify as an allocator (&sect;17.5.3.5 [allocator.requirements])</li>
 	<li>It has a <tt>Hash</tt> template parameter that is called with a type that does qualify as an allocator</li>
 	<li>It has a <tt>Pred</tt> template parameter that is called with a type that does qualify as an allocator</li>
@@ -574,13 +575,13 @@ At the end of the definition of class <tt>deque</tt> in &sect;23.3.8.1 [deque.ov
 add the following <em>deduction-guide</em>:
 <blockquote><pre>    void clear() noexcept;
   };
-  
-<span class="ins">  template&lt;class Allocator&gt; deque(Alloc)
-    -&gt; deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  <!-- STL: Value type is guaranteed to be accessible. Simplify without allocator_traits -->
+<span class="ins">  template&lt;class Allocator&gt; deque(Allocator)
+    -&gt; deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  deque(typename deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  deque(typename deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Allocator&gt;::size_type, Alloc)
+    -&gt; deque&lt;typename allocator_traits&lt;Allocator&gt;::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   deque(InputIterator, InputIterator,
@@ -593,11 +594,11 @@ add the following <em>deduction-guide</em>:
   };
   
 <span class="ins">  template&lt;class Allocator&gt; forward_list(Alloc)
-    -&gt; forward_list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+    -&gt; forward_list&lt;typename allocator_traits&lt;Allocator&gt;::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
   forward_list(typename forward_list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; forward_list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+    -&gt; forward_list&lt;typename allocator_traits&lt;Allocator&gt;::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   forward_list(InputIterator, InputIterator,
@@ -650,14 +651,14 @@ add the following <em>deduction-guide</em>s:
 <blockquote><pre>    template &lt;class K&gt;
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
-  
+  <!-- STL: Use less<T> instead of default_order_t<T> -->
 <span class="ins">  template&lt; class Compare, class Allocator&gt;
   map(Compare, Allocator)
     -&gt; map&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;,
            typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
            Compare, Allocator&gt;;
   
-  template&lt;class K, class V, class C, class A&gt;
+  template&lt;class Key, class T, class Compare, class Allocator&gt;
   map(map&lt;Key, T, Compare, Allocator&gt;, Allocator) -> map&lt;Key, T, Compare, Allocator&gt;;
   
   template &lt;class InputIterator, 
@@ -695,14 +696,15 @@ add the following <em>deduction-guide</em>s:
 </p><blockquote><pre>    template &lt;class K&gt;
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
-  
+  <!-- First array constructor does not work in email -->
+ <!-- STL. I will ask committee whether we want less &lt;&gt; -->
 <span class="ins">  template&lt; class Compare, class Allocator&gt;
   multimap(Compare, Allocator)
     -&gt; multimap&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;,
            typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
            Compare, Allocator&gt;;
   
-  template&lt;class K, class V, class C, class A&gt;
+  template&lt;class Key, class T, class Compare, class Allocator&gt;
   multimap(multimap&lt;Key, T, Compare, Allocator&gt;, Allocator) -> multimap&lt;Key, T, Compare, Allocator&gt;;
   
   template &lt;class InputIterator, 
@@ -713,7 +715,7 @@ add the following <em>deduction-guide</em>s:
     -&gt; multimap&lt;remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
            typename iterator_traits&lt;InputIterator&gt;::value_type::second_type,
            Compare, Allocator&gt;;
-  
+  <!-- STL suggest LWG 2713 be referenced -->
   template&lt;class Allocator&gt;
   multimap(Allocator)
     -> multimap&lt;remove_const_t&lt;typename allocator_traits&lt;_Alloc&gt;::value_type::first_type&gt;,
@@ -905,13 +907,13 @@ At the end of the definition of class <tt>queue</tt> in &sect;23.6.4.1 [queue.de
 <blockquote><pre>    void swap(queue&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt;)
       { using std::swap; swap(c, q.c); }
   };
-
+<!-- STL replace Alloc with Allocator -->
   <span class="ins">explicit template&lt;class Container&gt; queue(const Container&amp;&amp;)
-    -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;
- explicit template&lt;class Alloc&gt; queue(const Alloc&amp;) 
-   -&gt; queue&lt;typename Alloc::value_type&gt; 
- template&lt;class Container, class Alloc&gt; queue(Container&amp;&amp; const Alloc&amp;) 
-   -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt; 
+    -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;;
+ template&lt;class Alloc&gt; queue(const Alloc&amp;) 
+   -&gt; queue&lt;typename Alloc::value_type&gt;;
+ template&lt;class Container, class Alloc&gt; queue(Container&amp;&amp;, const Alloc&amp;) 
+   -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;;
   </span></pre></blockquote>
 At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
 [priority.queue], add the following <em>deduction-guide</em>s:
@@ -921,7 +923,7 @@ At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
     };</pre></blockquote>
  <blockquote><pre>
 <span class="ins">template &lt; class Container, class Compare = default_order_t&lt;typename Container::value_type&gt;&gt;
-  priority_queue(const Compare&amp;, Container&amp;&amp;
+  priority_queue(const Compare&amp;, Container&amp;&amp;)
     -&gt; priority_queue&lt;typename Container::value_type, Container, Compare);
 	
   template&lt;class InputIterator, 
@@ -945,7 +947,7 @@ At the end of the definition of class <tt>stack</tt> in &sect; 23.6.6.1 [stack.d
   };
   
 <span class="ins">template&lt;class Container&gt; 
-  stack(Container&amp;&amp; = Container()) -&gt; stack&lt;typename Container::value_type, Container&gt;
+  stack(Container&amp;&amp;) -&gt; stack&lt;typename Container::value_type, Container&gt;
 template&lt;class Container, class Alloc&gt; 
   stack(Container&amp;&amp;, const Alloc &amp;) -&gt; stack&lt;typename Container::value_type, Container&gt;
 </span>
@@ -985,6 +987,7 @@ valarray va(iarr, 3); <span class="comment">// Needs explicit deduction guide to
 <h2>&sect;27 [input.output]</h2>
 No changes are required in clause 27 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;28 [re]</h2>
+<!-- STL: Only needs one guide. Deduction guides should be changed to deduction guide -->
 At the end of the definition of class <tt>basic_regex</tt> in &sect;28.8 [re.regex], insert the following:
 <blockquote><pre>
     <span class="comment">// 28.8.6, swap</span>
@@ -1005,15 +1008,15 @@ Insert a new section:
     basic_regex(ForwardIterator, ForwardIterator, typename regex_constants::syntax_option_type)
       -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;</span></pre>
 <blockquote><span class="ins"><em>Remarks: </em> These deduction guides shall not participate in overload resolution
-	unless <tt>ForwardIterator</tt> is a valid iterator.</span></blockquote></blockquote>
+	unless <tt>ForwardIterator</tt> qualifies as an iterator.</span></blockquote></blockquote>
 </pre></blockquote>
 <h2>&sect;29 [atomics]</h2>
 No changes are required in clause 29 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;30 [thread]</h2>
 The implicitly generated deduction guides do the job except for <tt>promise</tt>. At the end of the
-defintion of class &lt;promise&gt; in &sect;30.6.5 [futures.promise], insert the following:
+definition of class <tt>promise</tt> in &sect;30.6.5 [futures.promise], insert the following:
 <blockquote><pre>    <span class="comment">// setting the result with deferred notification</span>
-    void set_vale_at_thread_exit(<em>see below</em>);
+    void set_value_at_thread_exit(<em>see below</em>);
     void set_exception_at_thread_exit(exception_ptr p);
   };
   
