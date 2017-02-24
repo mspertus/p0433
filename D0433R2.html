@@ -577,11 +577,11 @@ add the following <em>deduction-guide</em>:
   };
   <!-- STL: Value type is guaranteed to be accessible. Simplify without allocator_traits -->
 <span class="ins">  template&lt;class Allocator&gt; deque(Allocator)
-    -&gt; deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Allocator&gt;;
+    -&gt; deque&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  deque(typename deque&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Allocator&gt;::size_type, Alloc)
-    -&gt; deque&lt;typename allocator_traits&lt;Allocator&gt;::value_type, Allocator&gt;;
+  deque(typename deque&lt;typename Allocator::value_type, Allocator&gt;::size_type, Alloc)
+    -&gt; deque&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   deque(InputIterator, InputIterator,
@@ -594,11 +594,11 @@ add the following <em>deduction-guide</em>:
   };
   
 <span class="ins">  template&lt;class Allocator&gt; forward_list(Alloc)
-    -&gt; forward_list&lt;typename allocator_traits&lt;Allocator&gt;::value_type, Allocator&gt;;
+    -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  forward_list(typename forward_list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; forward_list&lt;typename allocator_traits&lt;Allocator&gt;::value_type, Allocator&gt;;
+  forward_list(typename forward_list&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
+    -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   forward_list(InputIterator, InputIterator,
@@ -610,11 +610,11 @@ add the following <em>deduction-guide</em>s:
   };
   
 <span class="ins">  template&lt;class Allocator&gt; list(Alloc)
-    -&gt; list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+    -&gt; list&lt;typename Allocator::value_type, Alloc&gt;;
   
   template&lt;class Allocator&gt; 
-  list(typename list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; list&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  list(typename list&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
+    -&gt; list&lt;typename Allocator::value_type, Alloc&gt;;
   
     template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   list(InputIterator first, InputIterator last,
@@ -626,11 +626,11 @@ add the following <em>deduction-guide</em>:
   };
   
 <span class="ins">  template&lt;class Allocator&gt; vector(Alloc)
-    -&gt; vector&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+    -&gt; vector&lt;typename Allocator::value_type, Alloc&gt;;
   
   template&lt;class Allocator&gt; 
-  vector(typename vector&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; vector&lt;typename allocator_traits&lt;Alloc&gt;::value_type, Alloc&gt;;
+  vector(typename vector&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
+    -&gt; vector&lt;typename Allocator::value_type, Alloc&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   vector(InputIterator, InputIterator,
@@ -654,8 +654,8 @@ add the following <em>deduction-guide</em>s:
   <!-- STL: Use less<T> instead of default_order_t<T> -->
 <span class="ins">  template&lt; class Compare, class Allocator&gt;
   map(Compare, Allocator)
-    -&gt; map&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;,
-           typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
+    -&gt; map&lt;remove_const_t&lt;typename Allocator::value_type::first_type&gt;,
+           typename Allocator::value_type::second_type,
            Compare, Allocator&gt;;
   
   template&lt;class Key, class T, class Compare, class Allocator&gt;
@@ -673,8 +673,8 @@ add the following <em>deduction-guide</em>s:
   template&lt;class Allocator&gt;
   map(Allocator)
     -> map&lt;remove_const_t&lt;typename allocator_traits&lt;_Alloc&gt;::value_type::first_type&gt;,
-	   typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
-	   default_order_t&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;&gt;, Allocator&gt;;
+	   typename Allocator::value_type::second_type,
+	   default_order_t&lt;remove_const_t&lt;typename Allocator::value_type::first_type&gt;&gt;, Allocator&gt;;
   <!-- Check with STL about defaults-placement -->
   template&lt;class Key, class T, class Compare = default_order_t&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
   map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Compare = Compare(), Allocator = Allocator())
@@ -700,8 +700,8 @@ add the following <em>deduction-guide</em>s:
  <!-- STL. I will ask committee whether we want less &lt;&gt; -->
 <span class="ins">  template&lt; class Compare, class Allocator&gt;
   multimap(Compare, Allocator)
-    -&gt; multimap&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;,
-           typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
+    -&gt; multimap&lt;remove_const_t&lt;typename Allocator::value_type::first_type&gt;,
+           typename Allocator::value_type::second_type,
            Compare, Allocator&gt;;
   
   template&lt;class Key, class T, class Compare, class Allocator&gt;
@@ -719,8 +719,8 @@ add the following <em>deduction-guide</em>s:
   template&lt;class Allocator&gt;
   multimap(Allocator)
     -> multimap&lt;remove_const_t&lt;typename allocator_traits&lt;_Alloc&gt;::value_type::first_type&gt;,
-	   typename allocator_traits&lt;Allocator&gt;::value_type::second_type,
-	   default_order_t&lt;remove_const_t&lt;typename allocator_traits&lt;Allocator&gt;::value_type::first_type&gt;&gt;, Allocator&gt;;
+	   typename Allocator::value_type::second_type,
+	   default_order_t&lt;remove_const_t&lt;typename Allocator::value_type::first_type&gt;&gt;, Allocator&gt;;
   <!-- Check with STL about defaults-placement -->
   template&lt;class Key, class T, class Compare = default_order_t&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
   multimap(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Compare = Compare(), Allocator = Allocator())
