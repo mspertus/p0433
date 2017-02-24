@@ -4,6 +4,7 @@
 #include<experimental/memory_resource> // Not in g++ yet
 #include<tuple>
 #include<optional>
+#include<variant>
 #include<vector>
 #include<scoped_allocator>
 #include<functional>
@@ -152,7 +153,7 @@ void test_tuple()  // Explicit 20.5
   static_assert(is_same_v<decltype(p11), tuple<>>);
 }
 
-void test_optional()
+void test_optional() // Explicit  20.6
 {
   optional o(7);
   static_assert(is_same_v<decltype(o), optional<int>>);
@@ -163,9 +164,14 @@ void test_optional()
   // optional o4(in_place); // Expect compile error
 }
 
- void test_variant()
+ void test_variant() // Implicit 20.7
  {
-   // TODO   
+   // Only copy/move
+   variant<int, string> v;
+   variant v1(v);   // implicit
+   static_assert(is_same_v<decltype(v1), decltype(v)>);
+   variant v2(move(v));  // implicit
+   static_assert(is_same_v<decltype(v2), decltype(v)>);
  }
  
 // Bizarre deleter to help touch all the bases
