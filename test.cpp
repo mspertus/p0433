@@ -125,7 +125,9 @@ void test_tuple()  // Explicit 20.5
   static_assert(is_same_v<decltype(p9), tuple<int, double>>);
   tuple p10{pair(3, 5.2)};
   static_assert(is_same_v<decltype(p10), tuple<int, double>>);
-
+  tuple p11{};
+  static_assert(is_same_v<decltype(p11), tuple<>>);
+  
   tuple pa1(allocator_arg, allocator<int>(), 3, 7.5, 1);
   static_assert(is_same_v<decltype(pa1), tuple<int, double, int>>);
   tuple pa2 = {allocator_arg, allocator<int>(), 10, -15, 2};   // See N4387
@@ -146,6 +148,8 @@ void test_tuple()  // Explicit 20.5
   static_assert(is_same_v<decltype(pa9), tuple<int, double>>);
   tuple pa10{allocator_arg, allocator<int>(), pair(3, 5.2)};
   static_assert(is_same_v<decltype(pa10), tuple<int, double>>);
+  tuple pa11{allocator_arg, allocator<int>()};
+  static_assert(is_same_v<decltype(p11), tuple<>>);
 }
 
 void test_optional()
@@ -159,6 +163,11 @@ void test_optional()
   // optional o4(in_place); // Expect compile error
 }
 
+ void test_variant()
+ {
+   // TODO   
+ }
+ 
 // Bizarre deleter to help touch all the bases
 struct FancyDeleter {
   using pointer = A<int>;
