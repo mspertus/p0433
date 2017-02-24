@@ -688,32 +688,59 @@ void test_set() // Explicit 23.4.6
   static_assert(is_same_v<decltype(s6), decltype(s1)>);
   set s7{scoped_allocator_adaptor<allocator<int>>()}; // explicit
   static_assert(is_same_v<decltype(s7),
-                set< int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
-  set s8{ s6, scoped_allocator_adaptor<allocator<int>>{}};
+                          set< int, less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  set s8{ s6, scoped_allocator_adaptor<allocator<int>>{}}; // depends
   static_assert(is_same_v<decltype(s8), decltype(s6)>);
-  set s9{ move(s6), scoped_allocator_adaptor<allocator<int>>{}};
+  set s9{ move(s6), scoped_allocator_adaptor<allocator<int>>{}}; // depends
   static_assert(is_same_v<decltype(s9), decltype(s6)>);
-  set s10({ 1, 2, 3});
+  set s10({ 1, 2, 3});  // explicit
   static_assert(is_same_v<decltype(s10), set<int>>);
   set s11{ {1, 2, 3}, greater<int>()};
   static_assert(is_same_v<decltype(s11), set<int, greater<int>>>);
   set s12{ {1, 2, 3}, greater<int>(), scoped_allocator_adaptor<allocator<int>>()};
   static_assert(is_same_v<decltype(s12), set<int, greater<int>, scoped_allocator_adaptor<allocator<int>>>>);
-  set s13{ s9.begin(), s9.end(), scoped_allocator_adaptor<allocator<int>>() };
+  set s13{ s9.begin(), s9.end(), scoped_allocator_adaptor<allocator<int>>() }; // explicit
   static_assert(is_same_v<decltype(s13),
                           set<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
-  set s14{ {1, 2, 3}, scoped_allocator_adaptor<allocator<int>>()};
+  set s14{ {1, 2, 3}, scoped_allocator_adaptor<allocator<int>>()}; // explicit
   static_assert(is_same_v<decltype(s14),
                           set<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
-#if 0
-  set s1({1, 2, 3, 4});
-
-  set s3 = s2;
-  static_assert(is_same_v<decltype(s3), set<int>>);
-#endif
 }
 
-
+void test_multiset() // Explicit 23.4.7
+{
+  multiset s1{greater<int>(), scoped_allocator_adaptor<allocator<int>>()};  // explicit
+  static_assert(is_same_v<decltype(s1), multiset<int, greater<int>,  scoped_allocator_adaptor<allocator<int>>>>);
+  multiset s2(s1.begin(), s1.end());  // explicit
+  static_assert(is_same_v<decltype(s2), multiset<int>>);
+  multiset s3(s1.begin(), s1.end(), greater<int>());
+  static_assert(is_same_v<decltype(s3), multiset<int, greater<int>>>);
+  multiset s4(s1.begin(), s1.end(), greater<int>(), scoped_allocator_adaptor<allocator<int>>());
+  static_assert(is_same_v<decltype(s4), multiset<int, greater<int>,  scoped_allocator_adaptor<allocator<int>>>>);
+  multiset s5(s1);  // implicit
+  static_assert(is_same_v<decltype(s5), decltype(s1)>);
+  multiset s6{move(s1)}; // implicit
+  static_assert(is_same_v<decltype(s6), decltype(s1)>);
+  multiset s7{scoped_allocator_adaptor<allocator<int>>()}; // explicit
+  static_assert(is_same_v<decltype(s7),
+                          multiset< int, less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  multiset s8{ s6, scoped_allocator_adaptor<allocator<int>>{}}; // depends
+  static_assert(is_same_v<decltype(s8), decltype(s6)>);
+  multiset s9{ move(s6), scoped_allocator_adaptor<allocator<int>>{}}; // depends
+  static_assert(is_same_v<decltype(s9), decltype(s6)>);
+  multiset s10({ 1, 2, 3});  // explicit
+  static_assert(is_same_v<decltype(s10), multiset<int>>);
+  multiset s11{ {1, 2, 3}, greater<int>()};
+  static_assert(is_same_v<decltype(s11), multiset<int, greater<int>>>);
+  multiset s12{ {1, 2, 3}, greater<int>(), scoped_allocator_adaptor<allocator<int>>()};
+  static_assert(is_same_v<decltype(s12), multiset<int, greater<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  multiset s13{ s9.begin(), s9.end(), scoped_allocator_adaptor<allocator<int>>() }; // explicit
+  static_assert(is_same_v<decltype(s13),
+                          multiset<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+  multiset s14{ {1, 2, 3}, scoped_allocator_adaptor<allocator<int>>()}; // explicit
+  static_assert(is_same_v<decltype(s14),
+                          multiset<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
+}
 		
 void test_unordered_map()
 {
@@ -741,15 +768,6 @@ void test_unordered_set()
   static_assert(is_same_v<decltype(s2), unordered_set<int>>);
   unordered_set s3 = s2;
   static_assert(is_same_v<decltype(s3), unordered_set<int>>);
-}
-
-void test_multiset()
-{
-  multiset s1({1, 2, 3, 4});
-  multiset s2(s1.begin(), s1.end());
-  static_assert(is_same_v<decltype(s2), multiset<int>>);
-  multiset s3 = s2;
-  static_assert(is_same_v<decltype(s3), multiset<int>>);
 }
 
 void test_unordered_multiset()
