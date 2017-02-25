@@ -1964,33 +1964,6 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
                    typename unordered_map<_Key, _T, hash<_Key>, equal_to<_Key>, _Alloc>::size_type, _H, _Alloc)
        -> unordered_map<_Key, _T, _H, equal_to<_Key>, _Alloc>;
 
-#if 0
-    template<typename _InputIterator,
-	     typename = std::_RequireInputIter<_InputIterator>>
-    unordered_map(_InputIterator, _InputIterator)
-      -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-		       typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
-
-    template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    unordered_map(_InputIterator, _InputIterator,
-		  typename unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-		                         typename std::iterator_traits<_InputIterator>::value_type::second_type>::size_type)
-      -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-		       typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>,
-	   typename _Hash, typename _KeyEqual, typename _Alloc>
-    unordered_map(_InputIterator, _InputIterator,
-		  typename unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-		                         typename std::iterator_traits<_InputIterator>::value_type::second_type>::size_type,
-		  const _KeyEqual&, const _Hash &, const _Alloc &)
-    -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
-	             typename std::iterator_traits<_InputIterator>::value_type::second_type,
-	             _KeyEqual, _Hash, _Alloc>; 
-#endif
-  
     template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>>
     unordered_multimap(_InputIterator, _InputIterator)
