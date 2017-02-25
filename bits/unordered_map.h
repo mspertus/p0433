@@ -1869,9 +1869,30 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		   const unordered_multimap<_Key1, _Tp1,
 					    _Hash1, _Pred1, _Alloc1>&);
     };
+  template<typename _InputIterator>
+    using _IterKey = remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>;
+  template<typename _InputIterator>
+    using _IterValue = remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::second_type>;
+  
+  template<typename _H, typename _P, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+    unordered_map(typename unordered_map<remove_const_t<typename _A::value_type::first_type>,
+		                         typename _A::value_type::second_type, _H, _P, _A>::size_type,
+		  _H, _P, _A)
+      -> unordered_map<remove_const_t<typename _A::value_type::first_type>,
+                       typename _A::value_type::second_type, _H, _P, _A>;
 
+  template<typename _II,
+	   typename _H = hash<_IterKey<_II>>,
+	   typename _P = equal_to<_IterKey<_II>>,
+	   typename _A = allocator<typename std::iterator_traits<_II>::value_type>>
+    unordered_map(_II, _II,
+		  typename unordered_map<_IterKey<_II>, _IterValue<_II>, _H, _P, _A>::size_type = 0,
+		  _H = _H(), _P = _P(), _A = _A())
+      -> unordered_map<_IterKey<_II>, _IterValue<_II>, _H, _P, _A>;
+  
+ #if 0
     template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
+	     typename = std::_RequireInputIter<_InputIterator>>
     unordered_map(_InputIterator, _InputIterator)
       -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
 		       typename std::iterator_traits<_InputIterator>::value_type::second_type>; 
@@ -1894,7 +1915,8 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     -> unordered_map<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>,
 	             typename std::iterator_traits<_InputIterator>::value_type::second_type,
 	             _KeyEqual, _Hash, _Alloc>; 
-
+#endif
+  
     template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>>
     unordered_multimap(_InputIterator, _InputIterator)

@@ -742,14 +742,30 @@ void test_multiset() // Explicit 23.4.7
                           multiset<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
 }
 		
-void test_unordered_map()
+void test_unordered_map() // Explicit
 {
+  unordered_map u1{32, hash<int>(), equal_to<int>(), allocator<pair<const int, string>>()}; // explicit
+  static_assert(is_same_v<decltype(u1), unordered_map<int, string, hash<int>, equal_to<int>>>);
+  // TODO: Use non-default hashes, predicates, and allocators
+  unordered_map u2(u1.begin(), u1.end(), 32, hash<int>(), equal_to<int>(),  allocator<pair<const int, string>>()); // explicit
+  static_assert(is_same_v<decltype(u2),
+		          unordered_map<int, string, hash<int>, equal_to<int>, allocator<pair<const int, string>>>>);
+  unordered_map u3(u1.begin(), u1.end(), 32, hash<int>(), equal_to<int>());
+  static_assert(is_same_v<decltype(u3), unordered_map<int, string, hash<int>, equal_to<int>>>);
+  unordered_map u4(u1.begin(), u1.end(), 32, hash<int>());
+  static_assert(is_same_v<decltype(u4), unordered_map<int, string, hash<int>>>);
+  unordered_map u5(u1.begin(), u1.end(), 32);
+  static_assert(is_same_v<decltype(u5), unordered_map<int, string>>);
+  unordered_map u6(u1.begin(), u1.end());
+  static_assert(is_same_v<decltype(u6), unordered_map<int, string>>);
+#if 0
   unordered_map<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
   std::hash<string>()("foo"s);
   unordered_map m2(m1.begin(), m1.end());
   static_assert(is_same_v<decltype(m2), unordered_map<string, int>>);
   unordered_map m3 = m2;
   static_assert(is_same_v<decltype(m3), unordered_map<string, int>>);
+#endif
 }
   
 void test_unordered_multimap()
