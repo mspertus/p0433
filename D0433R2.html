@@ -538,22 +538,14 @@ containers from iterators as described in &ldquo;Explicitly specified Deduction 
 	<tt>vector&lt;allocator&lt;int&gt;&gt;</tt></li></ol>
 but we have to make those changes many times as follows:
 <h3>&sect;23.2 [container.requirements]</h3>
-Modify &sect;23.2.3/13 [sequence.reqmts] as follows:
-<blockquote>For every sequence container defined in this clause and in clause 21:
-<ul><li>If the constructor<blockquote><pre>template &lt;class InputIterator&gt;
-X(InputIterator first, InputInterator last,
-  const allocator_type&amp; alloc = allocator_type())</pre></blockquote>
-    is called with a type <tt>InputIterator</tt> that does not qualify as an
-    input iterator, then the constructor shall not participate in overload resolution.</li>
-<li><span class="ins">If the <em>deduction-guide </em><blockquote><pre><span class="ins">template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-X(InputIterator, InputIterator,
-  const Allocator&amp; = Allocator())
-    -&gt; X&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
-    is called with a type <tt>InputIterator</tt> that does not qualify as an
-    input iterator, then the <em>deduction-guide</em> shall not participate in overload resolution.</span></li>
-<li>If the member functions of the forms:</li></ul></blockquote>
-Modify &sect;23.2.3/14 [sequence.reqmts] as follows:
-<blockquote>The extent to which an implementation determines that a type cannot be an input iterator is
+Modify the end of &sect;23.2.3/13 [sequence.reqmts] and the following paragraph as follows:
+<blockquote>are called with a type <tt>InputIterator</tt> that does not qualify as an input iterator,
+	then those functions shall not participare in overload resolution.<p>
+   <span class="ins">&mdash; A <em>deduction-guide</em> for a sequence container shall not participate in overload
+	resolution if it has an <tt>InputIterator</tt> template parameter that is called with a type that
+	does not qualify as an input iterator, or if it has an <tt>Allocator</tt> template
+	parameter that is called with a type that does not qualify as an allocator.</span>
+<p>The extent to which an implementation determines that a type cannot be an input iterator is
 	unspecified, except that as a minimum integral types shall not qualify as input iterators.
 	<span class="ins">Likewise, the extent to which an implementation determines that a type
 	cannot be an allocator is unspecified, except that as a minimum types not satisfying both of
