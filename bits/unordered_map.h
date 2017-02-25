@@ -1898,6 +1898,9 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
                        equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
                        _Alloc>;
 
+   // Unnecessary if proposed tie breaker is adopted
+   template<typename _K, typename _V, typename _H, typename _P, typename _A>
+     unordered_map(unordered_map<_K, _V, _H, _P, _A>, _A) -> unordered_map<_K, _V, _H, _P, _A>;
  #if 0
     template<typename _InputIterator,
 	     typename = std::_RequireInputIter<_InputIterator>>
