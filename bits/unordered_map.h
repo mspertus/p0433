@@ -1874,7 +1874,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   template<typename _InputIterator>
     using _IterValue = typename std::iterator_traits<_InputIterator>::value_type::second_type;
   
-  template<typename _H, typename _P, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+  template<typename _H, typename _P, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr, enable_if_t<!is_integral_v<_H>> * = nullptr>
     unordered_map(typename unordered_map<remove_const_t<typename _A::value_type::first_type>,
 		                         typename _A::value_type::second_type, _H, _P, _A>::size_type,
 		  _H, _P, _A)
@@ -1884,7 +1884,10 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   template<typename _II,
 	   typename _H = hash<_IterKey<_II>>,
 	   typename _P = equal_to<_IterKey<_II>>,
-	   typename _A = allocator<typename std::iterator_traits<_II>::value_type>>
+	   typename _A = allocator<typename std::iterator_traits<_II>::value_type>,
+	   typename = std::_RequireInputIter<_II>,
+	   enable_if_t<!__is_allocator_v<_H>> * = nullptr,
+	   enable_if_t<!__is_allocator_v<_P>> * = nullptr>
     unordered_map(_II, _II,
 		  typename unordered_map<_IterKey<_II>, _IterValue<_II>, _H, _P, _A>::size_type = 0,
 		  _H = _H(), _P = _P(), _A = _A())
@@ -1901,7 +1904,67 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
    // Unnecessary if proposed tie breaker is adopted
    template<typename _K, typename _V, typename _H, typename _P, typename _A>
      unordered_map(unordered_map<_K, _V, _H, _P, _A>, _A) -> unordered_map<_K, _V, _H, _P, _A>;
- #if 0
+
+   template<typename _Key, typename _T,
+	    typename _Hash = hash<_Key>,
+	    typename _Pred = equal_to<_Key>,
+	    typename _Alloc = allocator<pair<const _Key, _T>>,
+	    enable_if_t<!__is_allocator_v<_Hash>> * = nullptr,
+	    enable_if_t<!__is_allocator_v<_Pred>> * = nullptr>
+     unordered_map(initializer_list<pair<const _Key, _T>>,
+		  typename unordered_map<_Key, _T, _Hash, _Pred, _Alloc>::size_type = 0,
+		  _Hash = _Hash(), _Pred = _Pred(), _Alloc = _Alloc())
+       -> unordered_map<_Key, _T, _Hash, _Pred, _Alloc>;
+
+   template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+     unordered_map(typename unordered_map<remove_const_t<typename _Alloc::value_type::first_type>,
+                                          typename _Alloc::value_type::second_type,
+	                                  hash<remove_const_t<typename _Alloc::value_type::first_type>>,
+                                          equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
+		                          _Alloc>::size_type,
+		   _Alloc)
+      -> unordered_map<remove_const_t<typename _Alloc::value_type::first_type>,
+	               typename _Alloc::value_type::second_type,
+	               hash<remove_const_t<typename _Alloc::value_type::first_type>>,
+                       equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
+                       _Alloc>;
+ 
+   template<typename _Alloc, typename _Hash,  enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+     unordered_map(typename unordered_map<remove_const_t<typename _Alloc::value_type::first_type>,
+                                          typename _Alloc::value_type::second_type,
+	                                  hash<remove_const_t<typename _Alloc::value_type::first_type>>,
+                                          equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
+		                          _Alloc>::size_type,
+		   _Hash, _Alloc)
+      -> unordered_map<remove_const_t<typename _Alloc::value_type::first_type>,
+	               typename _Alloc::value_type::second_type,
+	               _Hash,
+                       equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
+                       _Alloc>;
+
+   template<typename _II, typename _A, typename = std::_RequireInputIter<_II>, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+    unordered_map(_II, _II,
+		  typename unordered_map<_IterKey<_II>, _IterValue<_II>, hash<_IterKey<_II>>, equal_to<_IterKey<_II>>, _A>::size_type,
+		  _A)
+      -> unordered_map<_IterKey<_II>, _IterValue<_II>, hash<_IterKey<_II>>, equal_to<_IterKey<_II>>, _A>;
+
+   template<typename _II, typename _H, typename _A, typename = std::_RequireInputIter<_II>, enable_if_t<__is_allocator_v<_A>> * = nullptr>
+    unordered_map(_II, _II,
+		  typename unordered_map<_IterKey<_II>, _IterValue<_II>, hash<_IterKey<_II>>, equal_to<_IterKey<_II>>, _A>::size_type,
+		  _H, _A)
+      -> unordered_map<_IterKey<_II>, _IterValue<_II>, _H, equal_to<_IterKey<_II>>, _A>;
+
+   template<typename _Key, typename _T, typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+     unordered_map(initializer_list<pair<const _Key, _T>>,
+                   typename unordered_map<_Key, _T, hash<_Key>, equal_to<_Key>, _Alloc>::size_type, _Alloc)
+       -> unordered_map<_Key, _T, hash<_Key>, equal_to<_Key>, _Alloc>;
+
+   template<typename _Key, typename _T, typename _H, typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+     unordered_map(initializer_list<pair<const _Key, _T>>,
+                   typename unordered_map<_Key, _T, hash<_Key>, equal_to<_Key>, _Alloc>::size_type, _H, _Alloc)
+       -> unordered_map<_Key, _T, _H, equal_to<_Key>, _Alloc>;
+
+#if 0
     template<typename _InputIterator,
 	     typename = std::_RequireInputIter<_InputIterator>>
     unordered_map(_InputIterator, _InputIterator)
