@@ -758,6 +758,14 @@ void test_unordered_map() // Explicit
   static_assert(is_same_v<decltype(u5), unordered_map<int, string>>);
   unordered_map u6(u1.begin(), u1.end());
   static_assert(is_same_v<decltype(u6), unordered_map<int, string>>);
+  unordered_map u7(u1); // implicit
+  static_assert(is_same_v<decltype(u7), decltype(u1)>);
+  unordered_map u8(move(u1)); // implicit
+  static_assert(is_same_v<decltype(u8), decltype(u1)>);
+  unordered_map u9{scoped_allocator_adaptor<allocator<pair<const long, double>>>()};
+  static_assert(is_same_v<decltype(u9),
+	                  unordered_map<long, double, hash<long>, equal_to<long>,
+                                        scoped_allocator_adaptor<allocator<pair<const long, double>>>>>);
 #if 0
   unordered_map<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
   std::hash<string>()("foo"s);

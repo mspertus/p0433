@@ -1872,7 +1872,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   template<typename _InputIterator>
     using _IterKey = remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>;
   template<typename _InputIterator>
-    using _IterValue = remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::second_type>;
+    using _IterValue = typename std::iterator_traits<_InputIterator>::value_type::second_type;
   
   template<typename _H, typename _P, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr>
     unordered_map(typename unordered_map<remove_const_t<typename _A::value_type::first_type>,
@@ -1889,7 +1889,15 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  typename unordered_map<_IterKey<_II>, _IterValue<_II>, _H, _P, _A>::size_type = 0,
 		  _H = _H(), _P = _P(), _A = _A())
       -> unordered_map<_IterKey<_II>, _IterValue<_II>, _H, _P, _A>;
-  
+
+   template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
+    unordered_map(_Alloc)
+      -> unordered_map<remove_const_t<typename _Alloc::value_type::first_type>,
+	               typename _Alloc::value_type::second_type,
+	               hash<remove_const_t<typename _Alloc::value_type::first_type>>,
+                       equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
+                       _Alloc>;
+
  #if 0
     template<typename _InputIterator,
 	     typename = std::_RequireInputIter<_InputIterator>>
