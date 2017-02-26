@@ -1961,7 +1961,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 
    template<typename _Key, typename _T, typename _H, typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
      unordered_map(initializer_list<pair<const _Key, _T>>,
-                   typename unordered_map<_Key, _T, hash<_Key>, equal_to<_Key>, _Alloc>::size_type, _H, _Alloc)
+                   typename unordered_map<_Key, _T, _H, equal_to<_Key>, _Alloc>::size_type, _H, _Alloc)
        -> unordered_map<_Key, _T, _H, equal_to<_Key>, _Alloc>;
 
     template<typename _InputIterator,
