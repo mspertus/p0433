@@ -819,11 +819,69 @@ void test_unordered_map() // Explicit
   
 void test_unordered_multimap()
 {
-  unordered_multimap<string, int> m1 = { {"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}};
-  unordered_multimap m2(m1.begin(), m1.end());
-  static_assert(is_same_v<decltype(m2), unordered_multimap<string, int>>);
-  unordered_multimap m3 = m2;
-  static_assert(is_same_v<decltype(m3), unordered_multimap<string, int>>);
+  unordered_multimap u1{32, my_hash<int>(), my_pred<int>(), allocator<pair<const int, string>>()}; // explicit
+  static_assert(is_same_v<decltype(u1), unordered_multimap<int, string, my_hash<int>, my_pred<int>>>);
+  unordered_multimap u2(u1.begin(), u1.end(), 32, my_hash<int>(), my_pred<int>(),  allocator<pair<const int, string>>()); // explicit
+  static_assert(is_same_v<decltype(u2),
+		          unordered_multimap<int, string, my_hash<int>, my_pred<int>, allocator<pair<const int, string>>>>);
+  unordered_multimap u3(u1.begin(), u1.end(), 32, my_hash<int>(), my_pred<int>());
+  static_assert(is_same_v<decltype(u3), unordered_multimap<int, string, my_hash<int>, my_pred<int>>>);
+  unordered_multimap u4(u1.begin(), u1.end(), 32, my_hash<int>());
+  static_assert(is_same_v<decltype(u4), unordered_multimap<int, string, my_hash<int>>>);
+  unordered_multimap u5(u1.begin(), u1.end(), 32);
+  static_assert(is_same_v<decltype(u5), unordered_multimap<int, string>>);
+  unordered_multimap u6(u1.begin(), u1.end());
+  static_assert(is_same_v<decltype(u6), unordered_multimap<int, string>>);
+  unordered_multimap u7(u1); // implicit
+  static_assert(is_same_v<decltype(u7), decltype(u1)>);
+  unordered_multimap u8(move(u1)); // implicit
+  static_assert(is_same_v<decltype(u8), decltype(u1)>);
+  unordered_multimap u9{scoped_allocator_adaptor<allocator<pair<const long, double>>>()};
+  static_assert(is_same_v<decltype(u9),
+	                  unordered_multimap<long, double, hash<long>, equal_to<long>,
+                                        scoped_allocator_adaptor<allocator<pair<const long, double>>>>>);
+  unordered_multimap u10{u9, scoped_allocator_adaptor<allocator<pair<const long, double>>>()}; // depends
+  static_assert(is_same_v<decltype(u10), decltype(u9)>);
+  unordered_multimap u11{move(u9), scoped_allocator_adaptor<allocator<pair<const long, double>>>()}; // depends
+  static_assert(is_same_v<decltype(u11), decltype(u9)>);
+  unordered_multimap u12(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}), // explicit
+		    32, my_hash<string>(), my_pred<string>(), scoped_allocator_adaptor<allocator<pair<const string, int>>>());
+  static_assert(is_same_v<decltype(u12),
+                          unordered_multimap<string, int, my_hash<string>, my_pred<string>,
+		                        scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
+  unordered_multimap u13(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}),
+		    32, my_hash<string>(), my_pred<string>());
+  static_assert(is_same_v<decltype(u13), unordered_multimap<string, int, my_hash<string>, my_pred<string>>>);
+  unordered_multimap u14(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}),
+		    32, my_hash<string>());
+  static_assert(is_same_v<decltype(u14), unordered_multimap<string, int, my_hash<string>>>);
+  unordered_multimap u15(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}),
+		    32);
+  static_assert(is_same_v<decltype(u15), unordered_multimap<string, int>>);
+  unordered_multimap u16(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}));
+  static_assert(is_same_v<decltype(u16), unordered_multimap<string, int>>);
+  unordered_multimap u17{32, scoped_allocator_adaptor<allocator<pair<const long, double>>>()}; // explicit
+  static_assert(is_same_v<decltype(u17),
+	                  unordered_multimap<long, double, hash<long>, equal_to<long>,
+                                        scoped_allocator_adaptor<allocator<pair<const long, double>>>>>);
+  unordered_multimap u18{32, my_hash<long>(), scoped_allocator_adaptor<allocator<pair<const long, double>>>()}; // explicit
+  static_assert(is_same_v<decltype(u18),
+	                  unordered_multimap<long, double, my_hash<long>, equal_to<long>,
+                                        scoped_allocator_adaptor<allocator<pair<const long, double>>>>>);
+  unordered_multimap u19{32, scoped_allocator_adaptor<allocator<pair<const int, string>>>()}; // explicit
+  static_assert(is_same_v<decltype(u19),
+                          unordered_multimap<int, string, hash<int>, equal_to<int>,
+	                                scoped_allocator_adaptor<allocator<pair<const int, string>>>>>);
+  unordered_multimap u20(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}), // explicit
+		    32, scoped_allocator_adaptor<allocator<pair<const string, int>>>());
+  static_assert(is_same_v<decltype(u20),
+                          unordered_multimap<string, int, hash<string>, equal_to<string>,
+		                        scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
+  unordered_multimap u21(initializer_list<pair<const string, int>>({{"foo"s, 1}, {"bar"s, 2}, {"baz"s, 3}, {"quux"s, 4}}), // explicit
+		    32, my_hash<string>(), scoped_allocator_adaptor<allocator<pair<const string, int>>>());
+  static_assert(is_same_v<decltype(u21),
+                          unordered_multimap<string, int, my_hash<string>, equal_to<string>,
+		                        scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
 }
 
 void test_unordered_set()
