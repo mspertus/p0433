@@ -831,16 +831,14 @@ add the following <em>deduction-guide</em>s:
   using alloc_val_t = alloc_val_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
   
   template&lt;class Hash, class Pred, class Allocator&gt;
-  unordered_map(typename unordered_map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;, Hash, Pred, Allocator&gt;::size_type,
-		  Hash, Pred, Allocator)
+  unordered_map(<span class="comment">see below</span>::size_type, Hash, Pred, Allocator)
       -&gt; unordered_map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
               Hash, Pred, Allocator&gt;;
   
   template&lt;class InputIterator,
 	   class Hash = hash&lt;iter_key_t&lt;&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
 	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  unordered_map(InputIterator, InputIterator,
-		  typename unordered_map&lt;iter_key_t&lt;InputIterator&gt;, _IterValue&lt;InputIterator&gt;, Hash, Pred, Allocator&gt;::size_type = 0,
+  unordered_map(InputIterator, InputIterator, <span class="comment">see below</span>::size_type = 0,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
       -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_value_t&lt;InputIterator&gt;, Hash, Pred, Allocator&gt;;
   
@@ -854,56 +852,46 @@ add the following <em>deduction-guide</em>s:
   
   template&lt;class Key, class T, class Hash = hash&lt;Key&gt;,
 	    class Pred = equal_to&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
-  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;,
-		  typename unordered_map&lt;Key, T, Hash, Pred, Allocator&gt;::size_type = 0,
+  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, <span class="comment">see below</span>::size_type = 0,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_map&lt;Key, T, Hash, Pred, Allocator&gt;;
   
   template&lt;class Allocator&gt;
-  unordered_map(typename unordered_map&lt;alloc_key_t&lt;Allocator&gt;,
-    alloc_val_t&lt;Allocator&gt;, hash&lt;alloc_key_t&lt;Allocator&gt;&gt;,
-        equal_to&lt;alloc_key_t&lt;Allocator&gt;&gt;, Allocator&gt;::size_type, Allocator)
+  unordered_map(<span class="comment">see below</span>::size_type, Allocator)
       -&gt; unordered_map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
               hash&lt;alloc_key_t&lt;Allocator&gt;&gt;, equal_to&lt;alloc_key_t&lt;Allocator&gt;&gt;, Allocator&gt;;
    
   template&lt;class Allocator, class Hash&gt;
-  unordered_map(typename unordered_map&lt;alloc_key_t&lt;Allocator&gt;,
-                alloc_val_t&lt;Allocator&gt;, hash&lt;alloc_key_t&lt;Allocator&gt;&gt;,
-                equal_to&lt;alloc_key_t&lt;Allocator&gt;&gt;, Allocator&gt;::size_type,
-                Hash, Allocator)
+  unordered_map(<span class="comment">see below</span>::size_type, Hash, Allocator)
     -&gt; unordered_map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
 	        Hash, equal_to&lt;alloc_key_t&lt;Allocator&gt;&gt;, Allocator&gt;;
   
   template&lt;class InputIterator, class Allocator&gt;
-  unordered_map(InputIterator, InputIterator,
-		  typename unordered_map&lt;iter_key_t&lt;InputIterator&gt;, _IterValue&lt;InputIterator&gt;,
-          hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, _A&gt;::size_type,
-		  Allocator)
+  unordered_map(InputIterator, InputIterator, <span class="comment">see below</span>::size_type, Allocator)
       -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;,
             hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;;
   
   template&lt;class InputIterator, class Hash, class Allocator&gt;
-  unordered_map(InputIterator, InputIterator,
-    typename unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;,
-    hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;::size_type,
-    Hash, Allocator)
+  unordered_map(InputIterator, InputIterator, <span class="comment">see below</span>::size_type, Hash, Allocator)
       -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;, Hash,
               equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;;
   
   template&lt;class Key, class T, typename Allocator&gt;
-  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;,
-      typename unordered_map&lt;Key, T, hash&lt;Key&gt;, equal_to&lt;Key&gt;, Allocator&gt;::size_type, Allocator)
+  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, <span class="comment">see below</span>::size_type, Allocator)
        -&gt; unordered_map&lt;Key, T, hash&lt;Key&gt;, equal_to&lt;Key&gt;, Allocator&gt;;
   
   template&lt;class Key, class T, class Hash, class Allocator&gt;
-  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;,
-           typename unordered_map&lt;Key, T, Hash, equal_to&lt;Key&gt;, Allocator&gt;::size_type, Hash, Allocator)
+  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, <span class="comment">see below</span>::size_type, Hash, Allocator)
     -&gt; unordered_map&lt;Key, T, Hash, equal_to&lt;Key&gt;, Allocator&gt;;
 </span>
 </pre>
 </blockquote>
+Add the following paragraph to the end of &sect;23.5.4.1 [unord.map.overview]:
+<blockquote><span class="ins">A <tt>size_type</tt> parameter type in an <tt>unordered_map</tt> deduction 
+    guide refers to the <tt>size_type</tt> member type of the <tt>unordered_map</tt> deduced by that
+    deduction guide.</span></blockquote>
 At the end of the definition of class <tt>unordered_multimap</tt> in &sect;23.5.5.1 [unord.multimap.overview],
-add the following <em>deduction-guide</em>:s
+add the following <em>deduction-guide</em>s
 </p><blockquote><pre>    void reserve(size_type n);
   };
   
