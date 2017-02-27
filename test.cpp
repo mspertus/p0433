@@ -104,7 +104,7 @@ void test_pair() // Explicit  20.4
 void test_tuple()  // Explicit 20.5
 {
   // Some odd seeming tests are to make sure N4387 is not causing any trouble
-  tuple p1(3, 7.5, 1);
+  tuple p1(3, 7.5, 1); // explicit
   static_assert(is_same_v<decltype(p1), tuple<int, double, int>>);
   tuple p2 = { 10, -15, 2};   // See N4387
   static_assert(is_same_v<decltype(p2), tuple<int, int, int>>);
@@ -122,14 +122,14 @@ void test_tuple()  // Explicit 20.5
   tuple p8{ HasExplicitCopyConstructor(), 2, 1 };
   static_assert(is_same_v<decltype(p8), tuple<HasExplicitCopyConstructor, int, int>>);
   pair p = {3, 5.2};
-  tuple p9{p};
+  tuple p9{p}; // explicit
   static_assert(is_same_v<decltype(p9), tuple<int, double>>);
   tuple p10{pair(3, 5.2)};
   static_assert(is_same_v<decltype(p10), tuple<int, double>>);
   tuple p11{};
   static_assert(is_same_v<decltype(p11), tuple<>>);
   
-  tuple pa1(allocator_arg, allocator<int>(), 3, 7.5, 1);
+  tuple pa1(allocator_arg, allocator<int>(), 3, 7.5, 1); // explicit
   static_assert(is_same_v<decltype(pa1), tuple<int, double, int>>);
   tuple pa2 = {allocator_arg, allocator<int>(), 10, -15, 2};   // See N4387
   static_assert(is_same_v<decltype(pa2), tuple<int, int, int>>);
@@ -145,11 +145,11 @@ void test_tuple()  // Explicit 20.5
   static_assert(is_same_v<decltype(pa7), decltype(pa5)>);
   tuple pa8{allocator_arg, allocator<int>(), HasExplicitCopyConstructor(), 2, 1 };
   static_assert(is_same_v<decltype(pa8), tuple<HasExplicitCopyConstructor, int, int>>);
-  tuple pa9{allocator_arg, allocator<int>(), p};
+  tuple pa9{allocator_arg, allocator<int>(), p}; // explicit
   static_assert(is_same_v<decltype(pa9), tuple<int, double>>);
-  tuple pa10{allocator_arg, allocator<int>(), pair(3, 5.2)};
+  tuple pa10{allocator_arg, allocator<int>(), pair(3, 5.2)}; // explicit
   static_assert(is_same_v<decltype(pa10), tuple<int, double>>);
-  tuple pa11{allocator_arg, allocator<int>()};
+  tuple pa11{allocator_arg, allocator<int>()}; 
   static_assert(is_same_v<decltype(p11), tuple<>>);
 }
 
@@ -185,7 +185,7 @@ struct FancyDeleter {
 template<typename T> struct def_del_noptr : public default_delete<T> {};
 template<typename T> struct def_del_ptr : public default_delete<T> { using pointer = T *; };
 
-void test_unique_ptr()
+void test_unique_ptr() // Implicit (after changes suggested by STL
 {
   unique_ptr up(new A(3));
   static_assert(is_same_v<decltype(up), unique_ptr<A<int>>>);
@@ -205,7 +205,7 @@ void test_unique_ptr()
   static_assert(is_same_v<decltype(up8), unique_ptr<A<int>, def_del_ptr<A<int>>>>);
 }
 
-void test_shared_ptr()
+void test_shared_ptr() // Explicit
 {
   shared_ptr sp1(new int);  // explicit
   static_assert(is_same_v<decltype(sp1), shared_ptr<int>>);
@@ -237,7 +237,7 @@ void test_shared_ptr()
   static_assert(is_same_v<decltype(sp12), shared_ptr<int>>);
 }
 
-void test_weak_ptr()
+void test_weak_ptr() //
 {
   shared_ptr sp(new int);
   weak_ptr wp1(sp);  // explicit
@@ -250,7 +250,7 @@ void test_weak_ptr()
 
 void test_owner_less() // Implicit
 {
-  // owner_less ol{};  // implicit Resolve: Accepted by clang but not g++
+  owner_less ol{};  // implicit Resolve: Accepted by clang but not g++
   owner_less<shared_ptr<int>> oli;
   owner_less ol2 = oli; // implicit
   static_assert(is_same_v<decltype(ol2), decltype(oli)>);
