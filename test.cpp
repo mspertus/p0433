@@ -250,7 +250,8 @@ void test_weak_ptr() //
 
 void test_owner_less() // Implicit
 {
-  owner_less ol{};  // implicit Resolve: Accepted by clang but not g++
+  owner_less ol{};  // implicit
+  static_assert(is_same_v<decltype(ol), owner_less<>>);
   owner_less<shared_ptr<int>> oli;
   owner_less ol2 = oli; // implicit
   static_assert(is_same_v<decltype(ol2), decltype(oli)>);
@@ -288,40 +289,40 @@ void test_reference_wrapper() // Implicit
 void test_arithmetic_operations() // 20.14.6
 {
   // class plus: Implicit
-  // plus p1{};  // implicit Resolve: Accepted by clang but not g++
-  plus<int> pi;
-  plus p1  = pi; // implicit
-  static_assert(is_same_v<decltype(p1), decltype(pi)>);
+  plus p1{};  // implicit
+  static_assert(is_same_v<decltype(p1), plus<>>);
+  plus p2  = p1; // implicit
+  static_assert(is_same_v<decltype(p2), decltype(p1)>);
 
   // class minus: Implicit
-  // minus m1{};  // implicit Resolve: Accepted by clang but not g++
-  minus<int> mi;
-  minus m1  = mi; // implicit
-  static_assert(is_same_v<decltype(m1), decltype(mi)>);
+  minus m1{};  // implicit 
+  static_assert(is_same_v<decltype(m1), minus<>>);
+  minus m2 = m1; // implicit
+  static_assert(is_same_v<decltype(m2), decltype(m1)>);
 
   // class multiplies: Implicit
-  // multiplies mu1{};  // implicit Resolve: Accepted by clang but not g++
-  multiplies<int> mui;
-  multiplies mu1  = mui; // implicit
-  static_assert(is_same_v<decltype(mu1), decltype(mui)>);
+  multiplies mu1{};  // implicit
+  static_assert(is_same_v<decltype(mu1), multiplies<>>);
+  multiplies mu2  = mu1; // implicit
+  static_assert(is_same_v<decltype(mu2), decltype(mu1)>);
 
   // class divides: Implicit
-  // divides d1{};  // implicit Resolve: Accepted by clang but not g++
-  divides<int> di;
-  divides d1  = di; // implicit
-  static_assert(is_same_v<decltype(d1), decltype(di)>);
+  divides d1{};  // implicit
+  static_assert(is_same_v<decltype(d1), divides<>>);
+  divides d2  = d1; // implicit
+  static_assert(is_same_v<decltype(d2), decltype(d1)>);
 
   // class modulus: Implicit
-  // modulus mo1{};  // implicit Resolve: Accepted by clang but not g++
-  modulus<int> moi;
-  modulus mo1  = moi; // implicit
-  static_assert(is_same_v<decltype(mo1), decltype(moi)>);
+  modulus mo1{};  // implicit
+  static_assert(is_same_v<decltype(mo1), modulus<>>);
+  modulus mo2  = mo1; // implicit
+  static_assert(is_same_v<decltype(mo2), decltype(mo1)>);
 
   // class negate: Implicit
-  // negate n1{};  // implicit Resolve: Accepted by clang but not g++
-  negate<int> ni;
-  negate n1  = ni; // implicit
-  static_assert(is_same_v<decltype(n1), decltype(ni)>);  
+  negate n1{};  // implicit
+  static_assert(is_same_v<decltype(n1), negate<>>);
+  negate n2 = n1; // implicit
+  static_assert(is_same_v<decltype(n2), decltype(n1)>);  
 }
 
 void test_comparisons() // 20.14.7
