@@ -299,51 +299,18 @@ unique_ptr uip{ip};  <scan class="comment">// Deduce unique_ptr&lt;int&gt;</scan
 	a request from the community for it. The downside is that it will fail to deduce an array type
 <code>int *ip = new int[5];
 unique_ptr uip{ip};  <scan class="comment">// Still deduces unique_ptr&lt;int&gt;</scan></code>
-If we do not desire deduction for <tt>unique_ptr</tt>, so that the risk of incorrectly deducing a non-array type
-	is eliminated, then no deduction guides need to be added. While we would value feedback from the committee, 
-	we suspect that programmers
-	using smart pointers instead of raw pointers would likely also prefer to avoid raw arrays, so
-	we think it is better to optimize for the far more typical case of non-array <tt>unique_ptr</tt>s,
-	as there are still good ways to create array <tt>unique-ptr</tt>s.
-<code>int *ip = new int;
-unique_ptr uip{ip};  <span class="comment">// Deduces unique_ptr&lt;int&gt;</span>
-unique_ptr&lt;int[]&gt; aip{new int[5]};  <span class="comment">// Ok. Explicitly specified</span>
-unique_ptr aip2{new int[5], default_delete&lt;int[]&gt;};  <span class="comment">// Ok. Deduces unique_ptr&lt;int[]&gt;</span>
-	
-	</code>
-At the end of the <tt>unique_ptr</tt> class definition in &sect;20.11.1.2 [unique.ptr.single],
-add the following:
-<blockquote><pre>    <span class="comment">// disable copy from lvalue</span>
-    unique_ptr(const unique_ptr&amp;) = delete;
-	unique_ptr&amp; operator=(const unique_ptr&amp;) = delete;
-  };
- 
-<span class="ins"><span class="comment">  // 20.11.1.3.5, deduction guides</span>
-  template&lt;class T, class U = T&gt; unique_ptr(T*, default_delete&lt;U&gt; = default_delete&lt;T&gt;()) -&gt; unique_ptr&lt;U&gt;;
-  template&lt;class T, class V&gt; unique_ptr(T*, V) -&gt; unique_ptr&lt;T, V&gt;; 
-  template&lt;class U, class V&gt; unique_ptr(U, V) -&gt; unique_ptr&lt;typename pointer_traits&lt;V::pointer&gt;::element_type, V&gt;; </span>
-}</pre></blockquote>
-Add a section
-<blockquote><span class="ins"><b>20.11.1.3.5  <tt>unique_ptr</tt> deduction guides      [unique.ptr.deduction.guides]</b></span><br/>
-<pre><span class="ins">template&lt;class T, class V&gt;
-  unique_ptr(T*, V) -&gt; unique_ptr&lt;T, V&gt;;
-</span></pre>
-<blockquote><span class="ins"><em>Remarks: </em> This deduction guide shall not participate in overload resolution unless <tt>V::pointer</tt> is not valid 
-	or does not denote a type.</span></blockquote><pre><span class="ins">template&lt;class U, class V&gt;
-  unique_ptr(U, V) -&gt; unique_ptr&lt;typename pointer_traits&lt;V::pointer&gt;::element_type, V&gt;;
-</span></pre>
-<blockquote><span class="ins"><em>Remarks: </em> This deduction guide shall not participate in overload resolution unless <tt>V::pointer</tt> is valid and denotes a type.</span></blockquote></blockquote>
-For <tt>shared_ptr</tt>, make the following modifications to &sect;20.11.2.2 [util.smartptr.shared]:
+We choose not to allow this problem, so no deduction guides are necessary. <p>
+We handle <tt>shared_ptr</tt> the same as <tt>unique_ptr</tt>. Because there is
+an implicit guide from <tt>T *</tt>, we want to make it ill-formed. The following
+    code assumes we have <tt>= delete</tt> from P0091R4. If not, put in wording
+    to say that the deduced type is ill-formed. We also do not include
+    a guide for the aliasing constructor as unnecessary. We would
+    like feedback from the committee on that.<p>Make the following modifications to &sect;20.11.2.2 [util.smartptr.shared]:
 <blockquote><pre>  template&lt;class U&gt; bool owner_before(const shared_ptr&lt;U&gt;&amp; b) const;
   template&lt;class U&gt; bool owner_before(const weak_ptr&lt;U&gt;&amp; b) const;
 };
 
-<span class="ins">template &lt;class T&gt; shared_ptr(T*) -&gt; shared_ptr&lt;T&gt;;
-template &lt;typename T, typename U&gt; shared_ptr(T*, default_delete&lt;U&gt;) -> shared_ptr&lt;U&gt;;
-template &lt;class T, class D&gt; shared_ptr(T*, D) -&gt;  shared_ptr&lt;T&gt;;
-template &lt;class T, class D, class A&gt; shared_ptr(T*, D, A) -&gt;  shared_ptr&lt;T&gt;;
-template &lt;class T, class U, class A&gt; shared_ptr(T*, default_delete&lt;U&gt;, A) -&gt;  shared_ptr&lt;U&gt;;
-template &lt;class T, class P&gt; shared_ptr(const shared_ptr&lt;T&gt;&amp;, P*) -&gt;  shared_ptr&lt;P&gt;;
+<span class="ins">template &lt;class T, class D = default_delete&lt;T&gt;, A = allocator&lt;T&gt;&gt; shared_ptr(T*, D, A) -&gt; shared_ptr&lt;T&gt; = delete;
 template &lt;class T&gt; shared_ptr(const weak_ptr&lt;T&gt; &amp;) -&gt;  shared_ptr&lt;T&gt;;
 template &lt;class T, class D&gt; shared_ptr(unique_ptr&lt;T, D&gt;&amp;&amp;) -&gt;  shared_ptr&lt;T&gt;;</span></pre></blockquote>
 For <tt>weak_ptr</tt>, make the following modification to &sect;20.11.2.3 [util.smartptr.weak]
