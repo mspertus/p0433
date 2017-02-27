@@ -46,6 +46,15 @@ struct X {};
 template<typename T> struct S { S(T t) {} };
 // template<typename T> S(T, int = 7) -> S<T>; // Why doesn't this work
 
+template<typename T> struct my_hash {
+  bool operator()(const T &t) const { return hash<T>()(t); }
+};
+
+template<typename T> struct my_pred {
+  bool operator()(const T &t1, const T &t2) const { return equal_to<T>()(t1, t2); }
+};
+
+
 int r; // For __cxa_demangle
 template<typename T>
 struct A {
@@ -426,24 +435,42 @@ void test_function() // Explicit - 20.14.13.2
 
 // Adapted from example at
 // http://en.cppreference.com/w/cpp/experimental/boyer_moore_searcher
-void test_searchers()
+void test_searchers() 
 {
     std::string in = "Lorem ipsum dolor sit amge, consectetur adipiscing elit,"
                      " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
     std::string needle = "pisci";
-    auto bms = boyer_moore_searcher(needle.begin(), needle.end());
-    /* // std::search doesn't yet support searchers in g++
-    auto it = search(in.begin(), in.end(), 
-                      boyer_moore_searcher(needle.begin(), needle.end()));
-    if(it != in.end())
-        std::cout << "The string " << needle << " found at offset "
-                  << it - in.begin() << '\n';
-    else
-        std::cout << "The string " << needle << " not found\n";
-    */
+    // class default_searcher: Implicit - 20.14.14.1
+    default_searcher ds1(needle.begin(), needle.end());
+    static_assert(is_same_v<decltype(ds1), default_searcher<string::iterator, equal_to<>>>);
+    default_searcher ds2(needle.begin(), needle.end(), my_pred<char>());
+    static_assert(is_same_v<decltype(ds2), default_searcher<string::iterator, my_pred<char>>>);
+    default_searcher ds3 = ds2;
+    static_assert(is_same_v<decltype(ds3), decltype(ds2)>);
+
+    // class boyer_moore_searcher: Implicit - 20.14.14.2
+    boyer_moore_searcher bm1(needle.begin(), needle.end());
+    static_assert(is_same_v<decltype(bm1), boyer_moore_searcher<string::iterator>>);
+    boyer_moore_searcher bm2(needle.begin(), needle.end(), my_hash<char>());
+    static_assert(is_same_v<decltype(bm2), boyer_moore_searcher<string::iterator, my_hash<char>>>);
+    boyer_moore_searcher bm3(needle.begin(), needle.end(), my_hash<char>(), my_pred<char>());
+    static_assert(is_same_v<decltype(bm3), boyer_moore_searcher<string::iterator, my_hash<char>, my_pred<char>>>);
+    boyer_moore_searcher bm4 = bm3;
+    static_assert(is_same_v<decltype(bm4), decltype(bm3)>);
+
+    // class boyer_moore_searcher: Implicit - 20.14.14.3
+    boyer_moore_horspool_searcher bmh1(needle.begin(), needle.end());
+    static_assert(is_same_v<decltype(bmh1), boyer_moore_horspool_searcher<string::iterator>>);
+    boyer_moore_horspool_searcher bmh2(needle.begin(), needle.end(), my_hash<char>());
+    static_assert(is_same_v<decltype(bmh2), boyer_moore_horspool_searcher<string::iterator, my_hash<char>>>);
+    boyer_moore_horspool_searcher bmh3(needle.begin(), needle.end(), my_hash<char>(), my_pred<char>());
+    static_assert(is_same_v<decltype(bmh3), boyer_moore_horspool_searcher<string::iterator, my_hash<char>, my_pred<char>>>);
+    boyer_moore_horspool_searcher bmh4 = bmh3;
+    static_assert(is_same_v<decltype(bmh4), decltype(bmh3)>);
+
 }
 
-void test_wstring_convert()
+void test_wstring_convert() // Explicit
 {
   wstring wstr ( L"test_wstring_convert" ); 
   string str;
@@ -742,14 +769,6 @@ void test_multiset() // Explicit 23.4.7
   static_assert(is_same_v<decltype(s14),
                           multiset<int, /* default_order_t */ less<int>, scoped_allocator_adaptor<allocator<int>>>>);
 }
-
-template<typename T> struct my_hash {
-  bool operator()(const T &t) const { return hash<T>()(t); }
-};
-
-template<typename T> struct my_pred {
-  bool operator()(const T &t1, const T &t2) const { return equal_to<T>()(t1, t2); }
-};
 
 void test_unordered_map() // Explicit
 {
