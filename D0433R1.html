@@ -339,7 +339,10 @@ it can still be specified explicitly.
 <tt>reference_wrapper</tt> benefits from template deduction for 
 constructors with no wording changes. 
 We suggest allowing <tt>function</tt> to deduce its template argument when initialized
-by a function or member pointer. Add the following deduction guides at the end of the
+by a function. While it is tempting to add deduction guides for member pointers,
+    we no longer do so as there is a question about whether the first objects
+    should be a pointer or a reference. We are interested in committee feedback.
+    Note that we can always add this post-c++17.Add the following deduction guide at the end of the
 class definition for <tt>function</tt> in &sect;20.14.12.2 [func.wrap.func]
 <blockquote><pre>    template&lt;class T&gt; const T* target() const noexcept;
 
@@ -347,22 +350,6 @@ class definition for <tt>function</tt> in &sect;20.14.12.2 [func.wrap.func]
   
 <span class="ins">  template&lt;class R, class... ArgTypes&gt; 
     function(R(*)(ArgTypes...)) -&gt; function&lt;R(ArgTypes...)&gt;;
-  template&lt;class R, class C, class... ArgTypes&gt;
-    function(R(C::*)(ArgTypes...)) -&gt; function&lt;R(C &amp;, ArgTypes...)&gt;;
-  template&lt;class R, class C, class... ArgTypes&gt; 
-    function(R(C::*)(ArgTypes...) const) -&gt; function&lt;R(C const &amp;, ArgTypes...)&gt;;
-  template&lt;class R, class C, class... ArgTypes&gt;
-    function(R(C::*)(ArgTypes...) volatile) -&gt; function&lt;R(C volatile &amp;, ArgTypes...)&gt;;
-  template&lt;class R, class C, class... ArgTypes&gt;
-    function(R(C::*)(ArgTypes...) const volatile) -&gt; function&lt;R(C const volatile &amp;, ArgTypes...)&gt;
-  template&lt;class R, class C&gt; function(R C::*)) -&gt;
-    function&lt;R&amp;(C &amp;)&gt;
-  template&lt;class R, class C&gt;
-    function(const R C::*)) -&gt; function&lt;const R&amp;(C const &amp;)&gt;
-  template&lt;class R, class C&gt;
-    function(volatile R C::*)) -&gt; function&lt;volatile R&amp;(volatile C &amp;)&gt;
-  template&lt;class R, class C&gt;
-    function(const volatile R C::*)) -&gt; function&lt;const volatile R&amp;(const volatile C &amp;)&gt;
 </span></pre></blockquote>
 <b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
 would be interested to see if the comittee agrees with having deduction guides for member
