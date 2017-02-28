@@ -337,61 +337,61 @@ void test_arithmetic_operations() // 20.14.6
 void test_comparisons() // 20.14.7
 {
   // class equal_to: Implicit
-  // equal_to et1{};  // implicit Resolve: Accepted by clang but not g++
-  equal_to<int> eti;
-  equal_to et1  = eti; // implicit
-  static_assert(is_same_v<decltype(et1), decltype(eti)>);
+  equal_to et1{};  // implicit
+  static_assert(is_same_v<decltype(et1), equal_to<>>);
+  equal_to et2  = et1; // implicit
+  static_assert(is_same_v<decltype(et2), decltype(et1)>);
 
   // class not_equal_to: Implicit
-  // not_equal_to net1{};  // implicit Resolve: Accepted by clang but not g++
-  not_equal_to<int> neti;
-  not_equal_to net1  = neti; // implicit
-  static_assert(is_same_v<decltype(net1), decltype(neti)>);
+  not_equal_to net1{};  // implicit
+  static_assert(is_same_v<decltype(net1), not_equal_to<>>);
+  not_equal_to net2  = net1; // implicit
+  static_assert(is_same_v<decltype(net2), decltype(net1)>);
 
   // class greater: Implicit
-  // greater g1{};  // implicit Resolve: Accepted by clang but not g++
-  greater<int> gi;
-  greater g1  = gi; // implicit
-  static_assert(is_same_v<decltype(g1), decltype(gi)>);
+  greater g1{};  // implicit
+  static_assert(is_same_v<decltype(g1), greater<>>);
+  greater g2  = g1; // implicit
+  static_assert(is_same_v<decltype(g2), decltype(g1)>);
 
   // class less : Implicit
-  // less l1{};  // implicit Resolve: Accepted by clang but not g++
-  less<int> li;
-  less l1  = li; // implicit
-  static_assert(is_same_v<decltype(l1), decltype(li)>);
+  less l1{};  // implicit
+  static_assert(is_same_v<decltype(l1), less<>>);
+  less l2  = l1; // implicit
+  static_assert(is_same_v<decltype(l2), decltype(l1)>);
 
   // class greater_equal: Implicit
-  // greater_equal ge1{};  // implicit Resolve: Accepted by clang but not g++
-  greater_equal<int> gei;
-  greater_equal ge1  = gei; // implicit
-  static_assert(is_same_v<decltype(ge1), decltype(gei)>);
+  greater_equal ge1{};  // implicit
+  static_assert(is_same_v<decltype(ge1), greater_equal<>>);
+  greater_equal ge2  = ge1; // implicit
+  static_assert(is_same_v<decltype(ge2), decltype(ge1)>);
 
   // class less_equal: Implicit
-  // less_equal le1{};  // implicit Resolve: Accepted by clang but not g++
-  less_equal<int> lei;
-  less_equal le1  = lei; // implicit
-  static_assert(is_same_v<decltype(le1), decltype(lei)>);
+  less_equal le1{};  // implicit
+  static_assert(is_same_v<decltype(le1), less_equal<>>);
+  less_equal le2  = le1; // implicit
+  static_assert(is_same_v<decltype(le2), decltype(le1)>);
 }
 
 void test_logical_operations() // 20.14.8
 {
   // class logical_and: Implicit
-  // logical_and la1{};  // implicit Resolve: Accepted by clang but not g++
-  logical_and<int> lai;
-  logical_and la1  = lai; // implicit
-  static_assert(is_same_v<decltype(la1), decltype(lai)>);
+  logical_and la1{};  // implicit
+  static_assert(is_same_v<decltype(la1), logical_and<>>);
+  logical_and la2  = la1; // implicit
+  static_assert(is_same_v<decltype(la2), decltype(la1)>);
 
   // class logical_or: Implicit
-  // logical_or lo1{};  // implicit Resolve: Accepted by clang but not g++
-  logical_or<int> loi;
-  logical_or lo1  = loi; // implicit
-  static_assert(is_same_v<decltype(lo1), decltype(loi)>);
+  logical_or lo1{};  // implicit
+  static_assert(is_same_v<decltype(lo1), logical_or<>>);
+  logical_or lo2  = lo1; // implicit
+  static_assert(is_same_v<decltype(lo2), decltype(lo1)>);
 
   // class logical_not: Implicit
-  // logical_not ln1{};  // implicit Resolve: Accepted by clang but not g++
-  logical_not<int> lni;
-  logical_not ln1  = lni; // implicit
-  static_assert(is_same_v<decltype(ln1), decltype(lni)>);
+  logical_not ln1{};  // implicit
+  static_assert(is_same_v<decltype(ln1), logical_not<>>);
+  logical_not ln2  = ln1; // implicit
+  static_assert(is_same_v<decltype(ln2), decltype(ln1)>);
 }
 
 void test_bit_operations() // 20.14.9
@@ -837,7 +837,7 @@ void test_unordered_map() // Explicit
 		                        scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
 }
   
-void test_unordered_multimap()
+void test_unordered_multimap()  // Explicit
 {
   unordered_multimap u1{32, my_hash<int>(), my_pred<int>(), allocator<pair<const int, string>>()}; // explicit
   static_assert(is_same_v<decltype(u1), unordered_multimap<int, string, my_hash<int>, my_pred<int>>>);
@@ -904,7 +904,7 @@ void test_unordered_multimap()
 		                        scoped_allocator_adaptor<allocator<pair<const string, int>>>>>);
 }
 
-void test_unordered_set()
+void test_unordered_set() // Explicit
 {
   unordered_set s1({1, 2, 3, 4});
   unordered_set s2(s1.begin(), s1.end());
@@ -913,7 +913,7 @@ void test_unordered_set()
   static_assert(is_same_v<decltype(s3), unordered_set<int>>);
 }
 
-void test_unordered_multiset()
+void test_unordered_multiset() // Explicit
 {
   unordered_multiset s1({1, 2, 3, 4});
   unordered_multiset s2(s1.begin(), s1.end());
@@ -922,21 +922,21 @@ void test_unordered_multiset()
   static_assert(is_same_v<decltype(s3), unordered_multiset<int>>);
 }
 
-void test_queue()
+void test_queue() // Explicit
 {
   deque d({3, 1, 4, 1, 5});
   queue q(d, allocator<int>());
   static_assert(is_same_v<decltype(q), queue<int>>);
 }
 
-void test_priority_queue()
+void test_priority_queue() // Explicit
 {
   deque d({3, 1, 4, 1, 5});
   priority_queue q(d.begin(), d.end());
   static_assert(is_same_v<decltype(q), priority_queue<int>>);
 }
 
-void test_stack()
+void test_stack() // Explicit
 {
   deque d({3, 1, 4, 1, 5});
   stack s(d, allocator<int>());
@@ -951,29 +951,38 @@ void test_iterators()
 {
   // Iterator adapters (24.5)
   vector v({1, 2, 3});
+  // class reverse_iterator : Implicit
   reverse_iterator ri(v.end());
   static_assert(is_same_v<decltype(ri), reverse_iterator<vector<int>::iterator>>);
   assert(*ri == 3);
+
+  // class back_insert_iterator : Implicit
   back_insert_iterator biiv(v);
   static_assert(is_same_v<decltype(biiv), back_insert_iterator<vector<int>>>);
   back_insert_iterator biiv2(v);
   static_assert(is_same_v<decltype(biiv2), back_insert_iterator<vector<int>>>);
+
+  // class front_insert_iterator : Implicit
   front_insert_iterator fiiv(v);
   static_assert(is_same_v<decltype(fiiv), front_insert_iterator<vector<int>>>);
+
+  // class insert_iterator: Implicit
   list l({1, 2, 3}); // Why can't I say list l{1, 2, 3}? I can say list<int> l{1, 2, 3}
   insert_iterator ii(l, next(l.begin())); // Based on http://en.cppreference.com/w/cpp/iterator/insert_iterator
   static_assert(is_same_v<decltype(ii), insert_iterator<list<int>>>);
+
+  // class move_iterator: Implicit
   move_iterator mi(l.begin());
   static_assert(is_same_v<decltype(mi), move_iterator<list<int>::iterator>>);
 
-  // Stream iterators (24.6)
+  // Stream iterators (24.6): Implicit
   istreambuf_iterator<char> isbi(cin);
   static_assert(is_same_v<decltype(isbi), istreambuf_iterator<char>>);
   
 }
 
 
-void test_complex()
+void test_complex() // Implicit
 {
   complex c(2.5, 3.7);
   static_assert(is_same_v<decltype(c), complex<double>>);
@@ -982,10 +991,12 @@ void test_complex()
 void test_random()
 {
   // Engines are not deducible because they all have non-type parameters
-  
+
+  // class uniform_int_distribution: Implicit
   uniform_int_distribution uid(5);
   static_assert(is_same_v<decltype(uid), uniform_int_distribution<int>>);
 
+  // class uniform_real_distribution: Implicit
   uniform_real_distribution urd{};
   static_assert(is_same_v<decltype(urd), uniform_real_distribution<double>>);
 
@@ -994,67 +1005,79 @@ void test_random()
 
   // Bernoulli distribution is not a template
   
+  // class binomial_distribution: Implicit
   binomial_distribution bd{7L};
   static_assert(is_same_v<decltype(bd), binomial_distribution<long>>);
 
   // geometric_distribution is not deducible
   
+  // class negative_binomial_distribution: Implicit
   negative_binomial_distribution nbd{7L, 0.2};
   static_assert(is_same_v<decltype(nbd), negative_binomial_distribution<long>>);
 
   // poisson_distribution is not deducible
   
+  // class exponential_distribution: Implicit
   exponential_distribution ed{1.1};
   static_assert(is_same_v<decltype(ed), exponential_distribution<double>>);
 
+  // class gamma_distribution: Implicit
   gamma_distribution gd{};
   static_assert(is_same_v<decltype(gd), gamma_distribution<double>>);
 
   gamma_distribution gdf{2.5f, .7f};
   static_assert(is_same_v<decltype(gdf), gamma_distribution<float>>);
 
+  // class weibull_distribution: Implicit
   weibull_distribution wd{};
   static_assert(is_same_v<decltype(wd), weibull_distribution<double>>);
 
   weibull_distribution wdf{2.5f, .7f};
   static_assert(is_same_v<decltype(wdf), weibull_distribution<float>>);
 
+  // class extreme_value_distribution: Implicit
   extreme_value_distribution evd{};
   static_assert(is_same_v<decltype(evd), extreme_value_distribution<double>>);
 
   extreme_value_distribution evdf{2.5f, .7f};
   static_assert(is_same_v<decltype(evdf), extreme_value_distribution<float>>);
 
+  // class normal_distribution: Implicit
   normal_distribution nd{};
   static_assert(is_same_v<decltype(nd), normal_distribution<double>>);
 
   normal_distribution ndf{2.5f, .7f};
   static_assert(is_same_v<decltype(ndf), normal_distribution<float>>);
 
+  // class lognormal_distribution: Implicit
   lognormal_distribution lnd{};
   static_assert(is_same_v<decltype(lnd), lognormal_distribution<double>>);
 
   lognormal_distribution lndf{2.5f, .7f};
   static_assert(is_same_v<decltype(lndf), lognormal_distribution<float>>);
 
+  // class chi_squared_distribution: Implicit
   chi_squared_distribution csd{};
   static_assert(is_same_v<decltype(csd), chi_squared_distribution<double>>);
 
   chi_squared_distribution csdf(2.5f);
   static_assert(is_same_v<decltype(csdf), chi_squared_distribution<float>>);  
 
+  // class cauchy_distribution: Implicit
   cauchy_distribution cd{};
   static_assert(is_same_v<decltype(cd), cauchy_distribution<double>>);
 
   cauchy_distribution cdf{2.5f, .7f};
   static_assert(is_same_v<decltype(cdf), cauchy_distribution<float>>);
 
+  // class fisher_f_distribution: Implicit
   fisher_f_distribution ffd{};
   static_assert(is_same_v<decltype(ffd), fisher_f_distribution<double>>);
 
   fisher_f_distribution ffdf{2.5f, .7f};
   static_assert(is_same_v<decltype(ffdf), fisher_f_distribution<float>>);
 
+  // class student_t_distribution: Implicit
   student_t_distribution std{};
   static_assert(is_same_v<decltype(std), student_t_distribution<double>>);
 
@@ -1066,7 +1089,7 @@ void test_random()
   // piecewise_linear_distribution is not deducible
 }
 
-void test_valarray()
+void test_valarray()  // Explicit
 {
   int ints[] = {1, 2, 3, 4, 5, 6, 7, 8};
   int *ip = ints;
@@ -1086,14 +1109,25 @@ void test_valarray()
 
 void test_io()
 {
+  // class basic_ios: Implicit
   basic_ios bios{cout.rdbuf()};
   // basic_streambuf constructors are not deducible
+
+  // class basic_istream: Implicit
   basic_istream bis{cin.rdbuf()};
+
+  // class basic_ostream: Implicit
   basic_ostream bos{cout.rdbuf()};
 
   string str = "foo";
+
+  // class basic_stringbuf: Implicit
   auto bsb = basic_stringbuf(str);
+
+  // class basic_istringstream: Implicit
   auto biss = basic_istringstream(str);
+
+  // class basic_ostringstream: Implicit
   auto boss = basic_ostringstream(str);
 
   // basic_filebuf, basic_ifstream, basic_ofstream, and basic_fstream constructors are not deducible
@@ -1102,6 +1136,7 @@ void test_io()
 
 void test_regex()
 {
+  // class basic_regex: Explicit
   basic_regex br("f.*r");
   basic_regex br2("f.*r", 4);
   basic_regex br3("f.*r"s);
@@ -1109,11 +1144,15 @@ void test_regex()
   basic_regex br4(s.begin(), s.end());
   basic_regex br5(s.begin(), s.end(), regex_constants::icase);
   string s2 = "xfoobary";
+
+  // class regex_iterator: Explicit
   regex_iterator ri(s2.begin(), s2.end(), br5);
+
+  // class regex_token_iterator: Explicit
   regex_token_iterator rti(s2.begin(), s2.end(), br5);
 }
 
-void test_atomic()
+void test_atomic() // Implicit
 {
   atomic a = 3;
 }
@@ -1122,18 +1161,25 @@ void test_thread()
 {
   mutex m;
   {
+    // class lock_guard: Implicit
     lock_guard lg(m);
   }
+
   {
+    // class unique_lock: Implicit
     unique_lock ul(m);
   }
   shared_mutex sm;
   {
+    // class shared_lock: Implicit
     shared_lock sl(sm);
   }
   {
-    // lock_guard lg2(m, sm); // Not yet supported by g++ in either lock_guard or scoped_lock
+  // class scoped_lock: Implicit
+    // scoped_lock sl1(m, sm); // Not yet supported by g++ in either lock_guard or scoped_lock
   }
+
+  // class promise: Implicit
   promise p{allocator_arg_t(), std::allocator<int>()};
   // future and shared_future  not deducible
   // Don't create function pointer deduction guide for packaged_task. Too narrow
