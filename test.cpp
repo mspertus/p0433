@@ -397,39 +397,40 @@ void test_logical_operations() // 20.14.8
 void test_bit_operations() // 20.14.9
 {
   // class bit_and: Implicit
-  // bit_and ba1{};  // implicit Resolve: Accepted by clang but not g++
-  bit_and<int> bai;
-  bit_and ba1  = bai; // implicit
-  static_assert(is_same_v<decltype(ba1), decltype(bai)>);
+  bit_and ba1{};  // implicit
+  static_assert(is_same_v<decltype(ba1), bit_and<>>);
+  bit_and ba2  = ba1; // implicit
+  static_assert(is_same_v<decltype(ba2), decltype(ba1)>);
 
   // class bit_or: Implicit
-  // bit_or bo1{};  // implicit Resolve: Accepted by clang but not g++
-  bit_or<int> boi;
-  bit_or bo1  = boi; // implicit
-  static_assert(is_same_v<decltype(bo1), decltype(boi)>);
+  bit_or bo1{};  // implicit
+  static_assert(is_same_v<decltype(bo1), bit_or<>>);
+  bit_or bo2  = bo1; // implicit
+  static_assert(is_same_v<decltype(bo2), decltype(bo1)>);
 
   // class bit_xor: Implicit
-  // bit_xor bx1{};  // implicit Resolve: Accepted by clang but not g++
-  bit_xor<int> bxi;
-  bit_xor bx1  = bxi; // implicit
-  static_assert(is_same_v<decltype(bx1), decltype(bxi)>);
+  bit_xor bx1{};  // implicit
+  static_assert(is_same_v<decltype(bx1), bit_xor<>>);
+  bit_xor bx2  = bx1; // implicit
+  static_assert(is_same_v<decltype(bx2), decltype(bx1)>);
 
   // class bit_not: Implicit
-  // bit_not bn1{};  // implicit Resolve: Accepted by clang but not g++
-  bit_not<int> bni;
-  bit_not bn1  = bni; // implicit
-  static_assert(is_same_v<decltype(bn1), decltype(bni)>);
+  bit_not bn1{};  // implicit
+  static_assert(is_same_v<decltype(bn1), bit_not<>>);
+  bit_not bn2  = bn1; // implicit
+  static_assert(is_same_v<decltype(bn2), decltype(bn1)>);
 }
 
 int fidi(double d, int i) { return i; }
 
 void test_function() // Explicit - 20.14.13.2
 {
-  function ffidi(fidi); // explicit
-  static_assert(is_same_v<decltype(ffidi), function<int(double, int)>>);
-  function af(&A<int>::foo); // explicit
-  static_assert(is_same_v<decltype(af), function<int(A<int>&)>>);
-  // TODO ...
+  function f1(fidi); // explicit
+  static_assert(is_same_v<decltype(f1), function<int(double, int)>>);
+  function f2(&fidi);
+  static_assert(is_same_v<decltype(f2), function<int(double, int)>>);
+  function f3 = f1; // implicit
+  static_assert(is_same_v<decltype(f3), decltype(f1)>);
 }
 
 
