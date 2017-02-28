@@ -633,21 +633,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // pointers as references rather than pointers
   template<class R, class... ArgTypes> 
     function(R(*)(ArgTypes...)) -> function<R(ArgTypes...)>;
-  template<class R, class C, class... ArgTypes>
-    function(R(C::*)(ArgTypes...)) -> function<R(C &, ArgTypes...)>;
-  template<class R, class C, class... ArgTypes> 
-    function(R(C::*)(ArgTypes...) const) -> function<R(C const &, ArgTypes...)>;
-  template<class R, class C, class... ArgTypes>
-    function(R(C::*)(ArgTypes...) volatile) -> function<R(C volatile &, ArgTypes...)>;
-  template<class R, class C, class... ArgTypes>
-    function(R(C::*)(ArgTypes...) const volatile) -> function<R(C const volatile &, ArgTypes...)>;
-  template<class R, class C> function(R C::*) -> function<R&(C &)>;
-  template<class R, class C>
-    function(const R C::*) -> function<const R&(C const &)>;
-  template<class R, class C>
-    function(volatile R C::*) -> function<volatile R&(volatile C &)>;
-  template<class R, class C>
-    function(const volatile R C::*) -> function<const volatile R&(const volatile C &)>;
 
   // Out-of-line member definitions.
   template<typename _Res, typename... _ArgTypes>
