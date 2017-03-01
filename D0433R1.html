@@ -53,7 +53,7 @@ deduction for class templates into the standard library</title>
 </head>
 
 <body>
-<p>Document number: D0433R1 <br>
+<p>Document number: D0433R2 <br>
 Date: 2017-02-24<br>
 Reply-To:<br>
 &nbsp;&nbsp;&nbsp;Mike Spertus, Symantec (<a href="mailto:mike_spertus@symantec.com">mike_spertus@symantec.com</a>)<br>
@@ -115,8 +115,13 @@ that benefit from implicitly
 generated deduction guides. Note that library vendors may choose to add additional explicit
  deduction guides to maintain the &ldquo;as-if&rdquo; rule. See &sect;21 below for an example of this.
 <h2>&sect;17 [library]</h2>
-    This clause requires no changes
+    Modify 17.5.4.2.1p2 [namespace.std] as follows:
+<blockquote><ul><li>an explicit or partial specialization of any member class template of a standard library class or class
+template.</li>
+    <li><span class="ins">a deduction guide for any standard library class template.</span></li></ul></blockquote>
+    This clause requires no deduction guides
     because it specifies only C libraries and so no class templates are involved.
+    
 
 <h2>&sect;18 [language.support]</h2>
     No changes are required to &sect;18 [language.support].
@@ -186,9 +191,7 @@ generated deduction guides. Note that library vendors may choose to add addition
     </p>
 
 <h2>&sect;20 [utilities]</h2>
-    No changes are required to &sect;19 [diagnostics].<p>
-
-    <b>Rationale:</b> All of the headers in &sect;20 are listed in
+    All of the headers in &sect;20 are listed in
     &ldquo;Table 32 &mdash; General utilities library summary&rdquo; in &sect;20.1:
     </p><table border="1"><tbody><tr><th></th><th>Subclause</th><th>Header(s)</th></tr>
     <tr><td>20.2</td><td>Utilities components</td><td><tt>&lt;utility&gt;</tt></td></tr>
@@ -302,11 +305,11 @@ unique_ptr uip{ip};  <scan class="comment">// Still deduces unique_ptr&lt;int&gt
 We choose not to allow this problem, so we require that such deductions be ill-formed. <p>
 Modify &sect;20.11.1.2.1p8 [unique.ptr.single.ctor] as follows:
 <blockquote><em>Remarks:</em> If this constructor is instantiated with a pointer type or reference type for the template
-argument <tt>D</tt>, the program is ill-formed. <span class="ins">Class template argument deduction (13.3.1.8) from this
-constructor is ill-formed.</span></blockquote>
+argument <tt>D</tt>, the program is ill-formed. <span class="ins">If class template argument deduction (13.3.1.8) 
+    selects the function template corresponding to this constructor, then the program is ill-formed.</span></blockquote>
 Add the following paragraph after &sect;20.11.1.2.1p14 [unique.ptr.single.ctor]:
-<blockquote><span class="ins"><em>Remarks:</em>Class template argument deduction (13.3.1.8) from these
-constructors are ill-formed.</span></blockquote>
+<blockquote><span class="ins"><em>Remarks:</em>If class template argument deduction (13.3.1.8) 
+    selects a function template corresponding to either of these constructors, then the program is ill-formed.</span></blockquote>
 We handle <tt>shared_ptr</tt> the same as <tt>unique_ptr</tt>. Because the
 an implicit guides from <tt>T *</tt> are non-deducible, we do not need to add special wording for those
 constructors. We do not include
@@ -550,6 +553,25 @@ parameter that is called with a type that does not qualify as an input iterator<
     to keep it from matching the <tt>size_type</tt> that some constructors
     use to specify the number of hash buckets.
 <h3>&sect;23.3 [sequences]</h3>
+For <tt>std::array</tt>, we adopt Zhihao Yuan's recommendation from p0511r1. 
+At the end of the definition of class <tt>array</tt> in 23.3.7.1 [array.overview],
+add the <tt>f</tt>o
+llowing <em>deductionb-guide</em>:
+<blockquote><pre>    constexpr const T * data() const noexcept;
+  };
+
+<span class="ins">  template &lt;class... T&gt;
+    array(T...) -&gt; array&lt;<em>see below</em>, sizeof...(T)&gt;;</span>
+}
+</pre></blockquote>
+Add the following paragraph to the end of 23.3.7.2 [array.cons]
+<blockquote><pre><span class="ins">  template &lt;class... T&gt;
+    array(T...) -&gt; array&lt;D, sizeof...(T)&gt;;</span>
+  </pre><span class="ins"><em>Remarks: </em> <tt>D<sub>0</sub></tt> is <tt>T<sub>0</sub></tt>, 
+    and <tt>is_same_v&lt;D, T<sub>i</sub>&gt;</tt> is true for all <tt>i</tt>. If there is no such <tt>D</tt>,
+    the program is ill-formed.</span>
+</blockquote>
+
 At the end of the definition of class <tt>deque</tt> in &sect;23.3.8.1 [deque.overview],
 add the following <em>deduction-guide</em>:
 <blockquote><pre>    void clear() noexcept;
