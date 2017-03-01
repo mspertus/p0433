@@ -307,24 +307,21 @@ constructor is ill-formed.</span></blockquote>
 Add the following paragraph after &sect;20.11.1.2.1p14 [unique.ptr.single.ctor]:
 <blockquote><span class="ins"><em>Remarks:</em>Class template argument deduction (13.3.1.8) from these
 constructors are ill-formed.</span></blockquote>
-We handle <tt>shared_ptr</tt> the same as <tt>unique_ptr</tt>. Because there is
-an implicit guide from <tt>T *</tt>, we want to make it ill-formed. The following
-    code assumes we have <tt>= delete</tt> from P0091R4. If not, put in wording
-    to say that the deduced type is ill-formed. We also do not include
-    a guide for the aliasing constructor as unnecessary. We would
-    like feedback from the committee on that.<p>Make the following modifications to &sect;20.11.2.2 [util.smartptr.shared]:
+We handle <tt>shared_ptr</tt> the same as <tt>unique_ptr</tt>. Because the
+an implicit guides from <tt>T *</tt> are non-deducible, we do not need to add special wording for those
+constructors. We do not include
+    a guide for the aliasing constructor as unnecessary.<p>Make the following modifications to &sect;20.11.2.2 [util.smartptr.shared]:
 <blockquote><pre>  template&lt;class U&gt; bool owner_before(const shared_ptr&lt;U&gt;&amp; b) const;
   template&lt;class U&gt; bool owner_before(const weak_ptr&lt;U&gt;&amp; b) const;
 };
 
-<span class="ins">template &lt;class T, class D = default_delete&lt;T&gt;, A = allocator&lt;T&gt;&gt; shared_ptr(T*, D, A) -&gt; shared_ptr&lt;T&gt; = delete;
-template &lt;class T&gt; shared_ptr(const weak_ptr&lt;T&gt; &amp;) -&gt;  shared_ptr&lt;T&gt;;
-template &lt;class T, class D&gt; shared_ptr(unique_ptr&lt;T, D&gt;&amp;&amp;) -&gt;  shared_ptr&lt;T&gt;;</span></pre></blockquote>
+<span class="ins">template &lt;class T&gt; shared_ptr(weak_ptr&lt;T&gt;) -&gt;  shared_ptr&lt;T&gt;;
+template &lt;class T, class D&gt; shared_ptr(unique_ptr&lt;T, D&gt;) -&gt;  shared_ptr&lt;T&gt;;</span></pre></blockquote>
 For <tt>weak_ptr</tt>, make the following modification to &sect;20.11.2.3 [util.smartptr.weak]
 <blockquote><pre>    template&lt;class U&gt; bool owner_before(const weak_ptr&lt;U&gt;&amp; b) const;
   };
   
-  <span class="ins">template&lt;class T&gt; weak_ptr(const shared_ptr&lt;T&gt;&amp;) -&gt; weak_ptr&lt;T&gt;;</span></pre></blockquote>
+  <span class="ins">template&lt;class T&gt; weak_ptr(shared_ptr&lt;T&gt;) -&gt; weak_ptr&lt;T&gt;;</span></pre></blockquote>
 <p>For completeness, <tt>owner_less</tt> relies on implicit deduction guides. <tt>enable_shared_from_this</tt> does
 	not really require any guides, but the implicit ones certainly do no harm.
 <h3>&sect;20.12 [memory.resource]</h3>
