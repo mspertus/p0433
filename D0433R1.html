@@ -594,7 +594,7 @@ add the following <em>deduction-guide</em>:
 <blockquote><pre>    void reverse() noexcept;
   };
   
-<span class="ins">  template&lt;class Allocator&gt; forward_list(Alloc)
+<span class="ins">  template&lt;class Allocator&gt; forward_list(Allocator)
     -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
@@ -602,8 +602,7 @@ add the following <em>deduction-guide</em>:
     -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  forward_list(InputIterator, InputIterator,
-               const Allocator&amp; = Allocator())
+  forward_list(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; forward_list&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
 At the end of the definition of class <tt>list</tt> in &sect;23.3.10.1 [list.overview],
 add the following <em>deduction-guide</em>s:
