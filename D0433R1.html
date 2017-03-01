@@ -749,7 +749,7 @@ add the following <em>deduction-guide</em>s:
         class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   set(InputIterator, InputIterator, 
-      const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
+      Compare = Compare(), Allocator = Allocator())
     -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Compare, Allocator&gt;;
   
   template&lt;class Allocator&gt;
@@ -787,7 +787,7 @@ add the following <em>deduction-guide</em>:
         class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   multiset(InputIterator, InputIterator, 
-      const Compare&amp; = Compare(), const Allocator&amp; = Allocator())
+      Compare = Compare(), Allocator = Allocator())
     -&gt; multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Compare, Allocator&gt;;
   
   template&lt;class Allocator&gt;
