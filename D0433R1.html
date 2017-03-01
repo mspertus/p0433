@@ -746,7 +746,7 @@ add the following <em>deduction-guide</em>s:
     -&gt; set&lt;typename Allocator::value_type, Compare, Allocator&gt;;
   
   template &lt;class InputIterator, 
-        class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Compare = less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   set(InputIterator, InputIterator, 
       Compare = Compare(), Allocator = Allocator())
@@ -767,7 +767,7 @@ add the following <em>deduction-guide</em>s:
   template&lt;class T, class C, class A&gt;
   set(InputIterator, InputIterator, const Allocator&amp;)
     -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
-           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
+           less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
   
   template&lt;class Key, class Allocator&gt;
   set(initializer_list&lt;Key&gt;, Allocator) -&gt; set&lt;Key, less&lt;Key&gt;, Allocator&gt;;
@@ -784,7 +784,7 @@ add the following <em>deduction-guide</em>:
     -&gt; multiset&lt;typename Allocator::value_type, Compare, Allocator&gt;;
   
   template &lt;class InputIterator, 
-        class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+        class Compare = less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
         class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   multiset(InputIterator, InputIterator, 
       Compare = Compare(), Allocator = Allocator())
@@ -805,7 +805,7 @@ add the following <em>deduction-guide</em>:
   template&lt;class T, class C, class A&gt;
   multiset(InputIterator, InputIterator, const Allocator&amp;)
     -&gt; multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
-           default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
+           less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
   
   template&lt;class Key, class Allocator&gt;
   multiset(initializer_list&lt;Key&gt;, Allocator) -&gt; multiset&lt;Key, less&lt;Key&gt;, Allocator&gt;;
@@ -1045,12 +1045,12 @@ At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
       { using std::swap; swap(c, q.c); swap(comp, q.comp); }
     };</pre></blockquote>
  <blockquote><pre>
-<span class="ins">template &lt; class Container, class Compare = default_order_t&lt;typename Container::value_type&gt;&gt;
+<span class="ins">template &lt; class Container, class Compare = less&lt;typename Container::value_type&gt;&gt;
   priority_queue(const Compare&amp;, Container&amp;&amp;)
     -&gt; priority_queue&lt;typename Container::value_type, Container, Compare);
 	
   template&lt;class InputIterator, 
-           class Compare = default_order_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+           class Compare = less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
            class Container = vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
     priority_queue(InputIterator, InputIterator, const Compare&amp; = Compare(), Container&amp;&amp; = Container())
 	  -&gt; priority_queue&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Container&gt;;
