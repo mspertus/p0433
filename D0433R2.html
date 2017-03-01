@@ -631,23 +631,25 @@ map m2 = initializer_list&lt;pair&lt;char const *, int&gt;&gt;({{"foo", 2}, {"ba
 Hopefully, this may be addressed by a future language extension in the post-C++17 timeline. Note also
 that we apply <tt>remove_const_t</tt> to the keys in order to find the proper comparator (or hash in case
 	of unordered containers).<p>
-Proceeding to the wording changes, at the end of the definition of class <tt>map</tt> in &sect;23.4.1 [map.overview],
-add the following <em>deduction-guide</em>s:
-<blockquote><pre>    template &lt;class K&gt;
-      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
-  };
-  <!-- STL: Use less<T> instead o<T> -->
-<span class="ins">
-  template&lt;class InputIterator&gt;
+Add a paragraph to &sect;23.4.1 [associative.general]
+<blockquote><span class="ins">The following exposition only type aliases may appear in deduction guides
+    for associative containers:</span>
+<pre><span class="ins">  template&lt;class InputIterator&gt;
   using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
   template&lt;class InputIterator&gt;
   using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
-  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
-  
-  template&lt;class Compare, class Allocator&gt;  
+  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span></span></pre>
+</blockquote>
+At the end of the definition of class <tt>map</tt> in &sect;23.4.4.1 [map.overview],
+add the following <em>deduction-guide</em>s:
+<blockquote><pre>    template &lt;class K&gt;
+      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
+  };
+
+<span class="ins">  template&lt;class Compare, class Allocator&gt;  
   map(Compare, Allocator)
     -&gt; map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;, Compare, Allocator&gt;;
   
@@ -683,17 +685,7 @@ add the following <em>deduction-guide</em>s:
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
 
-<span class="ins">
-  template&lt;class InputIterator&gt;
-  using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
-  template&lt;class InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
-  template&lt;class Allocator&gt;
-  using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
-  template&lt;class Allocator&gt;
-  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
-  
-  template&lt; class Compare, class Allocator&gt;  
+<span class="ins">  template&lt; class Compare, class Allocator&gt;  
   multimap(Compare, Allocator)
     -&gt; multimap&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;, Compare, Allocator&gt;;
   
@@ -799,21 +791,16 @@ add the following <em>deduction-guide</em>:
 </span></pre></blockquote>
 
 <h3>&sect;23.5 [unord]</h3>
+Add a paragraph to the end of &sect;23.5.1 [unord.general]:
+<blockquote><span class="ins">The exposition only type aliases <tt>iter_key_t</tt>, 
+    <tt>iter_val_t</tt>, <tt>alloc_key_t</tt>, <tt>alloc_val_t</tt> defined
+    in [associative.general] may appear in deduction guides for unordered containers</span></blockquote>
 At the end of the definition of class <tt>unordered_map</tt> in &sect;23.5.4.1 [unord.map.overview],
 add the following <em>deduction-guide</em>s:
 <blockquote><pre>    void reserve(size_type n);
   };
   
-<span class="ins">  template&lt;class InputIterator&gt;
-  using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
-  template&lt;typename InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
-  template&lt;class Allocator&gt;
-  using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
-  template&lt;class Allocator&gt;
-  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
-  
-  template&lt;class Hash, class Pred, class Allocator&gt;
+<span class="ins">  template&lt;class Hash, class Pred, class Allocator&gt;
   unordered_map(<span class="comment">see below</span>::size_type, Hash, Pred, Allocator)
       -&gt; unordered_map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
               Hash, Pred, Allocator&gt;;
@@ -878,16 +865,7 @@ add the following <em>deduction-guide</em>s
 </p><blockquote><pre>    void reserve(size_type n);
   };
   
-<span class="ins">  template&lt;class InputIterator&gt;
-  using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
-  template&lt;typename InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
-  template&lt;class Allocator&gt;
-  using alloc_key_t = alloc_key_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
-  template&lt;class Allocator&gt;
-  using alloc_val_t = alloc_val_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
-  
-  template&lt;class Hash, class Pred, class Allocator&gt;
+<span class="ins">  template&lt;class Hash, class Pred, class Allocator&gt;
   unordered_multimap(<span class="comment">see below</span>::size_type, Hash, Pred, Allocator)
       -&gt; unordered_multimap&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
               Hash, Pred, Allocator&gt;;
