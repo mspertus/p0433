@@ -480,7 +480,7 @@ as follows:
 The vendor could maintain this convention while continuing to satisfy the &ldquo;as-if&rdquo; rule in C++17
 by adding the following <em>deduction-guide</em>
 <code>template&lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt;&gt;
-  basic_string(const charT*, const Allocator&amp; = Allocator()) -&gt; basic_string&lt;charT, Allocator&gt;;</code>
+  basic_string(const charT*, Allocator = Allocator()) -&gt; basic_string&lt;charT, Allocator&gt;;</code>
 Similar considerations apply to <tt>basic_string_view</tt>.
 </p><h2>&sect;22 [localization]</h2>
 Add the following to the end of the definition of class <tt>wstring_convert</tt> in &sect;22.3.3.2.2
@@ -582,12 +582,11 @@ add the following <em>deduction-guide</em>:
     -&gt; deque&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  deque(typename deque&lt;typename Allocator::value_type, Allocator&gt;::size_type, Alloc)
+  deque(typename deque&lt;typename Allocator::value_type, Allocator&gt;::size_type, Allocator)
     -&gt; deque&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  deque(InputIterator, InputIterator,
-        const Allocator&amp; = Allocator())
+  deque(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; deque&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
 
 At the end of the definition of class <tt>forward_list</tt> in &sect;23.3.9.1 [forwardlist.overview],
