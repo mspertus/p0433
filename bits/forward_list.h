@@ -1367,18 +1367,11 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     forward_list(typename forward_list<typename allocator_traits<_Alloc>::value_type, _Alloc>::size_type, _Alloc)
       -> forward_list<typename allocator_traits<_Alloc>::value_type, _Alloc>;
   
-  // Workaround gcc bug 79316
   template<typename _InputIterator,
-	   typename  allocator_type,
+	   typename  allocator_type = allocator<typename iterator_traits<_InputIterator>::value_type>,
 	   typename = std::_RequireInputIter<_InputIterator>>
-    forward_list(_InputIterator, _InputIterator, const allocator_type &)
+    forward_list(_InputIterator, _InputIterator, const allocator_type = allocator_type())
       -> forward_list<typename std::iterator_traits<_InputIterator>::value_type, allocator_type>; 
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    forward_list(_InputIterator, _InputIterator)
-      -> forward_list<typename std::iterator_traits<_InputIterator>::value_type,
-		      std::allocator<typename std::iterator_traits<_InputIterator>::value_type>>; 
 
   /**
    *  @brief  Forward list equality comparison.
