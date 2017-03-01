@@ -306,10 +306,10 @@ We choose not to allow this problem, so we require that such deductions be ill-f
 Modify &sect;20.11.1.2.1p8 [unique.ptr.single.ctor] as follows:
 <blockquote><em>Remarks:</em> If this constructor is instantiated with a pointer type or reference type for the template
 argument <tt>D</tt>, the program is ill-formed. <span class="ins">If class template argument deduction (13.3.1.8) 
-    selects the function template corresponding to this constructor, then the program is ill-formed.</span></blockquote>
+    would select the function template corresponding to this constructor, then the program is ill-formed.</span></blockquote>
 Add the following paragraph after &sect;20.11.1.2.1p14 [unique.ptr.single.ctor]:
 <blockquote><span class="ins"><em>Remarks:</em>If class template argument deduction (13.3.1.8) 
-    selects a function template corresponding to either of these constructors, then the program is ill-formed.</span></blockquote>
+    would select a function template corresponding to either of these constructors, then the program is ill-formed.</span></blockquote>
 We handle <tt>shared_ptr</tt> the same as <tt>unique_ptr</tt>. Because the
 an implicit guides from <tt>T *</tt> are non-deducible, we do not need to add special wording for those
 constructors. We do not include
@@ -366,15 +366,14 @@ Add a paragraph after &sect;20.14.13.2.1p11 [func.wrap.func.con]
   function(F) -&gt; function&lt;<span class="comment">see below</span>&gt;;
 </span></pre>
     <blockquote><span class="ins"><em>Remarks:</em><blockquote><span class="ins">This deduction
-        guide only participates in overload resolution if <tt>F</tt>
-        has a single <tt>operator()</tt> member function, which shall be
-        non-generic. If the type of that member function is of the, possibly
-        cv-qualified, form
-        <tt>R(F::*)(A...)</tt>, then the deduced type shall be
-    <tt>function&lt;R(A...)&gt;</tt></span></blockquote>
+        guide participates in overload resolution only if <tt>&amp;F::operator()</tt> is
+        valid [temp.deduct]. In that case, if <tt>decltype(&amp;F::operator())</tt> is of the form
+        <tt>R(F::*)(A...) <em>cv</em></tt>, then the deduced type shall be
+    <tt>function&lt;R(A...)&gt;</tt>.</span></blockquote>
     [<em>Example:</em><blockquote><pre><span class="ins">void f() {
   int i{5};
-  function g = [&amp;](double) { return i; }; <span class="comment">// Deduces <span style="font-style:normal"><tt>function&lt;int(double)&gt;</tt></span></span></span>
+  function g = [&amp;](double) { return i; }; <span class="comment">// Deduces <span style="font-style:normal"><tt>function&lt;int(double)&gt;</tt></span></span>
+}</span>
 </pre></blockquote><em>&mdash;end example</em>] </span></blockquote></blockquote>    
 <b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
 would be interested to see if the comittee agrees with having deduction guides for member
@@ -483,21 +482,8 @@ by adding the following <em>deduction-guide</em>
   basic_string(const charT*, Allocator = Allocator()) -&gt; basic_string&lt;charT, Allocator&gt;;</code>
 Similar considerations apply to <tt>basic_string_view</tt>.
 </p><h2>&sect;22 [localization]</h2>
-Add the following to the end of the definition of class <tt>wstring_convert</tt> in &sect;22.3.3.2.2
-[conversions.string] 
-<blockquote><pre>    size_t cvtcount;      <span class="comment">// exposition only</span>
-  };
-  
-<span class="ins">  template&lt;class Codecvt&gt;
-    wstring_convert(Codecvt *) 
-      -&gt; wstring_convert&lt;Codecvt, typename Codecvt::intern_type&gt;;
-
-  template&lt;class Codecvt&gt;
-    wstring_convert(Codecvt *, typename Codecvt::state_type) 
-      -&gt; wstring_convert&lt;Codecvt, typename Codecvt::intern_type&gt;;
-</span></pre></blockquote>
-In addition to the above explicit deduction guide, <tt>wstring_convert</tt>
-and <tt>wbuffer_convert</tt> (&sect;22.3.3.2.3) benefit from additional implicit deduction guides.
+Since <tt>wstring_convert</tt> and <tt>wbuffer_convert</tt> are deprecated,
+we choose not to create deduction guides  for them.
 <h2>&sect;23 [containers]</h2>
 All of the headers in &sect;23 are listed in
     &ldquo;Table 102 &mdash; Containers library summary&rdquo; in &sect;23.1:
@@ -528,27 +514,30 @@ Modify the end of &sect;23.2.3/13 [sequence.reqmts] and the following paragraph 
 <p>The extent to which an implementation determines that a type cannot be an input iterator is
 	unspecified, except that as a minimum integral types shall not qualify as input iterators.
 	<span class="ins">Likewise, the extent to which an implementation determines that a type
-	cannot be an allocator is unspecified, except that as a minimum types not satisfying both of
+	cannot be an allocator is unspecified, except that as a minimum a type 
+        <tt>A</tt> not
+        satisfying both of
 		the following conditions shall not qualify as an allocator:
-		<ul><li><span class="ins">The type is a class type with a member type <tt>value_type</tt></span></li>
-		<li><span class="ins">The type is a class type with a member function <tt>allocate</tt> that may be 
-			called with an argument of type <tt>size_t</tt></span></li></ul></span></blockquote>
+		<ul><li><span class="ins">The <em>qualified-id</em> 
+            <tt>A::value_type</tt> is valid and denotes a type [temp.deduct]</span></li>
+        <li><span class="ins">The expression <tt>declval&lt;A&amp;&gt;().allocate(declval&lt;size_t&gt;()))</tt> is valid when treated as an unevaluated operand.</span></li></ul></span></blockquote>
 Add a paragraph to the end of &sect;23.2.6  [associative.reqmts]
 <blockquote><div class="ins">A deduction guide for an associative container shall not participate in overload resolution if it
 	has an <tt>InputIterator</tt> template
 parameter that is called with a type that does not qualify as an input iterator, or if it has an <tt>Allocator</tt>
-	template parameter that is called with a type that does not qualify as an allocator (&sect;17.5.3.5 [allocator.requirements]),
-	or if it has a <tt>Compare</tt> template parameter that is called with a type that does qualify as an allocator.
+	template parameter that is called with a type that does not qualify as an allocator,
+	or if it has a <tt>Compare</tt> template parameter that is called with a type that qualifies as an allocator.
 	</div></blockquote>
 Add a paragraph to the end of &sect;23.2.7  [unord.req]
 <blockquote><div class="ins">A deduction guide for an unordered associative container shall not participate in overload resolution if any
-	of the following are true. <ul><li>It
+	of the following are : <ul><li>It
 	has an <tt>InputIterator</tt> template
 parameter that is called with a type that does not qualify as an input iterator</li><li>It has an <tt>Allocator</tt>
 	template parameter that is called with a type that does not qualify as an allocator</li>
 	<li>It has a <tt>Hash</tt> template parameter that is called with an
         integral type or a type that qualifies as an allocator</li>
-	<li>It has a <tt>Pred</tt> template  that is called with a type that  qualifies as an allocator</li>
+	<li>It has a <tt>Pred</tt> template parameter
+        that is called with a type that  qualifies as an allocator</li>
 	</ul></div></blockquote>
 <b>Note: </b> The reason to ensure that <tt>Hash</tt> is not integral is
     to keep it from matching the <tt>size_type</tt> that some constructors
@@ -643,13 +632,12 @@ map m2 = initializer_list&lt;pair&lt;char *const, int&gt;&gt;({{"foo", 2}, {"bar
 Hopefully, this may be addressed by a future language extension in the post-C++17 timeline. Note also
 that we apply <tt>remove_const_t</tt> to the keys in order to find the proper comparator (or hash in case
 	of unordered containers).<p>
-Proceeding to the wording changes, at the end of the definition of class <tt>map</tt> in &sect;23.4.4.1 [map.overview],
-	
+Proceeding to the wording changes, at the end of the definition of class <tt>map</tt> in &sect;23.4.1 [map.overview],
 add the following <em>deduction-guide</em>s:
 <blockquote><pre>    template &lt;class K&gt;
       pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
   };
-  <!-- STL: Use less<T> instead of default_order_t<T> -->
+  <!-- STL: Use less<T> instead o<T> -->
 <span class="ins">
   template&lt;class InputIterator&gt;
   using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
