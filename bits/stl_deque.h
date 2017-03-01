@@ -2248,18 +2248,13 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     deque(typename deque<typename allocator_traits<_Alloc>::value_type, _Alloc>::size_type, _Alloc)
       -> deque<typename allocator_traits<_Alloc>::value_type, _Alloc>;
   
-  // Workaround gcc bug 79316
   template<typename _InputIterator,
-	   typename  allocator_type,
+	   typename  _allocator_type = allocator<typename iterator_traits<_InputIterator>::value_type>,
 	   typename = std::_RequireInputIter<_InputIterator>>
-    deque(_InputIterator, _InputIterator, const allocator_type &)
-      -> deque<typename std::iterator_traits<_InputIterator>::value_type, allocator_type>; 
+    deque(_InputIterator, _InputIterator, _allocator_type = _allocator_type() )
+      -> deque<typename std::iterator_traits<_InputIterator>::value_type, _allocator_type>; 
 
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    deque(_InputIterator, _InputIterator)
-      -> deque<typename std::iterator_traits<_InputIterator>::value_type,
-	       std::allocator<typename std::iterator_traits<_InputIterator>::value_type>>; 
+
 
   /**
    *  @brief  Deque equality comparison.
