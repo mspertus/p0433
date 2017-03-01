@@ -658,7 +658,7 @@ add the following <em>deduction-guide</em>s:
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
-  using alloc_val_t = alloc_val_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
+  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
   
   template&lt; class Compare, class Allocator&gt;  
   map(Compare, Allocator)
@@ -704,7 +704,7 @@ add the following <em>deduction-guide</em>s:
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
-  using alloc_val_t = alloc_val_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
+  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
   
   template&lt; class Compare, class Allocator&gt;  
   multimap(Compare, Allocator)
@@ -824,7 +824,7 @@ add the following <em>deduction-guide</em>s:
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
-  using alloc_val_t = alloc_val_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
+  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
   
   template&lt;class Hash, class Pred, class Allocator&gt;
   unordered_map(<span class="comment">see below</span>::size_type, Hash, Pred, Allocator)
