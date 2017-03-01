@@ -629,10 +629,41 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _Invoker_type _M_invoker;
   };
 
-  // The definition of INVOKE seems to prioritize interpretation of objects acted on by member
-  // pointers as references rather than pointers
+  template <typename T>
+  struct _is_uniquely_callable
+  {
+    template <typename C> static char test(decltype(&C::operator()));
+    template <typename C> static int test(...);
+
+    static bool const value = is_same_v<decltype(test<T>(nullptr)), char>;
+  };
+  
+  template<typename T> struct _member_sig;
+  template<typename C, typename R, typename... A>
+  struct _member_sig<R(C::*)(A...)> {
+    using type = R(A...);
+  };
+  
+  template<typename C, typename R, typename... A>
+  struct _member_sig<R(C::*)(A...) const> {
+    using type = R(A...);
+  };
+  
+  template<typename C, typename R, typename... A>
+  struct _member_sig<R(C::*)(A...) volatile> {
+    using type = R(A...);
+  };
+  
+  template<typename C, typename R, typename... A>
+  struct _member_sig<R(C::*)(A...) const volatile> {
+    using type = R(A...);
+  };
+  
   template<class R, class... ArgTypes> 
     function(R(*)(ArgTypes...)) -> function<R(ArgTypes...)>;
+
+  template<class F, enable_if_t<_is_uniquely_callable<F>::value> * = nullptr> 
+    function(F) -> function<typename _member_sig<decltype(&F::operator())>::type>;
 
   // Out-of-line member definitions.
   template<typename _Res, typename... _ArgTypes>

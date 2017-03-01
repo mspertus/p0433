@@ -422,6 +422,11 @@ void test_bit_operations() // 20.14.9
 }
 
 int fidi(double d, int i) { return i; }
+int fidin(double d, int i) noexcept { return i; }
+
+struct L {
+  void operator()(int) {}
+};
 
 void test_function() // Explicit - 20.14.13.2
 {
@@ -431,6 +436,17 @@ void test_function() // Explicit - 20.14.13.2
   static_assert(is_same_v<decltype(f2), function<int(double, int)>>);
   function f3 = f1; // implicit
   static_assert(is_same_v<decltype(f3), decltype(f1)>);
+  // std::function<A(B) noexcept> is not allowed in n4640 standard draft
+  function f4(fidin); 
+  static_assert(is_same_v<decltype(f4), function<int(double, int)>>);
+  function f5(&fidin);
+  static_assert(is_same_v<decltype(f5), function<int(double, int)>>);
+  function f6{L()};
+  static_assert(is_same_v<decltype(f6), function<void(int)>>);
+  function f7{[](int) { return 2.6; }};
+  static_assert(is_same_v<decltype(f7), function<double(int)>>);
+  function f8{[&](int) { return 2.6; }};
+  static_assert(is_same_v<decltype(f8), function<double(int)>>);
 }
 
 
