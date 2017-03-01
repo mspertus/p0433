@@ -267,7 +267,7 @@ Make the following change
 <blockquote><pre>  T *val; <span class="comment">// exposition only</span>
 };
 <span class="ins">
-template&lt;class T&gt; optional(T&amp;&amp; t) -&gt; optional&lt;decay_t&lt;T&gt;&gt;;</span></pre></blockquote>
+template&lt;class T&gt; optional(T) -&gt; optional&lt;T&gt;;</span></pre></blockquote>
 
 	<b>Note:</b> See the <a href="#Background">Background</a> above for additional
 discussion of <tt>optional</tt>.
