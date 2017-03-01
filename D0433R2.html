@@ -339,7 +339,7 @@ in &sect;20.13.1 [allocator.adaptor.syn], add
   };
  
 <span class="ins">template&lt;class OuterAlloc, class... InnerAllocs&gt; scoped_allocator_adaptor(OuterAlloc, InnerAllocs...)
-  -&gt; scoped_allocator_adaptor&lt;OuterAlloc, InnerAllocs...&gt;;</span></pre></blockquote>If a different outer allocator is desired, then
+  -&gt; scoped_allocator_adaptor&lt;OuterAllocator, InnerAllocs...&gt;;</span></pre></blockquote>If a different outer allocator is desired, then
 it can still be specified explicitly. 
 <h3>&sect;20.14 [function.objects]</h3>
 	<!-- STL only wants the first guide -->
@@ -520,7 +520,7 @@ Modify the end of &sect;23.2.3/13 [sequence.reqmts] and the following paragraph 
 		the following conditions shall not qualify as an allocator:
 		<ul><li><span class="ins">The <em>qualified-id</em> 
             <tt>A::value_type</tt> is valid and denotes a type [temp.deduct]</span></li>
-        <li><span class="ins">The expression <tt>declval&lt;A&amp;&gt;().allocate(declval&lt;size_t&gt;()))</tt> is valid when treated as an unevaluated operand.</span></li></ul></span></blockquote>
+        <li><span class="ins">The expression <tt>declval&lt;A&amp;&gt;().allocate(size_t{})</tt> is well-formed when treated as an uated operand</span></li></ul></span></blockquote>
 Add a paragraph to the end of &sect;23.2.6  [associative.reqmts]
 <blockquote><div class="ins">A deduction guide for an associative container shall not participate in overload resolution if it
 	has an <tt>InputIterator</tt> template
@@ -530,7 +530,7 @@ parameter that is called with a type that does not qualify as an input iterator,
 	</div></blockquote>
 Add a paragraph to the end of &sect;23.2.7  [unord.req]
 <blockquote><div class="ins">A deduction guide for an unordered associative container shall not participate in overload resolution if any
-	of the following are : <ul><li>It
+	of the following are: <ul><li>It
 	has an <tt>InputIterator</tt> template
 parameter that is called with a type that does not qualify as an input iterator</li><li>It has an <tt>Allocator</tt>
 	template parameter that is called with a type that does not qualify as an allocator</li>
@@ -543,22 +543,21 @@ parameter that is called with a type that does not qualify as an input iterator<
     to keep it from matching the <tt>size_type</tt> that some constructors
     use to specify the number of hash buckets.
 <h3>&sect;23.3 [sequences]</h3>
-For <tt>std::array</tt>, we adopt ao Yuan's recommendation from p0511r1. 
-At the end of the definition of class <tt>array</tt> in 23.3.7.1 [array.overview],
-add the <tt>f</tt>o
-llowing <em>deductionb-guide</em>:
+For <tt>std::array</tt>, based on considerations from p0511r1, 
+at the end of the definition of class <tt>array</tt> in 23.3.7.1 [array.overview],
+we add the following <em>deduction-guide</em>:
 <blockquote><pre>    constexpr const T * data() const noexcept;
   };
 
-<span class="ins">  template &lt;class... T&gt;
-    array(T...) -&gt; array&lt;<em>see below</em>, sizeof...(T)&gt;;</span>
+<span class="ins">  template &lt;class T, class... U&gt;
+    array(T, U...) -&gt; array&lt;T, 1 + sizeof...(U)&gt;;</span>
 }
 </pre></blockquote>
 Add the following paragraph to the end of 23.3.7.2 [array.cons]
-<blockquote><pre><span class="ins">  template &lt;class... T&gt;
-    array(T...) -&gt; array&lt;D, sizeof...(T)&gt;;</span>
-  </pre><span class="ins"><em>Remarks: </em> <tt>D<sub>0</sub></tt> is <tt>T<sub>0</sub></tt>, 
-    and <tt>is_same_v&lt;D, T<sub>i</sub>&gt;</tt> is true for all <tt>i</tt>. If there is no such <tt>D</tt>,
+<blockquote><pre><span class="ins">  template &lt;class T, class... U&gt;
+    array(T, U...) -&gt; array&lt;T, 1 + sizeof...(U)&gt;;</span>
+  </pre><span class="ins"><em>Requires: </em>
+    <tt>(is_same_v&lt;T, U&gt; &amp;&amp; ...)</tt> is <tt>true</tt>. Otherwise
     the program is ill-formed.</span>
 </blockquote>
 
@@ -587,7 +586,7 @@ add the following <em>deduction-guide</em>:
   forward_list(Allocator) -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  forward_list(typename forward_list&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
+  forward_list(typename forward_list&lt;typename Allocator::value_type, Allocator&gt;::size_type, Allocator)
     -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
@@ -606,7 +605,7 @@ add the following <em>deduction-guide</em>s:
     -&gt; list&lt;typename Allocator::value_type, Allocator&gt;;
   
     template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  list(InputIterator first, InputIterator last, Allocator = Allocator())
+  list(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; list&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
 At the end of the definition of class <tt>vector</tt> in &sect;23.3.11.1 [vector.overview],
 add the following <em>deduction-guide</em>:
@@ -614,10 +613,10 @@ add the following <em>deduction-guide</em>:
   };
   
 <span class="ins">  template&lt;class Allocator&gt;
-  vector(Alloc) -&gt; vector&lt;typename Allocator::value_type, Allocator&gt;;
+  vector(Allocator) -&gt; vector&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  vector(typename vector&lt;typename Allocator::value_type, Alloc&gt;::size_type, Allocator)
+  vector(typename vector&lt;typename Allocator::value_type, Allocator&gt;::size_type, Allocator)
     -&gt; vector&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
@@ -628,7 +627,7 @@ add the following <em>deduction-guide</em>:
 First, we note that associative containers cannot always deduce their template parameters from an initializer list as illustrated by
 	the following code.
 	<code>map m = {{"foo", 2}, {"bar", 3}, {"baz", 4}}; <span class="comment">// Error: initializer_list not reified in type system</span>
-map m2 = initializer_list&lt;pair&lt;char *const, int&gt;&gt;({{"foo", 2}, {"bar", 3}, {"baz", 4}}); <span class="comment">// OK </span></code>
+map m2 = initializer_list&lt;pair&lt;char const *, int&gt;&gt;({{"foo", 2}, {"bar", 3}, {"baz", 4}}); <span class="comment">// OK </span></code>
 Hopefully, this may be addressed by a future language extension in the post-C++17 timeline. Note also
 that we apply <tt>remove_const_t</tt> to the keys in order to find the proper comparator (or hash in case
 	of unordered containers).<p>
@@ -642,13 +641,13 @@ add the following <em>deduction-guide</em>s:
   template&lt;class InputIterator&gt;
   using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
   template&lt;class InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;_InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
+  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
   using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span> 
   
-  template&lt; class Compare, class Allocator&gt;  
+  template&lt;class Compare, class Allocator&gt;  
   map(Compare, Allocator)
     -&gt; map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;, Compare, Allocator&gt;;
   
@@ -688,7 +687,7 @@ add the following <em>deduction-guide</em>s:
   template&lt;class InputIterator&gt;
   using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
   template&lt;class InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;_InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
+  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
@@ -752,8 +751,8 @@ add the following <em>deduction-guide</em>s:
   set(initializer_list&lt;Key&gt;, Compare = Compare(), Allocator = Allocator())
     -&gt; set&lt;Key, Compare, Allocator&gt;;
   
-  template&lt;class T, class C, class A&gt;
-  set(InputIterator, InputIterator, const Allocator&amp;)
+  template&lt;class InputIterator, class Allocator&gt;
+  set(InputIterator, InputIterator, Allocator)
     -&gt; set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
            less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
   
@@ -790,8 +789,8 @@ add the following <em>deduction-guide</em>:
   multiset(initializer_list&lt;Key&gt;, Compare = Compare(), Allocator = Allocator())
     -&gt; multiset&lt;Key, Compare, Allocator&gt;;
   
-  template&lt;class T, class C, class A&gt;
-  multiset(InputIterator, InputIterator, const Allocator&amp;)
+  template&lt;class InputIterator, class Allocator&gt;
+  multiset(InputIterator, InputIterator, Allocator)
     -&gt; multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
            less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
   
@@ -808,7 +807,7 @@ add the following <em>deduction-guide</em>s:
 <span class="ins">  template&lt;class InputIterator&gt;
   using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
   template&lt;typename InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;_InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
+  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
@@ -820,7 +819,7 @@ add the following <em>deduction-guide</em>s:
               Hash, Pred, Allocator&gt;;
   
   template&lt;class InputIterator,
-	   class Hash = hash&lt;iter_key_t&lt;&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
+	   class Hash = hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
 	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   unordered_map(InputIterator, InputIterator, <span class="comment">see below</span>::size_type = 0,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
@@ -882,7 +881,7 @@ add the following <em>deduction-guide</em>s
 <span class="ins">  template&lt;class InputIterator&gt;
   using iter_key_t = remove_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;;  <span class="comment">// exposition only</span>
   template&lt;typename InputIterator&gt;
-  using iter_val_t = typename iterator_traits&lt;_InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
+  using iter_val_t = typename iterator_traits&lt;InputIterator&gt;::value_type::second_type;  <span class="comment">// exposition only</span>
   template&lt;class Allocator&gt;
   using alloc_key_t = alloc_key_t&lt;Allocator&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
@@ -894,7 +893,7 @@ add the following <em>deduction-guide</em>s
               Hash, Pred, Allocator&gt;;
   
   template&lt;class InputIterator,
-	   class Hash = hash&lt;iter_key_t&lt;&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
+	   class Hash = hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
 	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   unordered_multimap(InputIterator, InputIterator, <span class="comment">see below</span>::size_type = 0,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
@@ -1018,7 +1017,7 @@ At the end of the definition of class <tt>queue</tt> in &sect;23.6.4.1 [queue.de
 <blockquote><pre>    void swap(queue&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt;)
       { using std::swap; swap(c, q.c); }
   };
-<!-- STL replace Alloc with Allocator -->
+<!-- STL replace Allocator with Allocator -->
   <span class="ins">explicit template&lt;class Container&gt; queue(const Container&amp;&amp;)
     -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;;
  template&lt;class Alloc&gt; queue(const Alloc&amp;) 
