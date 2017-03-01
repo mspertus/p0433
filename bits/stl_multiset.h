@@ -881,24 +881,13 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     -> multiset<typename allocator_traits<_Alloc>::value_type, _Comp,  _Alloc>;
 
   template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    multiset(_InputIterator, _InputIterator)
-    -> multiset<typename std::iterator_traits<_InputIterator>::value_type>; 
-
-  // Next two guides are to workaround gcc bug 79316
-  template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
-	   typename _Compare, typename _Alloc>
-    multiset(_InputIterator, _InputIterator, const _Compare &, const _Alloc &)
+	   typename _Compare = less<typename std::iterator_traits<_InputIterator>::value_type>,
+	   typename _Alloc = allocator<typename std::iterator_traits<_InputIterator>::value_type>,
+	    enable_if_t<!__is_allocator_v<_Compare>> * = nullptr>
+    multiset(_InputIterator, _InputIterator, _Compare = _Compare(), const _Alloc = _Alloc())
     -> multiset<typename std::iterator_traits<_InputIterator>::value_type,
 	   _Compare, _Alloc>; 
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>,
-	   typename _Compare,
-	   enable_if_t<!__is_allocator_v<_Compare>> * = nullptr>
-    multiset(_InputIterator, _InputIterator, const _Compare &)
-    -> multiset<typename std::iterator_traits<_InputIterator>::value_type, _Compare>; 
 
   template<typename _Alloc,  enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
     multiset(_Alloc) -> multiset<typename allocator_traits<_Alloc>::value_type,
@@ -909,18 +898,15 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   template<typename _T, typename _C, typename _A>
     multiset(multiset<_T, _C, _A>, _A) -> multiset<_T, _C, _A>;
 
-  template<typename _T, typename _C, typename _A,  enable_if_t<!__is_allocator_v<_C>> * = nullptr>
-    multiset(initializer_list<_T>, _C /* = ... */, _A /* = ... */) -> multiset<_T, _C, _A>;
-
-  // The following guide goes away with the fix to gcc bug 79316
-  template<typename _T, typename _C, enable_if_t<!__is_allocator_v<_C>> * = nullptr>
-    multiset(initializer_list<_T>, _C) -> multiset<_T, _C>;
+  template<typename _T, typename _C = less<_T>, typename _A = allocator<_T>,
+	   enable_if_t<!__is_allocator_v<_C>> * = nullptr>
+    multiset(initializer_list<_T>, _C = _C(), _A = _A()) -> multiset<_T, _C, _A>;
 
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
 	   typename _Allocator,
 	   enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
-    multiset(_InputIterator, _InputIterator, const _Allocator &)
+    multiset(_InputIterator, _InputIterator, _Allocator)
     -> multiset<typename std::iterator_traits<_InputIterator>::value_type,
 	   /* default_order_t */ less<typename std::iterator_traits<_InputIterator>::value_type>,
 	   _Allocator>; 
