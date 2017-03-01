@@ -299,7 +299,14 @@ unique_ptr uip{ip};  <scan class="comment">// Deduce unique_ptr&lt;int&gt;</scan
 	a request from the community for it. The downside is that it will fail to deduce an array type
 <code>int *ip = new int[5];
 unique_ptr uip{ip};  <scan class="comment">// Still deduces unique_ptr&lt;int&gt;</scan></code>
-We choose not to allow this problem, so no deduction guides are necessary. <p>
+We choose not to allow this problem, so we require that such deductions be ill-formed. <p>
+Modify &sect;20.11.1.2.1p8 [unique.ptr.single.ctor] as follows:
+<blockquote><em>Remarks:</em> If this constructor is instantiated with a pointer type or reference type for the template
+argument <tt>D</tt>, the program is ill-formed. <span class="ins">Class template argument deduction (13.3.1.8) from this
+constructor is ill-formed.</span></blockquote>
+Add the following paragraph after &sect;20.11.1.2.1p14 [unique.ptr.single.ctor]:
+<blockquote><span class="ins"><em>Remarks:</em>Class template argument deduction (13.3.1.8) from these
+constructors are ill-formed.</span></blockquote>
 We handle <tt>shared_ptr</tt> the same as <tt>unique_ptr</tt>. Because there is
 an implicit guide from <tt>T *</tt>, we want to make it ill-formed. The following
     code assumes we have <tt>= delete</tt> from P0091R4. If not, put in wording
