@@ -350,7 +350,25 @@ class definition for <tt>function</tt> in &sect;20.14.12.2 [func.wrap.func]
   
 <span class="ins">  template&lt;class R, class... ArgTypes&gt; 
     function(R(*)(ArgTypes...)) -&gt; function&lt;R(ArgTypes...)&gt;;
+  
+  template&lt;class F&gt;
+  function(F) -&gt; function&lt;<span class="comment">see below</span>&gt;;
 </span></pre></blockquote>
+Add a paragraph after &sect;20.14.13.2.1p11 [func.wrap.func.con]
+<blockquote><pre><span class="ins">  template&lt;class F&gt;
+  function(F) -&gt; function&lt;<span class="comment">see below</span>&gt;;
+</span></pre>
+    <blockquote><span class="ins"><em>Remarks:</em><blockquote><span class="ins">This deduction
+        guide only participates in overload resolution if <tt>F</tt>
+        has a single <tt>operator()</tt> member function, which shall be
+        non-generic. If the type of that member function is of the, possibly
+        cv-qualified, form
+        <tt>R(F::*)(A...)</tt>, then the deduced type shall be
+    <tt>function&lt;R(A...)&gt;</tt></span></blockquote>
+    [<em>Example:</em><blockquote><pre><span class="ins">void f() {
+  int i{5};
+  function g = [&amp;](double) { return i; } <span class="comment">// Deduces <span style="font-style:normal"><tt>function&lt;int(double)&gt;</tt></span></span></span>
+</pre></blockquote><em>&mdash;end example</em>] </span></blockquote></blockquote>    
 <b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
 would be interested to see if the comittee agrees with having deduction guides for member
 pointers in addition to function pointers, and if so, whether these are the right choices.<p>
