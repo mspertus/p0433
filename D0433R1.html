@@ -374,7 +374,7 @@ Add a paragraph after &sect;20.14.13.2.1p11 [func.wrap.func.con]
     <tt>function&lt;R(A...)&gt;</tt></span></blockquote>
     [<em>Example:</em><blockquote><pre><span class="ins">void f() {
   int i{5};
-  function g = [&amp;](double) { return i; } <span class="comment">// Deduces <span style="font-style:normal"><tt>function&lt;int(double)&gt;</tt></span></span></span>
+  function g = [&amp;](double) { return i; }; <span class="comment">// Deduces <span style="font-style:normal"><tt>function&lt;int(double)&gt;</tt></span></span></span>
 </pre></blockquote><em>&mdash;end example</em>] </span></blockquote></blockquote>    
 <b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
 would be interested to see if the comittee agrees with having deduction guides for member
@@ -457,8 +457,9 @@ constructors that require special treatment as a result of template deduction fo
 
 <h3>&sect;20.17 [time]</h3>
 No wording changes necessary for &sect;20.17 to leverage template 
-deduction for constructors. Constructs like <tt>duration(5L)</tt> behave as expected
-from the compiler-generated implicit deduction guides..
+deduction for constructors. Note that LEWG voted against adding
+a deduction guide to support expressions like <tt>duration(5L)</tt>.
+
 <h3>&sect;20.18 [type.index]</h3>
 There are no class templates defined in this subclause, so nothing to do.
 
