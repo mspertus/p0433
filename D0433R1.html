@@ -338,8 +338,8 @@ in &sect;20.13.1 [allocator.adaptor.syn], add
 <blockquote><pre>    scoped_allocator_adaptor select_on_container_copy_construction() const;
   };
  
-<span class="ins">template&lt;class OuterAlloc, class... InnerAllocs&gt; scoped_allocator_adaptor(OuterAlloc&amp;&amp;, InnerAllocs&amp;&amp;...)
-  -&gt; scoped_allocator_adaptor&lt;decay_t&lt;OuterAlloc&gt;, decay_t&lt;InnerAllocs&gt;...&gt;;</span></pre></blockquote>If a different outer allocator is desired, then
+<span class="ins">template&lt;class OuterAlloc, class... InnerAllocs&gt; scoped_allocator_adaptor(OuterAlloc, InnerAllocs...)
+  -&gt; scoped_allocator_adaptor&lt;OuterAlloc, InnerAllocs...&gt;;</span></pre></blockquote>If a different outer allocator is desired, then
 it can still be specified explicitly. 
 <h3>&sect;20.14 [function.objects]</h3>
 	<!-- STL only wants the first guide -->
@@ -547,13 +547,13 @@ parameter that is called with a type that does not qualify as an input iterator<
 	template parameter that is called with a type that does not qualify as an allocator</li>
 	<li>It has a <tt>Hash</tt> template parameter that is called with an
         integral type or a type that qualifies as an allocator</li>
-	<li>It has a <tt>Pred</tt> template parameter that is called with a type that  qualifies as an allocator</li>
+	<li>It has a <tt>Pred</tt> template  that is called with a type that  qualifies as an allocator</li>
 	</ul></div></blockquote>
 <b>Note: </b> The reason to ensure that <tt>Hash</tt> is not integral is
     to keep it from matching the <tt>size_type</tt> that some constructors
     use to specify the number of hash buckets.
 <h3>&sect;23.3 [sequences]</h3>
-For <tt>std::array</tt>, we adopt Zhihao Yuan's recommendation from p0511r1. 
+For <tt>std::array</tt>, we adopt ao Yuan's recommendation from p0511r1. 
 At the end of the definition of class <tt>array</tt> in 23.3.7.1 [array.overview],
 add the <tt>f</tt>o
 llowing <em>deductionb-guide</em>:
