@@ -578,8 +578,8 @@ add the following <em>deduction-guide</em>:
 <blockquote><pre>    void clear() noexcept;
   };
   <!-- STL: Value type is guaranteed to be accessible. Simplify without allocator_traits -->
-<span class="ins">  template&lt;class Allocator&gt; deque(Allocator)
-    -&gt; deque&lt;typename Allocator::value_type, Allocator&gt;;
+<span class="ins">  template&lt;class Allocator&gt; 
+  deque(Allocator) -&gt; deque&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
   deque(typename deque&lt;typename Allocator::value_type, Allocator&gt;::size_type, Allocator)
@@ -594,8 +594,8 @@ add the following <em>deduction-guide</em>:
 <blockquote><pre>    void reverse() noexcept;
   };
   
-<span class="ins">  template&lt;class Allocator&gt; forward_list(Allocator)
-    -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
+<span class="ins">  template&lt;class Allocator&gt;
+  forward_list(Allocator) -&gt; forward_list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
   forward_list(typename forward_list&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
@@ -609,32 +609,30 @@ add the following <em>deduction-guide</em>s:
 <blockquote><pre>    void reverse() noexcept;
   };
   
-<span class="ins">  template&lt;class Allocator&gt; list(Alloc)
-    -&gt; list&lt;typename Allocator::value_type, Alloc&gt;;
+<span class="ins">  template&lt;class Allocator&gt;
+  list(Allocator) -&gt; list&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  list(typename list&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; list&lt;typename Allocator::value_type, Alloc&gt;;
+  list(typename list&lt;typename Allocator::value_type, Allocator&gt;::size_type, Allocator)
+    -&gt; list&lt;typename Allocator::value_type, Allocator&gt;;
   
     template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  list(InputIterator first, InputIterator last,
-       const Allocator&amp; = Allocator())
+  list(InputIterator first, InputIterator last, Allocator = Allocator())
     -&gt; list&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
 At the end of the definition of class <tt>vector</tt> in &sect;23.3.11.1 [vector.overview],
 add the following <em>deduction-guide</em>:
 <blockquote><pre>    void clear() noexcept;
   };
   
-<span class="ins">  template&lt;class Allocator&gt; vector(Alloc)
-    -&gt; vector&lt;typename Allocator::value_type, Alloc&gt;;
+<span class="ins">  template&lt;class Allocator&gt;
+  vector(Alloc) -&gt; vector&lt;typename Allocator::value_type, Allocator&gt;;
   
   template&lt;class Allocator&gt; 
-  vector(typename vector&lt;typename Allocator::value_type, Alloc&gt;::size_type, Alloc)
-    -&gt; vector&lt;typename Allocator::value_type, Alloc&gt;;
+  vector(typename vector&lt;typename Allocator::value_type, Alloc&gt;::size_type, Allocator)
+    -&gt; vector&lt;typename Allocator::value_type, Allocator&gt;;
   
   template &lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  vector(InputIterator, InputIterator,
-         const Allocator&amp; = Allocator())
+  vector(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Allocator&gt;;</span></pre></blockquote>
 	Note that with the above guides <tt>vector&lt;bool&gt;</tt> behaves properly as well.
 <h3>&sect;23.4 [associative]</h3>
