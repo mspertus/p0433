@@ -733,7 +733,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename _Tp>
-  optional(_Tp&&) -> optional<decay_t<_Tp>>;
+  optional(_Tp) -> optional<_Tp>;
   
   template<typename _Tp>
     using __optional_relop_t =
