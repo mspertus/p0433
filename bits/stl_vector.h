@@ -1586,19 +1586,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     vector(typename vector<typename allocator_traits<_Alloc>::value_type, _Alloc>::size_type, _Alloc)
       -> vector<typename allocator_traits<_Alloc>::value_type, _Alloc>;
   
-  // Workaround gcc bug 79316
   template<typename _InputIterator,
-	   typename  allocator_type,
+	   typename  allocator_type = allocator<typename iterator_traits<_InputIterator>::value_type>,
 	   typename = std::_RequireInputIter<_InputIterator>>
-    vector(_InputIterator, _InputIterator, const allocator_type &)
+    vector(_InputIterator, _InputIterator, allocator_type = allocator_type())
       -> vector<typename std::iterator_traits<_InputIterator>::value_type, allocator_type>; 
 
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    vector(_InputIterator, _InputIterator)
-      -> vector<typename std::iterator_traits<_InputIterator>::value_type,
-	      std::allocator<typename std::iterator_traits<_InputIterator>::value_type>>; 
- 
 
   /**
    *  @brief  Vector equality comparison.
