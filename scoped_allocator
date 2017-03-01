@@ -455,9 +455,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<class _OuterAlloc, class... _InnerAllocs>
-    scoped_allocator_adaptor(_OuterAlloc&&, const _InnerAllocs&&...)
-      -> scoped_allocator_adaptor<decay_t<_OuterAlloc>,
-				  decay_t<_InnerAllocs>...>;
+    scoped_allocator_adaptor(_OuterAlloc, const _InnerAllocs...)
+      -> scoped_allocator_adaptor<_OuterAlloc, _InnerAllocs...>;
 
   template <typename _OutA1, typename _OutA2, typename... _InA>
     inline bool
