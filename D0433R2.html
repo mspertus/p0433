@@ -641,7 +641,10 @@ Add a paragraph to &sect;23.4.1 [associative.general]
   template&lt;class Allocator&gt;
   using alloc_key_t = remove_const_t&lt;typename Allocator::value_type::first_type&gt;;  <span class="comment">// exposition only</span> 
   template&lt;class Allocator&gt;
-  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span></span></pre>
+  using alloc_val_t = typename Allocator::value_type::second_type;  <span class="comment">// exposition only</span>
+  template&lt;class InputIterator&gt;
+  using iter_to_alloc_t = pair&lt;add_const_t&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type&gt;,
+                                typename iterator_traits&lt;InputIterator&gt;::value_type::second_type&gt;</span></pre>
 </blockquote>
 At the end of the definition of class <tt>map</tt> in &sect;23.4.4.1 [map.overview],
 add the following <em>deduction-guide</em>s:
@@ -658,7 +661,7 @@ add the following <em>deduction-guide</em>s:
   
   template &lt;class InputIterator, 
         class Compare = less&lt;iter_key_t&lt;InputIterator&gt;&gt;,
-        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+        class Allocator = allocator&lt;iter_to_alloc_t&lt;InputIterator&gt;&gt;&gt;
   map(InputIterator, InputIterator, Compare = Compare(), Allocator = Allocator())
     -&gt; map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;, Compare, Allocator&gt;;
   
@@ -694,7 +697,7 @@ add the following <em>deduction-guide</em>s:
   
   template &lt;class InputIterator, 
         class Compare = less&lt;iter_key_t&lt;InputIterator&gt;&gt;,
-        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+        class Allocator = allocator&lt;iter_to_alloc_t&lt;InputIterator&gt;&gt;&gt;
   multimap(InputIterator, InputIterator, Compare = Compare(), Allocator = Allocator())
     -&gt; multimap&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;, Compare, Allocator&gt;;
   
@@ -793,7 +796,7 @@ add the following <em>deduction-guide</em>:
 <h3>&sect;23.5 [unord]</h3>
 Add a paragraph to the end of &sect;23.5.1 [unord.general]:
 <blockquote><span class="ins">The exposition only type aliases <tt>iter_key_t</tt>, 
-    <tt>iter_val_t</tt>, <tt>alloc_key_t</tt>, <tt>alloc_val_t</tt> defined
+    <tt>iter_val_t</tt>, <tt>alloc_key_t</tt>, <tt>alloc_val_t</tt>, and <tt>iter_to_alloc_t</tt> defined
     in [associative.general] may appear in deduction guides for unordered containers</span></blockquote>
 At the end of the definition of class <tt>unordered_map</tt> in &sect;23.5.4.1 [unord.map.overview],
 add the following <em>deduction-guide</em>s:
@@ -807,7 +810,7 @@ add the following <em>deduction-guide</em>s:
   
   template&lt;class InputIterator,
 	   class Hash = hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
-	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+	   class Allocator = allocator&lt;iter_to_alloc_t&lt;InputIterator&gt;&gt;&gt;
   unordered_map(InputIterator, InputIterator, <span class="comment">see below</span>::size_type = 0,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
       -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_value_t&lt;InputIterator&gt;, Hash, Pred, Allocator&gt;;
@@ -872,7 +875,7 @@ add the following <em>deduction-guide</em>s
   
   template&lt;class InputIterator,
 	   class Hash = hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, class Pred = equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;,
-	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+	   class Allocator = allocator&lt;iter_to_alloc_t&lt;InputIterator&gt;&gt;&gt;
   unordered_multimap(InputIterator, InputIterator, <span class="comment">see below</span>::size_type = 0,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
       -&gt; unordered_multimap&lt;iter_key_t&lt;InputIterator&gt;, iter_value_t&lt;InputIterator&gt;, Hash, Pred, Allocator&gt;;
