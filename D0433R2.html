@@ -374,7 +374,11 @@ Add a paragraph after &sect;20.14.13.2.1p11 [func.wrap.func.con]
   int i{5};
   function g = [&amp;](double) { return i; }; <span class="comment">// Deduces <span style="font-style:normal"><tt>function&lt;int(double)&gt;</tt></span></span>
 }</span>
-</pre></blockquote><em>&mdash;end example</em>] </span></blockquote></blockquote>    
+</pre></blockquote><em>&mdash;end example</em>] </span></blockquote></blockquote>   
+Add a new paragraph after 20.14.13.2p3 [func.wrap.func]:
+<blockquote><span class="ins">[ <em>Note:</em>. The types deduced by the 
+    deduction guides for <tt>function</tt> may change in future versions of this international standard. 
+    &mdash;<em>end note</em>]</span></blockquote>
 <b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
 would be interested to see if the comittee agrees with having deduction guides for member
 pointers in addition to function pointers, and if so, whether these are the right choices.<p>
