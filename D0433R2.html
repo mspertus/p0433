@@ -929,28 +929,63 @@ add the following <em>deduction-guide</em>s:
 <blockquote><pre>    void reserve(size_type n);
   };
   
-<span class="ins">  template &lt;class InputIterator, 
-        class Hash = hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
-        class Pred = std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
-        class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  unordered_set(InputIterator, InputIterator,
-      size_type = <em>see_below</em>,
-      const Hash&amp; = Hash(), const Pred&amp; = Pred(), const Allocator&amp; = Allocator())
-    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type::first_type,
-           Hash, Pred, Allocator&gt;;</span>
-
-<span class="ins">  template &lt;class InputIterator, class Allocator&gt;
-  unordered_set(InputIterator, InputIterator, size_type, const Allocator&amp;)
+<span class="ins">  template&lt;class Hash, class Pred, class Allocator&gt;
+  unordered_set(Hash, Pred, Allocator) -&gt; unordered_set&lt;typename Allocator::value_type, Hash, Pred, Allocator&gt;;
+  
+  template&lt;class InputIterator,
+	   class Hash = hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+	   class Pred = equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type = 0,
+		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
-           hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
-           std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
-           Allocator&gt;;</span>
-
-<span class="ins">  template &lt;class InputIterator, class Hash, class Allocator&gt;
-  unordered_set(InputIterator, InputIterator, size_type, const Hash&amp;, const Allocator&amp;)
-    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
-           std::equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span>
+		     Hash, Pred, Allocator&gt;;
+  template&lt;class T, class H, class P, class A&gt;
+  unordered_set(unordered_set&lt;T, H, P, A&gt;, A) -&gt; unordered_set&lt;T, H, P, A&gt;;
+  
+  template&lt;class T, class Hash = hash&lt;T&gt;,
+            class Pred = equal_to&lt;T&gt;, class Allocator = allocator&lt;T&gt;&gt;
+  unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type = 0,
+		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
+    -&gt; unordered_set&lt;T, Hash, Pred, Allocator&gt;;
+  
+  template&lt;class Allocator&gt; 
+  unordered_set(<em>see below</em>::size_type, Allocator)
+    -&gt; unordered_set&lt;typename Allocator::value_type, hash&lt;typename Allocator::value_type&gt;,
+		     equal_to&lt;typename Allocator::value_type&gt;, Allocator&gt;;
+  
+  template&lt;class Allocator, class Hash&gt; 
+  unordered_set(<em>see below</em>::size_type, Hash, Allocator)
+    -&gt; unordered_set&lt;typename Allocator::value_type, Hash,
+		     equal_to&lt;typename Allocator::value_type&gt;, Allocator&gt;;
+  
+  template&lt;class InputIterator,  class Allocator&gt;
+  unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type, Allocator)
+    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+		     hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+		     Allocator&gt;;
+  
+  template&lt;class InputIterator,  class Allocator, class Hash&gt;
+  unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type,
+		 Hash, Allocator)
+    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+		     hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+		     Hash, Allocator&gt;;
+  
+  template&lt;class T, class Allocator&gt;
+  unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Allocator)
+    -&gt; unordered_set&lt;T, hash&lt;T&gt;(), equal_to&lt;T&gt;(), Allocator&gt;;
+  
+  template&lt;class T, class Hash, class Allocator&gt;
+  unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Hash, Allocator)
+    -&gt; unordered_set&lt;T, Hash, equal_to&lt;T&gt;(), Allocator&gt;;
+</span>
 </pre></blockquote>
+Add the following paragraph to the end of &sect;23.5.6.1 [unord.set.overview]:
+<blockquote><span class="ins">A <tt>size_type</tt> parameter type in an <tt>unordered_set</tt> deduction 
+    guide refers to the <tt>size_type</tt> member type of the <tt>unordered_set</tt> deduced by that
+    deduction guide.</span></blockquote>
 
 At the end of the definition of class <tt>unordered_multiset</tt> in &sect;23.5.7.1 [unord.multiset.overview],
 add the following <em>deduction-guide</em>s:
