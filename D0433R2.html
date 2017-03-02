@@ -477,10 +477,10 @@ There are no class templates defined in this subclause, so nothing to do.
 The only class template in this subclause is the type trait <tt>is_execution_policy</tt>, so no changes are required as 
 described in &sect;20.15 above.
 <h2>&sect;21 [strings]</h2>
-The string library can take advantage of template argument deduction for constructors with no wording
+The string library can take advantage of template argument deduction for constructors with few wording
 changes. For example, <tt>basic_string_view("foo")</tt> correctly deduces that <tt>charT</tt> is <tt>char</tt>.
-<p>It is worth noting that, while no wording changes are required, a library vendor may 
-choose to make code changes in accordance with the &ldquo;as-if&rdquo;
+<p>It is worth noting that a library vendor may 
+choose to make additional deduction guides in accordance with the &ldquo;as-if&rdquo;
 rule (&sect;1.9 footnote 5) as illustrated by the following example. Suppose
 a vendor has previously leveraged the
 &ldquo;as-if&rdquo; rule to implement the constructor
@@ -488,10 +488,22 @@ a vendor has previously leveraged the
 as follows:
 <code>basic_string&lt;charT, traits, Allocator&gt;::basic_string(const value_type* str, const Allocator&amp; a = Allocator());</code>
 The vendor could maintain this convention while continuing to satisfy the &ldquo;as-if&rdquo; rule in C++17
-by adding the following <em>deduction-guide</em>
+by adding the following <em>deduction-guide</em> to their implementation:
 <code>template&lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt;&gt;
   basic_string(const charT*, Allocator = Allocator()) -&gt; basic_string&lt;charT, Allocator&gt;;</code>
-Similar considerations apply to <tt>basic_string_view</tt>.
+Add the following after the end of the definition of class <tt>basic_string</tt> in &sect;21.3.2 [basic.string]
+<blockquote><pre>    int compare(size_type pos1, size_type n1,
+                const charT* s, size_type n2) const;
+  };
+  
+<span class="ins">  template&lt;typename Allocator&gt;
+  basic_string(Allocator) -&gt; basic_string&lt;typename Allocator::value_type,
+     char_traits&lt;typename Allocator::value_type&gt;, Allocator&gt;;
+     
+  template&lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+  basic_string(InputIterator, InputIterator, Allocator = Allocator())
+    -&gt; basic_string&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+                    char_traits&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;</span></pre></blockquote>
 </p><h2>&sect;22 [localization]</h2>
 Since <tt>wstring_convert</tt> and <tt>wbuffer_convert</tt> are deprecated,
 we choose not to create deduction guides  for them.
