@@ -1545,7 +1545,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  _Hash = _Hash(), _Pred = _Pred(), _Allocator = _Allocator())
     -> unordered_set<_T, _Hash, _Pred, _Allocator>;
 
-  template<class _Allocator, enable_if_t<__is_allocator_v<_Allocator>> * = 9> 
+  template<class _Allocator, enable_if_t<__is_allocator_v<_Allocator>> * = nullptr> 
     unordered_set(typename unordered_set<typename _Allocator::value_type,
 		                         hash<typename _Allocator::value_type>,
 		                         equal_to<typename _Allocator::value_type>,
@@ -1557,7 +1557,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		     _Allocator>;
   
   template<class _Allocator, class _Hash,
-	   enable_if_t<!__is_allocator_v<_Hash>> * = 0, enable_if_t<__is_allocator_v<_Allocator>> * = 9> 
+	   enable_if_t<!__is_allocator_v<_Hash>> * = nullptr, enable_if_t<__is_allocator_v<_Allocator>> * = nullptr> 
     unordered_set(typename unordered_set<typename _Allocator::value_type,
 		                         _Hash,
 		                         equal_to<typename _Allocator::value_type>,
@@ -1570,7 +1570,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		     _Allocator>;
   
  template<class _InputIterator,  class _Allocator,
-	  enable_if_t<__is_allocator_v<_Allocator>> * = 0>
+	  enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
    unordered_set(_InputIterator, _InputIterator,
 		   typename unordered_set<typename iterator_traits<_InputIterator>::value_type,
 		                          hash<typename iterator_traits<_InputIterator>::value_type>,
@@ -1583,8 +1583,8 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		     _Allocator>;
 
  template<class _InputIterator,  class _Allocator, class _Hash,
-	  enable_if_t<!__is_allocator_v<_Allocator>> * = 0,
-	  enable_if_t<__is_allocator_v<_Allocator>> * = 0>
+	  enable_if_t<!__is_allocator_v<_Allocator>> * = nullptr,
+	  enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
    unordered_set(_InputIterator, _InputIterator,
 		 typename unordered_set<typename iterator_traits<_InputIterator>::value_type,
 		                        hash<typename iterator_traits<_InputIterator>::value_type>,
@@ -1604,7 +1604,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     -> unordered_set<_T, hash<_T>(), equal_to<_T>(), _Allocator>;
 
   template<class _T, class _Hash, class _Allocator,
-	   enable_it_t<!__is_allocator_v<_Hash>> * = nullptr,
+	   enable_if_t<!__is_allocator_v<_Hash>> * = nullptr,
 	   enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
     unordered_set(initializer_list<_T>,
 		  typename unordered_set<_T, _Hash, equal_to<_T>(), _Allocator>::size_type,
@@ -1612,61 +1612,101 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		  _Allocator)
     -> unordered_set<_T, _Hash, equal_to<_T>(), _Allocator>;
 
-#if 0
-  ========
-  template<class _Value>
-  unordered_set(initializer_list<_Value>) -> unordered_set<_Value>;
+  template<class _Hash, class _Pred, class _Allocator>
+    unordered_multiset(_Hash, _Pred, _Allocator) -> unordered_multiset<typename _Allocator::value_type, _Hash, _Pred, _Allocator>;
 
-  template<class _Value>
-  unordered_set(initializer_list<_Value>, typename initializer_list<_Value>::size_type) -> unordered_set<_Value>;
-
-  template<class _Value, class _Hash, class _Pred, class _Alloc>
-  unordered_set(initializer_list<_Value>, typename initializer_list<_Value>::size_type, const _Hash &, const _Pred &, const _Alloc &) -> unordered_set<_Value, _Hash, _Pred, _Alloc>;
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    unordered_set(_InputIterator, _InputIterator)
-    -> unordered_set<typename std::iterator_traits<_InputIterator>::value_type>; 
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    unordered_set(_InputIterator, _InputIterator,
-		  typename unordered_set<typename std::iterator_traits<_InputIterator>::value_type>::size_type)
-    -> unordered_set<typename std::iterator_traits<_InputIterator>::value_type>; 
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>,
-	   typename _KeyEqual, typename _Compare, typename _Alloc>
-    unordered_set(_InputIterator, _InputIterator, const _KeyEqual &, const _Compare &, const _Alloc &)
-    -> unordered_set<typename std::iterator_traits<_InputIterator>::value_type,
-		     _KeyEqual, _Compare, _Alloc>; 
-#endif
-  template<class _Value>
-  unordered_multiset(initializer_list<_Value>) -> unordered_multiset<_Value>;
-
-  template<class _Value>
-  unordered_multiset(initializer_list<_Value>, typename initializer_list<_Value>::size_type) -> unordered_multiset<_Value>;
-
-  template<class _Value, class _Hash, class _Pred, class _Alloc>
-  unordered_multiset(initializer_list<_Value>, typename initializer_list<_Value>::size_type, const _Hash &, const _Pred &, const _Alloc &) -> unordered_multiset<_Value, _Hash, _Pred, _Alloc>;
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
-    unordered_multiset(_InputIterator, _InputIterator)
-    -> unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type>; 
-
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>>
+  template<class _InputIterator,
+	   class _Hash = hash<typename iterator_traits<_InputIterator>::value_type>,
+	   class _Pred = equal_to<typename iterator_traits<_InputIterator>::value_type>,
+	   class _Allocator = allocator<typename iterator_traits<_InputIterator>::value_type>,
+	   enable_if_t<!__is_allocator_v<_Hash>> * = nullptr>
     unordered_multiset(_InputIterator, _InputIterator,
-		  typename unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type>::size_type)
-    -> unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type>; 
+		   typename unordered_multiset<typename iterator_traits<_InputIterator>::value_type,
+		                 _Hash, _Pred, _Allocator>::size_type = 0,
+		  _Hash = _Hash(), _Pred = _Pred(), _Allocator = _Allocator())
+    -> unordered_multiset<typename iterator_traits<_InputIterator>::value_type,
+		     _Hash, _Pred, _Allocator>;
 
-  template<typename _InputIterator,
-	   typename = std::_RequireInputIter<_InputIterator>,
-	   typename _KeyEqual, typename _Compare, typename _Alloc>
-    unordered_multiset(_InputIterator, _InputIterator, const _KeyEqual &, const _Compare &, const _Alloc &)
-    -> unordered_multiset<typename std::iterator_traits<_InputIterator>::value_type,
-		     _KeyEqual, _Compare, _Alloc>; 
+  // Should not be required with new overload resolution
+  template<class _T, class _H, class _P, class _A>
+    unordered_multiset(unordered_multiset<_T, _H, _P, _A>, _A) -> unordered_multiset<_T, _H, _P, _A>;
+
+  template<class _T,
+	   class _Hash = hash<_T>,
+	   class _Pred = equal_to<_T>,
+	   class _Allocator = allocator<_T>,
+	   enable_if_t<!__is_allocator_v<_Hash>> * = nullptr>
+    unordered_multiset(initializer_list<_T>,
+		  typename unordered_multiset<_T, _Hash, _Pred, _Allocator>::size_type = 0,
+		  _Hash = _Hash(), _Pred = _Pred(), _Allocator = _Allocator())
+    -> unordered_multiset<_T, _Hash, _Pred, _Allocator>;
+
+  template<class _Allocator, enable_if_t<__is_allocator_v<_Allocator>> * = nullptr> 
+    unordered_multiset(typename unordered_multiset<typename _Allocator::value_type,
+		                         hash<typename _Allocator::value_type>,
+		                         equal_to<typename _Allocator::value_type>,
+		                         _Allocator>::size_type,
+		  _Allocator)
+    -> unordered_multiset<typename _Allocator::value_type,
+		     hash<typename _Allocator::value_type>,
+		     equal_to<typename _Allocator::value_type>,
+		     _Allocator>;
+  
+  template<class _Allocator, class _Hash,
+	   enable_if_t<!__is_allocator_v<_Hash>> * = nullptr, enable_if_t<__is_allocator_v<_Allocator>> * = nullptr> 
+    unordered_multiset(typename unordered_multiset<typename _Allocator::value_type,
+		                         _Hash,
+		                         equal_to<typename _Allocator::value_type>,
+		                         _Allocator>::size_type,
+		  _Hash,
+		  _Allocator)
+    -> unordered_multiset<typename _Allocator::value_type,
+		     _Hash,
+		     equal_to<typename _Allocator::value_type>,
+		     _Allocator>;
+  
+ template<class _InputIterator,  class _Allocator,
+	  enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
+   unordered_multiset(_InputIterator, _InputIterator,
+		   typename unordered_multiset<typename iterator_traits<_InputIterator>::value_type,
+		                          hash<typename iterator_traits<_InputIterator>::value_type>,
+		                          equal_to<typename iterator_traits<_InputIterator>::value_type>,
+		                         _Allocator>::size_type,
+		  _Allocator)
+    -> unordered_multiset<typename iterator_traits<_InputIterator>::value_type,
+		     hash<typename iterator_traits<_InputIterator>::value_type>,
+		     equal_to<typename iterator_traits<_InputIterator>::value_type>,
+		     _Allocator>;
+
+ template<class _InputIterator,  class _Allocator, class _Hash,
+	  enable_if_t<!__is_allocator_v<_Allocator>> * = nullptr,
+	  enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
+   unordered_multiset(_InputIterator, _InputIterator,
+		 typename unordered_multiset<typename iterator_traits<_InputIterator>::value_type,
+		                        hash<typename iterator_traits<_InputIterator>::value_type>,
+		                        equal_to<typename iterator_traits<_InputIterator>::value_type>,
+		                       _Allocator>::size_type,
+		 _Hash, 
+		 _Allocator)
+    -> unordered_multiset<typename iterator_traits<_InputIterator>::value_type,
+		     hash<typename iterator_traits<_InputIterator>::value_type>,
+		     _Hash,
+		     _Allocator>;
+
+  template<class _T, class _Allocator, enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
+    unordered_multiset(initializer_list<_T>,
+		  typename unordered_multiset<_T, hash<_T>(), equal_to<_T>(), _Allocator>::size_type,
+		  _Allocator)
+    -> unordered_multiset<_T, hash<_T>(), equal_to<_T>(), _Allocator>;
+
+  template<class _T, class _Hash, class _Allocator,
+	   enable_if_t<!__is_allocator_v<_Hash>> * = nullptr,
+	   enable_if_t<__is_allocator_v<_Allocator>> * = nullptr>
+    unordered_multiset(initializer_list<_T>,
+		  typename unordered_multiset<_T, _Hash, equal_to<_T>(), _Allocator>::size_type,
+		  _Hash,
+		  _Allocator)
+    -> unordered_multiset<_T, _Hash, equal_to<_T>(), _Allocator>;
 
 
   template<class _Value, class _Hash, class _Pred, class _Alloc>
