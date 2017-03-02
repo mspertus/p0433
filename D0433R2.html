@@ -511,7 +511,7 @@ but we have to make those changes many times as follows:
 Modify the end of &sect;23.2.3/13 [sequence.reqmts] and the following paragraph as follows:
 <blockquote>are called with a type <tt>InputIterator</tt> that does not qualify as an input iterator,
 	then those functions shall not participare in overload resolution.<p>
-   <span class="ins">&mdash; A <em>deduction-guide</em> for a sequence container shall not participate in overload
+   <span class="ins">&mdash; A deduction guide for a sequence container shall not participate in overload
 	resolution if it has an <tt>InputIterator</tt> template parameter that is called with a type that
 	does not qualify as an input iterator, or if it has an <tt>Allocator</tt> template
 	parameter that is called with a type that does not qualify as an allocator.</span>
@@ -1063,22 +1063,27 @@ At the end of &sect;23.6.1 [container.adaptors.general], and the following parag
 	of the following are true. <ul><li>It
 	has an <tt>InputIterator</tt> template
 parameter that is called with a type that does not qualify as an input iterator</li>
-	<li>It has a <tt>Container</tt> template parameter that does not qualify as a container</li>
+	<li>It has a <tt>Compare</tt> template parameter that qualifies as an allocator</li>
+	<li>It has a <tt>Container</tt> template parameter that qualifies as an allocator</li>
 	<li>It has an <tt>Allocator</tt>
-	template parameter that is called with a type that does not qualify as an allocator (&sect;17.5.3.5 [allocator.requirements])</li>
+	template parameter that is called with a type that does not qualify as an allocator</li>
+    <li>It has both a <tt>Compare</tt> and <tt>Allocator</tt> template parameter, and
+    <tt>uses_allocator_v&lt;Container, Allocator&gt;</tt> is <tt>false</tt></li>
 	</ul></div></blockquote>
 At the end of the definition of class <tt>queue</tt> in &sect;23.6.4.1 [queue.defn] insert
 <blockquote><pre>    void swap(queue&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt;)
       { using std::swap; swap(c, q.c); }
   };
-<!-- STL replace Allocator with Allocator -->
-  <span class="ins">explicit template&lt;class Container&gt; queue(const Container&amp;&amp;)
-    -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;;
- template&lt;class Alloc&gt; queue(const Alloc&amp;) 
-   -&gt; queue&lt;typename Alloc::value_type&gt;;
- template&lt;class Container, class Alloc&gt; queue(Container&amp;&amp;, const Alloc&amp;) 
-   -&gt; queue&lt;typename decay_t&lt;Container&gt;::value_type&gt;;
-  </span></pre></blockquote>
+  
+<span class="ins">  template&lt;class Container&gt;
+  queue(Container) -&gt; queue&lt;typename Container::value_type, Container&gt;;
+  
+  template&lt;class Allocator&gt; 
+  queue(Allocator) -&gt; queue&lt;typename Allocator::value_type&gt;;
+  
+  template&lt;class Container, class Allocator&gt; 
+  queue(Container, Allocator) -&gt; queue&lt;Container::value_type, Container&gt;;
+</span></pre></blockquote>
 At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
 [priority.queue], add the following <em>deduction-guide</em>s:
 <blockquote><pre>    void swap(priority_queue&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt; &amp;&amp;
@@ -1086,22 +1091,25 @@ At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
       { using std::swap; swap(c, q.c); swap(comp, q.comp); }
     };</pre></blockquote>
  <blockquote><pre>
-<span class="ins">template &lt; class Container, class Compare = less&lt;typename Container::value_type&gt;&gt;
-  priority_queue(const Compare&amp;, Container&amp;&amp;)
+<span class="ins">  template &lt;class Compare, class Container&gt;
+  priority_queue(Compare, Container)
     -&gt; priority_queue&lt;typename Container::value_type, Container, Compare);
-	
+  
   template&lt;class InputIterator, 
            class Compare = less&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
            class Container = vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-    priority_queue(InputIterator, InputIterator, const Compare&amp; = Compare(), Container&amp;&amp; = Container())
-	  -&gt; priority_queue&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Container&gt;;
-	  
-  template&lt;class Compare, class Alloc&gt;
-    priority_queue(const Compare&amp;, const Alloc&amp;) -&gt; priority_queue&lt;typename Alloc::value_type&gt;
-
-template&lt;class Compare, class Container, class Alloc&gt;
-    priority_queue(const Compare&amp;, Container&amp;&amp;, const Alloc&amp;) -&gt; priority_queue&lt;typename Container::value_type, Container&gt;
-	</span>
+  priority_queue(InputIterator, InputIterator, Compare = Compare(), Container = Container())
+	  -&gt; priority_queue&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Container, Compare&gt;;
+  
+  template&lt;class Allocator&gt; 
+  priority_queue(Allocator) -&gt; priority_queue&lt;typename Allocator::value_type&gt;;
+  
+  template&lt;class Compare, class Allocator&gt;
+  priority_queue(Compare, Allocator) -&gt; priority_queue&lt;typename Allocator::value_type&gt;
+  
+  template&lt;class Compare, class Container, class Allocator&gt;
+  priority_queue(Compare, Container, Allocator) -&gt; priority_queue&lt;typename Container::value_type, Container&gt;
+</span>
   
 </pre></blockquote>
 At the end of the definition of class <tt>stack</tt> in &sect; 23.6.6.1 [stack.defn], add
@@ -1110,21 +1118,26 @@ At the end of the definition of class <tt>stack</tt> in &sect; 23.6.6.1 [stack.d
       { using std::swap; swap(c, q.c); }
   };
   
-<span class="ins">template&lt;class Container&gt; 
-  stack(Container&amp;&amp;) -&gt; stack&lt;typename Container::value_type, Container&gt;
-template&lt;class Container, class Alloc&gt; 
-  stack(Container&amp;&amp;, const Alloc &amp;) -&gt; stack&lt;typename Container::value_type, Container&gt;
+<span class="ins">  template&lt;class Container&gt;
+  stack(Container) -&gt; stack&lt;typename Container::value_type, Container&gt;;
+  
+  template&lt;class Allocator&gt; 
+  stack(Allocator) -&gt; stack&lt;typename Allocator::value_type&gt;;
+  
+  template&lt;class Container, class Allocator&gt; 
+  stack(Container, Allocator) -&gt; stack&lt;Container::value_type, Container&gt;;
 </span>
 </pre></blockquote>
 <h2>&sect;24 [iterators]</h2>
-No changes are required in clause 24 as the implicitly generated deduction guides provide the necessary deduction.
+No changes are required in clause 2  4 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;25 [algorithms]</h2>
 No changes are required in clause 25 due to lack of template classes in this clause.
-<h2>&sect;26 [numerics]</h2>
+<h2>&sect;26 [numerics]</h2
 We consider the sections with instantiable template classes. 
 <h3>&sect;26.5 [complex.numbers]</h3>
 Class <tt>complex</tt>
-does not require explicit deduction guides as the implicity generated deduction guides provide the necessary deduction.<p>
+does not require exicit deduction guides as the implicity generated deduction guides provide the necessary deduction.<p>
+
 <h3>&sect;26.6 [rand]</h3>
 This section does not require explicit deduction guides. The random number engines (&sect; 26.6.3 [rand.eng]) all
 	have non-type template parameters and are therefore not suitable for template parameter deduction. All of the
@@ -1132,7 +1145,7 @@ This section does not require explicit deduction guides. The random number engin
 	properly deduced by their implicitly generated deduction guides.<p>
 <h3>&sect;26.7 [numarray]</h3>
 We consider <tt>valarray</tt>. We first note that the implicit deduction guides imply the following:
-<code>int iarr[] = {1, 2, 3};
+<code>int iar[] = {1, 2, 3};
 int *ip = iarr;
 	valarray va(ip, 3); <span class="comment">// Deduces valarray&lt;int&gt;</span></code>
 The point is that the <tt>valarray&lt;T&gt;::valarray(const T *, size_t)</tt> constructor is a better match
