@@ -277,9 +277,9 @@ discussion of <tt>optional</tt>.
 
 
 <h3>&sect;20.7 [variant]</h3>
-No changes required in this subclause. Note that we do not expect <tt>variant</tt>s to leverage
-template type deduction for constructors (outside of copy and move constructors) because
-their <em>raison d'etre</em> is their ability to hold types beyond those they were
+Because of P0510R0, <tt>variant</tt> is no longer SFINAE friendly and does not work
+with constructor type deduction. Note that we do not lose too much from this because
+<tt>variant</tt>'s <em>raison d'etre</em> is their ability to hold types beyond those they were
 initialized with.
 <h3>&sect;20.8 [any]</h3>
     No changes are required in &sect;20.8
