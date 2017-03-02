@@ -343,8 +343,15 @@ in &sect;20.13.1 [allocator.adaptor.syn], add
 it can still be specified explicitly. 
 <h3>&sect;20.14 [function.objects]</h3>
 	<!-- STL only wants the first guide -->
-<tt>reference_wrapper</tt> benefits from template deduction for 
-constructors with no wording changes. 
+<tt>reference_wrapper</tt> requires the following change to make sure <tt>reference_wrapper(T&amp;)</tt> doesn't
+beat the copy constructor due to better conversions. Add the following deduction guide at the end
+of the definition of class <tt>reference_wrapper</tt> in &sect;20.14.5 [refwrap]
+<blockquote><pre>    operator() (ArgTypes&amp;&amp;...) const;
+  };
+  
+<span class="ins">  template&lt;typename T&gt;
+  reference_wrapper(reference_wrapper&lt;T&gt;) -&gt; reference_wrapper&lt;T&gt;;</span></pre></blockquote>
+
 We suggest allowing <tt>function</tt> to deduce its template argument when initialized
 by a function. While it is tempting to add deduction guides for member pointers,
     we no longer do so as there is a question about whether the first objects
@@ -660,9 +667,6 @@ add the following <em>deduction-guide</em>s:
   map(Compare, Allocator)
     -&gt; map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;, Compare, Allocator&gt;;
   
-  template&lt;class Key, class T, class Compare, class Allocator&gt;
-  map(map&lt;Key, T, Compare, Allocator&gt;, Allocator) -> map&lt;Key, T, Compare, Allocator&gt;;
-  
   template &lt;class InputIterator, 
         class Compare = less&lt;iter_key_t&lt;InputIterator&gt;&gt;,
         class Allocator = allocator&lt;iter_to_alloc_t&lt;InputIterator&gt;&gt;&gt;
@@ -695,9 +699,6 @@ add the following <em>deduction-guide</em>s:
 <span class="ins">  template&lt; class Compare, class Allocator&gt;  
   multimap(Compare, Allocator)
     -&gt; multimap&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;, Compare, Allocator&gt;;
-  
-  template&lt;class Key, class T, class Compare, class Allocator&gt;
-  multimap(multimap&lt;Key, T, Compare, Allocator&gt;, Allocator) -> multimap&lt;Key, T, Compare, Allocator&gt;;
   
   template &lt;class InputIterator, 
         class Compare = less&lt;iter_key_t&lt;InputIterator&gt;&gt;,
@@ -742,10 +743,6 @@ add the following <em>deduction-guide</em>s:
   set(Allocator)
     -&gt; set&lt;typename Allocator::value_type, less&lt;typename Allocator::value_type&gt;, Allocator&gt;;
   
-  template&lt;class Key, class Compare, class Allocator&gt;
-  set(set&lt;Key, Compare, Allocator&gt;, Allocator)
-    -&gt; set&lt;Key, Compare, Allocator&gt;;
-  
   template&lt;class Key, class Compare = less&lt;Key&gt;, class Allocator = allocator&lt;Key&gt;&gt;
   set(initializer_list&lt;Key&gt;, Compare = Compare(), Allocator = Allocator())
     -&gt; set&lt;Key, Compare, Allocator&gt;;
@@ -779,10 +776,6 @@ add the following <em>deduction-guide</em>:
   template&lt;class Allocator&gt;
   multiset(Allocator)
     -&gt; multiset&lt;typename Allocator::value_type, less&lt;typename Allocator::value_type&gt;, Allocator&gt;;
-  
-  template&lt;class Key, class Compare, class Allocator&gt;
-  multiset(multiset&lt;Key, Compare, Allocator&gt;, Allocator)
-    -&gt; multiset&lt;Key, Compare, Allocator&gt;;
   
   template&lt;class Key, class Compare = less&lt;Key&gt;, class Allocator = allocator&lt;Key&gt;&gt;
   multiset(initializer_list&lt;Key&gt;, Compare = Compare(), Allocator = Allocator())
@@ -823,9 +816,6 @@ add the following <em>deduction-guide</em>s:
   unordered_map(Allocator)
     -&gt; unordered_map&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
 	          hash&lt;alloc_key_t&lt;Allocator&gt;&gt;, equal_to&lt;alloc_key_t&lt;Allocator&gt;&gt;, Allocator&gt;;
-  
-  template&lt;class K, class V, class H, class P, class A&gt;
-  unordered_map(unordered_map&lt;K, V, H, P, A&gt;, A) -&gt; unordered_map&lt;K, V, H, P, A&gt;;
   
   template&lt;class Key, class T, class Hash = hash&lt;Key&gt;,
 	    class Pred = equal_to&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
@@ -898,9 +888,6 @@ add the following <em>deduction-guide</em>s
     -&gt; unordered_multimap&lt;alloc_key_t&lt;Allocator&gt;, alloc_val_t&lt;Allocator&gt;,
 	          hash&lt;alloc_key_t&lt;Allocator&gt;&gt;, equal_to&lt;alloc_key_t&lt;Allocator&gt;&gt;, Allocator&gt;;
   
-  template&lt;class K, class V, class H, class P, class A&gt;
-  unordered_multimap(unordered_multimap&lt;K, V, H, P, A&gt;, A) -&gt; unordered_multimap&lt;K, V, H, P, A&gt;;
-  
   template&lt;class Key, class T, class Hash = hash&lt;Key&gt;,
 	    class Pred = equal_to&lt;Key&gt;, class Allocator = allocator&lt;pair&lt;const Key, T&gt;&gt;&gt;
   unordered_multimap(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, <span class="comment">see below</span>::size_type = 0,
@@ -965,8 +952,6 @@ add the following <em>deduction-guide</em>s:
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
 		     Hash, Pred, Allocator&gt;;
-  template&lt;class T, class H, class P, class A&gt;
-  unordered_set(unordered_set&lt;T, H, P, A&gt;, A) -&gt; unordered_set&lt;T, H, P, A&gt;;
   
   template&lt;class T, class Hash = hash&lt;T&gt;,
             class Pred = equal_to&lt;T&gt;, class Allocator = allocator&lt;T&gt;&gt;
@@ -1028,8 +1013,6 @@ add the following <em>deduction-guide</em>s:
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
 		     Hash, Pred, Allocator&gt;;
-  template&lt;class T, class H, class P, class A&gt;
-  unordered_multiset(unordered_multiset&lt;T, H, P, A&gt;, A) -&gt; unordered_multiset&lt;T, H, P, A&gt;;
   
   template&lt;class T, class Hash = hash&lt;T&gt;,
             class Pred = equal_to&lt;T&gt;, class Allocator = allocator&lt;T&gt;&gt;
