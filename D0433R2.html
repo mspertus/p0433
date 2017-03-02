@@ -848,6 +848,11 @@ add the following <em>deduction-guide</em>s:
       -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;,
             hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;;
   
+  template&lt;class InputIterator, class Allocator&gt;
+  unordered_map(InputIterator, InputIterator, Allocator)
+      -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;,
+            hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;;
+  
   template&lt;class InputIterator, class Hash, class Allocator&gt;
   unordered_map(InputIterator, InputIterator, <span class="comment">see below</span>::size_type, Hash, Allocator)
       -&gt; unordered_map&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;, Hash,
@@ -855,6 +860,10 @@ add the following <em>deduction-guide</em>s:
   
   template&lt;class Key, class T, typename Allocator&gt;
   unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, <span class="comment">see below</span>::size_type, Allocator)
+       -&gt; unordered_map&lt;Key, T, hash&lt;Key&gt;, equal_to&lt;Key&gt;, Allocator&gt;;
+  
+  template&lt;class Key, class T, typename Allocator&gt;
+  unordered_map(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Allocator)
        -&gt; unordered_map&lt;Key, T, hash&lt;Key&gt;, equal_to&lt;Key&gt;, Allocator&gt;;
   
   template&lt;class Key, class T, class Hash, class Allocator&gt;
@@ -913,6 +922,11 @@ add the following <em>deduction-guide</em>s
       -&gt; unordered_multimap&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;,
             hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;;
   
+  template&lt;class InputIterator, class Allocator&gt;
+  unordered_multimap(InputIterator, InputIterator, Allocator)
+      -&gt; unordered_multimap&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;,
+            hash&lt;iter_key_t&lt;InputIterator&gt;&gt;, equal_to&lt;iter_key_t&lt;InputIterator&gt;&gt;, Allocator&gt;;
+  
   template&lt;class InputIterator, class Hash, class Allocator&gt;
   unordered_multimap(InputIterator, InputIterator, <span class="comment">see below</span>::size_type, Hash, Allocator)
       -&gt; unordered_multimap&lt;iter_key_t&lt;InputIterator&gt;, iter_val_t&lt;InputIterator&gt;, Hash,
@@ -920,6 +934,10 @@ add the following <em>deduction-guide</em>s
   
   template&lt;class Key, class T, typename Allocator&gt;
   unordered_multimap(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, <span class="comment">see below</span>::size_type, Allocator)
+       -&gt; unordered_multimap&lt;Key, T, hash&lt;Key&gt;, equal_to&lt;Key&gt;, Allocator&gt;;
+  
+  template&lt;class Key, class T, typename Allocator&gt;
+  unordered_multimap(initializer_list&lt;pair&lt;const Key, T&gt;&gt;, Allocator)
        -&gt; unordered_multimap&lt;Key, T, hash&lt;Key&gt;, equal_to&lt;Key&gt;, Allocator&gt;;
   
   template&lt;class Key, class T, class Hash, class Allocator&gt;
