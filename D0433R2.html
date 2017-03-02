@@ -533,15 +533,17 @@ Modify the end of &sect;23.2.3/13 [sequence.reqmts] and the following paragraph 
             <tt>A::value_type</tt> is valid and denotes a type [temp.deduct]</span></li>
         <li><span class="ins">The expression <tt>declval&lt;A&amp;&gt;().allocate(size_t{})</tt> is well-formed when treated as an uated operand</span></li></ul></span></blockquote>
 Add a paragraph to the end of &sect;23.2.6  [associative.reqmts]
-<blockquote><div class="ins">A deduction guide for an associative container shall not participate in overload resolution if it
+<blockquote><div class="ins">A deduction guide for an associative container shall not participate in overload resolution if
+    and of the following are true:<ul><li>It
 	has an <tt>InputIterator</tt> template
-parameter that is called with a type that does not qualify as an input iterator, or if it has an <tt>Allocator</tt>
-	template parameter that is called with a type that does not qualify as an allocator,
-	or if it has a <tt>Compare</tt> template parameter that is called with a type that qualifies as an allocator.
+parameter that is called with a type that does not qualify as an input iterator</li>
+    <li>It has an <tt>Allocator</tt>
+	template parameter that is called with a type that does not qualify as an allocator</li>
+    <li>It has a <tt>Compare</tt> template parameter that is called with a type that qualifies as an allocator</li></ul>
 	</div></blockquote>
 Add a paragraph to the end of &sect;23.2.7  [unord.req]
 <blockquote><div class="ins">A deduction guide for an unordered associative container shall not participate in overload resolution if any
-	of the following are: <ul><li>It
+	of the following are true: <ul><li>It
 	has an <tt>InputIterator</tt> template
 parameter that is called with a type that does not qualify as an input iterator</li><li>It has an <tt>Allocator</tt>
 	template parameter that is called with a type that does not qualify as an allocator</li>
