@@ -515,7 +515,8 @@ template&lt;class InputIterator, class Allocator = allocator&lt;typename iterato
 basic_string(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; basic_string&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
                     char_traits&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre>
-<blockquote><span class="ins"><em>Remarks:</em> Shall not participate in overload resolution if <tt>InputIterator</tt> is called with a type that does not qualify as an input iterator, or if <tt>Allocator</tt> is called with a type that does not qualify as an allocator [sequence.reqmts].</span></blockquote></blockquote>
+<blockquote><span class="ins"><em>Remarks:</em> Shall not participate in overload resolution if <tt>InputIterator</tt> is 
+    a type that does not qualify as an input iterator, or if <tt>Allocator</tt> is a type that does not qualify as an allocator [sequence.reqmts].</span></blockquote></blockquote>
 <h2>&sect;22 [localization]</h2>
 Since <tt>wstring_convert</tt> and <tt>wbuffer_convert</tt> are deprecated,
 we choose not to create deduction guides  for them.
@@ -558,7 +559,7 @@ Modify the end of &sect;23.2.3/13 [sequence.reqmts] and the following paragraph 
         <li><span class="ins">The expression <tt>declval&lt;A&amp;&gt;().allocate(size_t{})</tt> is well-formed when treated as an unevaluated operand</span></li></ul></span></blockquote>
 Add a paragraph to the end of &sect;23.2.6  [associative.reqmts]
 <blockquote><div class="ins">A deduction guide for an associative container shall not participate in overload resolution if
-    and of the following are true:<ul><li>It
+    any of the following are true:<ul><li>It
 	has an <tt>InputIterator</tt> template
 parameter that is called with a type that does not qualify as an input iterator</li>
     <li>It has an <tt>Allocator</tt>
@@ -1227,7 +1228,32 @@ At the end of the definition of class <tt>basic_regex</tt> in &sect;28.8 [re.reg
 <h2>&sect;29 [atomics]</h2>
 No changes are required in clause 29 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;30 [thread]</h2>
-The implicitly generated deduction guides do the job except for <tt>promise</tt>. At the end of the
+At the end of the definition class <tt>lock_guard</tt> in [thread.lock.guard], add
+<blockquote><pre>  };
+
+<span class="ins">template&lt;class M&gt; lock_guard(lock_guard&lt;M&gt;) -&gt; lock_guard&lt;M&gt;;</span></pre>
+</blockquote>
+
+At the end of the definition class <tt>scoped_lock</tt> in [thread.scoped.lock], add
+<blockquote><pre>  };
+
+<span class="ins">template&lt;class... M&gt; scoped_lock(scoped_lock&lt;M...&gt;) -&gt; scoped_lock&lt;M&gt;;</span></pre>
+</blockquote>
+
+At the end of the definition class <tt>unique_lock</tt> in [thread.lock.unique], add
+<blockquote><pre>  };
+
+<span class="ins">template&lt;class M&gt; unique_lock(unique_lock&lt;M&gt;) -&gt; unique_lock&lt;M&gt;;</span></pre>
+</blockquote>
+
+At the end of the definition class <tt>shared_lock</tt> in [thread.lock.shared], add
+<blockquote><pre>  };
+
+<span class="ins">template&lt;class M&gt; shared_lock(shared_lock&lt;M&gt;) -&gt; shared_lock&lt;M&gt;;</span></pre>
+</blockquote>
+
+
+At the end of the
 definition of class <tt>promise</tt> in &sect;30.6.5 [futures.promise], insert the following:
 <blockquote><pre>    <span class="comment">// setting the result with deferred notification</span>
     void set_value_at_thread_exit(<em>see below</em>);
