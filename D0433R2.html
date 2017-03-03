@@ -374,8 +374,9 @@ Add a paragraph after &sect;20.14.13.2.1p11 [func.wrap.func.con]
 </span></pre>
     <blockquote><span class="ins"><em>Remarks:</em><blockquote><span class="ins">This deduction
         guide participates in overload resolution only if <tt>&amp;F::operator()</tt> is
-        valid [temp.deduct]. In that case, if <tt>decltype(&amp;F::operator())</tt> is of the form
-        <tt>R(F::*)(A...) <em>cv</em></tt>, then the deduced type shall be
+        well-formed when treated as an unevaluated operand. In that case, if <tt>decltype(&amp;F::operator())</tt> is of the form
+        <tt>R(G::*)(A...) <em>cv</em> &amp;<em><sub>opt</sub></em> noexcept<em><sub>opt</sub></em></tt> for
+        a class type <tt>G</tt>, then the deduced type shall be
     <tt>function&lt;R(A...)&gt;</tt>.</span></blockquote>
     [<em>Example:</em><blockquote><pre><span class="ins">void f() {
   int i{5};
@@ -383,8 +384,8 @@ Add a paragraph after &sect;20.14.13.2.1p11 [func.wrap.func.con]
 }</span>
 </pre></blockquote><em>&mdash;end example</em>] </span></blockquote></blockquote>   
 Add a new paragraph after 20.14.13.2p3 [func.wrap.func]:
-<blockquote><span class="ins">[ <em>Note:</em>. The types deduced by the 
-    deduction guides for <tt>function</tt> may change in future versions of this international standard. 
+<blockquote><span class="ins">[ <em>Note:</em> The types deduced by the 
+    deduction guides for <tt>function</tt> may change in future versions of this International Standard. 
     &mdash;<em>end note</em>]</span></blockquote>
 <b>Note:</b> There are some arbitrary choices in the deductions for member pointers. We
 would be interested to see if the comittee agrees with having deduction guides for member
@@ -503,7 +504,7 @@ Add the following after the end of the definition of class <tt>basic_string</tt>
   template&lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
   basic_string(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; basic_string&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
-                    char_traits&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;</span></pre></blockquote>
+                    char_traits&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre></blockquote>
 </p><h2>&sect;22 [localization]</h2>
 Since <tt>wstring_convert</tt> and <tt>wbuffer_convert</tt> are deprecated,
 we choose not to create deduction guides  for them.
@@ -994,9 +995,9 @@ add the following <em>deduction-guide</em>s:
   template&lt;class InputIterator, class Hash, class Allocator&gt;
   unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type,
 		 Hash, Allocator)
-    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
-		     hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
-		     Hash, Allocator&gt;;
+    -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
+		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
+		     Allocator&gt;;
   
   template&lt;class T, class Allocator&gt;
   unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Allocator)
@@ -1006,7 +1007,7 @@ add the following <em>deduction-guide</em>s:
   unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Hash, Allocator)
     -&gt; unordered_set&lt;T, Hash, equal_to&lt;T&gt;, Allocator&gt;;
 </span>
-</pre></blockquote
+</pre></blockquote>
 Add the following paragraph to the end of &sect;23.5.6.1 [unord.set.overview]:
 <blockquote><span class="ins">A <tt>size_type</tt> parameter type in an <tt>unordered_set</tt> deduction 
     guide refers to the <tt>size_type</tt> member type of the <tt>unordered_set</tt> deduced by that
@@ -1055,7 +1056,7 @@ add the following <em>deduction-guide</em>s:
   template&lt;class InputIterator,  class Hash, class Allocator&gt;
   unordered_multiset(InputIterator, InputIterator, <em>see below</em>::size_type,
 		 Hash, Allocator)
-    -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash
+    -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
 		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
   
   template&lt;class T, class Allocator&gt;
@@ -1125,11 +1126,11 @@ At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
   
   template&lt;class Compare, class Container, class Allocator&gt;
   priority_queue(Compare, Container, Allocator)
-    -&gt; priority_queue&lt;typename Container::value_type, Container, Compare&gt;
+    -&gt; priority_queue&lt;typename Container::value_type, Container, Compare&gt;;
 </span>
   
 </pre></blockquote>
-At the end of the definition of class <tt>stack</tt> in &sect; 23.6.6.1 [stack.defn], add
+At the end of the definition of class <tt>stack</tt> in &sect;23.6.6.1 [stack.defn], add
 
 <blockquote><pre>    void swap(stack&amp; q) noexcept(is_nothrow_swappable_v&lt;Container&gt;)
       { using std::swap; swap(c, q.c); }
@@ -1146,7 +1147,7 @@ At the end of the definition of class <tt>stack</tt> in &sect; 23.6.6.1 [stack.d
 </span>
 </pre></blockquote>
 <h2>&sect;24 [iterators]</h2>
-No changes are required in clause 2  4 as the implicitly generated deduction guides provide the necessary deduction.
+No changes are required in clause 24 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;25 [algorithms]</h2>
 No changes are required in clause 25 due to lack of template classes in this clause.
 <h2>&sect;26 [numerics]</h2
@@ -1177,7 +1178,7 @@ valarray va(iarr, 3); <span class="comment">// Needs explicit deduction guide to
 <blockquote><pre>    void resize(size_t sz, T c = T());
   };
   
-  <span class="ins">template&lt;typename T, size_t cnt&gt; valarray(T(&amp;)[cnt], size_t) -> valarray&lt;remove_const_t&lt;T&gt;&gt;;</span></pre></blockquote>
+  <span class="ins">template&lt;typename T, size_t cnt&gt; valarray(const T(&amp;)[cnt], size_t) -> valarray&lt;T&gt;;</span></pre></blockquote>
 <h2>&sect;27 [input.output]</h2>
 No changes are required in clause 27 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;28 [re]</h2>
@@ -1188,22 +1189,9 @@ At the end of the definition of class <tt>basic_regex</tt> in &sect;28.8 [re.reg
     void swap(basic_regex&amp;);
   };
   
-  <span class="comment">// 28.8.8 deduction guides</span>
-  <span class="ins">template &lt;class ForwardIterator&gt;
-    basic_regex(ForwardIterator, ForwardIterator) -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;
-  template&lt;class ForwardIterator&gt; 
-    basic_regex(ForwardIterator, ForwardIterator, typename regex_constants::syntax_option_type)
+  <span class="ins">  template&lt;class ForwardIterator&gt; 
+    basic_regex(ForwardIterator, ForwardIterator, regex_constants::syntax_option_type = regex_constants::ECMAScript)
       -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;</span></pre></blockquote>
-Insert a new section:
-<blockquote><span class="ins"><b>28.8.8 <tt>basic_regex</tt> deduction guides   [re.regex.deduction.guides]</b></span>
-<pre>  <span class="ins">template &lt;class ForwardIterator&gt;
-    basic_regex(ForwardIterator, ForwardIterator) -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;
-  template&lt;class ForwardIterator&gt; 
-    basic_regex(ForwardIterator, ForwardIterator, typename regex_constants::syntax_option_type)
-      -&gt; basic_regex&lt;typename iterator_traits&lt;ForwardIterator&gt;::value_type&gt;;</span></pre>
-<blockquote><span class="ins"><em>Remarks: </em> These deduction guides shall not participate in overload resolution
-	unless <tt>ForwardIterator</tt> qualifies as an iterator.</span></blockquote></blockquote>
-</pre></blockquote>
 <h2>&sect;29 [atomics]</h2>
 No changes are required in clause 29 as the implicitly generated deduction guides provide the necessary deduction.
 <h2>&sect;30 [thread]</h2>
@@ -1214,7 +1202,7 @@ definition of class <tt>promise</tt> in &sect;30.6.5 [futures.promise], insert t
     void set_exception_at_thread_exit(exception_ptr p);
   };
   
-<span class="ins">  template &lt;class Alloc&gt; promise(allocator_arg_t, const Alloc&amp;)
+<span class="ins">  template &lt;class Alloc&gt; promise(allocator_arg_t, Alloc)
     -&gt; promise&lt;typename Alloc::value_type&gt;;</span>
 	
   template &lt;class R&gt;
