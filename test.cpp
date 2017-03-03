@@ -931,15 +931,21 @@ void test_unordered_multiset() // Explicit
 
 void test_queue() // Explicit
 {
-  deque d({3, 1, 4, 1, 5});
-  queue q(d, allocator<int>());
-  static_assert(is_same_v<decltype(q), queue<int>>);
+  list l{1, 2, 3};
+  queue q1{l};
+  static_assert(is_same_v<decltype(q1), queue<int, list<int>>>);
+  queue q2{list{1, 2, 3}};
+  static_assert(is_same_v<decltype(q2), queue<int, list<int>>>);
+  queue q3(allocator<double>{});
+  static_assert(is_same_v<decltype(q3), queue<double>>);
+  queue q4{l, allocator<int>()};
+  static_assert(is_same_v<decltype(q4), queue<int, list<int>>>);
 }
 
 void test_priority_queue() // Explicit
 {
-  deque d({3, 1, 4, 1, 5});
-  priority_queue q(d.begin(), d.end());
+   deque d({3, 1, 4, 1, 5});
+ priority_queue q(d.begin(), d.end());
   static_assert(is_same_v<decltype(q), priority_queue<int>>);
 }
 

@@ -298,10 +298,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif // __cplusplus >= 201103L
     };
 
- template<class _Container, class _Alloc>
-   queue(const _Container &, const _Alloc &) -> queue<typename _Container::value_type, _Container>;
- template<class _Container, class _Alloc>
-   queue(const _Container &&, const _Alloc &) -> queue<typename _Container::value_type, _Container>;
+ template<class Container, enable_if_t<!__is_allocator_v<Container>> * = nullptr>
+  queue(Container) -> queue<typename Container::value_type, Container>;
+  
+ template<class Allocator, enable_if_t<__is_allocator_v<Allocator>> * = nullptr> 
+  queue(Allocator) -> queue<typename Allocator::value_type>;
+  
+  template<class Container, class Allocator, enable_if_t<__is_allocator_v<Allocator>> * = nullptr, enable_if_t<!__is_allocator_v<Container>> * = nullptr> 
+  queue(Container, Allocator) -> queue<typename Container::value_type, Container>;
+  
   /**
    *  @brief  Queue equality comparison.
    *  @param  __x  A %queue.
