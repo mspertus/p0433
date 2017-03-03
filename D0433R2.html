@@ -505,7 +505,18 @@ Add the following after the end of the definition of class <tt>basic_string</tt>
   basic_string(InputIterator, InputIterator, Allocator = Allocator())
     -&gt; basic_string&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
                     char_traits&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre></blockquote>
-</p><h2>&sect;22 [localization]</h2>
+In &sect;21.3.2.2 [string.cons], insert the following between paragraphs 19 and 20:
+<blockquote><pre><span class="ins">template&lt;typename Allocator&gt;
+basic_string(Allocator) -&gt; basic_string&lt;typename Allocator::value_type,
+     char_traits&lt;typename Allocator::value_type&gt;, Allocator&gt;;
+</span></pre>
+<blockquote><span class="ins"><em>Remarks:</em> Shall not participate in overload resolution if <tt>Allocator</tt> is called with a type that does not qualify as an allocator [sequence.reqmts].</span></blockquote><pre><span class="ins">  
+template&lt;class InputIterator, class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
+basic_string(InputIterator, InputIterator, Allocator = Allocator())
+    -&gt; basic_string&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
+                    char_traits&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;</span></pre>
+<blockquote><span class="ins"><em>Remarks:</em> Shall not participate in overload resolution if <tt>InputIterator</tt> is called with a type that does not qualify as an input iterator, or if <tt>Allocator</tt> is called with a type that does not qualify as an allocator [sequence.reqmts].</span></blockquote></blockquote>
+<h2>&sect;22 [localization]</h2>
 Since <tt>wstring_convert</tt> and <tt>wbuffer_convert</tt> are deprecated,
 we choose not to create deduction guides  for them.
 <h2>&sect;23 [containers]</h2>
