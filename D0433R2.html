@@ -1130,7 +1130,7 @@ At the end of the definition of class <tt>queue</tt> in &sect;23.6.4.1 [queue.de
   queue(Allocator) -&gt; queue&lt;typename Allocator::value_type&gt;;
   
   template&lt;class Container, class Allocator&gt; 
-  queue(Container, Allocator) -&gt; queue&lt;Container::value_type, Container&gt;;
+  queue(Container, Allocator) -&gt; queue&lt;typename Container::value_type, Container&gt;;
 </span></pre></blockquote>
 At the end of the definition of class <tt>priority_queue</tt> in &sect;23.6.5
 [priority.queue], add the following <em>deduction-guide</em>s:
@@ -1175,7 +1175,7 @@ At the end of the definition of class <tt>stack</tt> in &sect;23.6.6.1 [stack.de
   stack(Allocator) -&gt; stack&lt;typename Allocator::value_type&gt;;
   
   template&lt;class Container, class Allocator&gt; 
-  stack(Container, Allocator) -&gt; stack&lt;Container::value_type, Container&gt;;
+  stack(Container, Allocator) -&gt; stack&lt;typename Container::value_type, Container&gt;;
 </span>
 </pre></blockquote>
 <h2>&sect;24 [iterators]</h2>
