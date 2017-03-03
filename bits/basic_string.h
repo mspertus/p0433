@@ -2903,6 +2903,18 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       compare(size_type __pos, size_type __n1, const _CharT* __s,
 	      size_type __n2) const;
   };
+
+ template<typename Allocator,  enable_if_t<__is_allocator_v<Allocator>> * = nullptr>
+  basic_string(Allocator) -> basic_string<typename Allocator::value_type,
+     char_traits<typename Allocator::value_type>, Allocator>;
+     
+ template<class InputIterator, class Allocator = allocator<typename iterator_traits<InputIterator>::value_type>,
+	  enable_if_t<__is_allocator_v<Allocator>> * = nullptr,
+          typename = std::_RequireInputIter<InputIterator>>
+  basic_string(InputIterator, InputIterator, Allocator = Allocator())
+    -> basic_string<typename iterator_traits<InputIterator>::value_type,
+                    char_traits<typename iterator_traits<InputIterator>::value_type>, Allocator>;
+
 _GLIBCXX_END_NAMESPACE_CXX11
 #else  // !_GLIBCXX_USE_CXX11_ABI
   // Reference-counted COW string implentation

@@ -477,6 +477,12 @@ void test_searchers()
 
 }
 
+void test_basic_string()
+{
+  basic_string bs1(allocator<char>{});
+}
+
+
 void test_wstring_convert() // Explicit
 {
   wstring wstr ( L"test_wstring_convert" ); 
@@ -1181,11 +1187,15 @@ void test_thread()
   {
     // class unique_lock: Implicit
     unique_lock ul(m);
+    unique_lock ul2(move(ul));
+    cout << __cxa_demangle(typeid(ul2).name(), nullptr, nullptr, &r) << endl;
   }
   shared_mutex sm;
   {
     // class shared_lock: Implicit
     shared_lock sl(sm);
+    shared_lock sl2(sl);
+    cout << __cxa_demangle(typeid(sl2).name(), nullptr, nullptr, &r) << endl;
   }
   {
   // class scoped_lock: Implicit

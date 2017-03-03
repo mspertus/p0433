@@ -174,6 +174,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       mutex_type&  _M_device;
     };
 
+  template<class Mutex> lock_guard(lock_guard<Mutex>) -> lock_guard<Mutex>;
   /** @brief A movable scoped lock type.
    *
    * A unique_lock controls mutex ownership within a scope. Ownership of the
