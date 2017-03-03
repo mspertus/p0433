@@ -1032,10 +1032,6 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	    typename allocator_traits<_Alloc>::value_type::second_type,
 	    _Comp,  _Alloc>;
 
-  // Whether this guide is necessary depends on overload precedence rules still being discussed
-  template<typename _K, typename _T, typename _C, typename _A>
-    multimap(multimap<_K, _T, _C, _A>, _A) -> multimap<_K, _T, _C, _A>;
-
   template<typename _InputIterator,
 	   typename = std::_RequireInputIter<_InputIterator>,
 	   typename _Compare = less<remove_const_t<typename std::iterator_traits<_InputIterator>::value_type::first_type>>,

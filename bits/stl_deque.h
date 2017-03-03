@@ -2245,7 +2245,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
       -> deque<typename allocator_traits<_Alloc>::value_type, _Alloc>;
 
   template<typename _Alloc, enable_if_t<__is_allocator_v<_Alloc>> * = nullptr>
-    deque(typename deque<typename allocator_traits<_Alloc>::value_type, _Alloc>::size_type, _Alloc)
+    deque(size_t, _Alloc)
       -> deque<typename allocator_traits<_Alloc>::value_type, _Alloc>;
   
   template<typename _InputIterator,

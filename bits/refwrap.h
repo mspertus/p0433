@@ -342,6 +342,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
     };
 
+  template<typename _T> reference_wrapper(reference_wrapper<_T>) -> reference_wrapper<_T>;
 
   /// Denotes a reference should be taken to a variable.
   template<typename _Tp>

@@ -1875,9 +1875,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     using _IterValue = typename std::iterator_traits<_InputIterator>::value_type::second_type;
   
   template<typename _H, typename _P, typename _A, enable_if_t<__is_allocator_v<_A>> * = nullptr, enable_if_t<!is_integral_v<_H>> * = nullptr>
-    unordered_map(typename unordered_map<remove_const_t<typename _A::value_type::first_type>,
-		                         typename _A::value_type::second_type, _H, _P, _A>::size_type,
-		  _H, _P, _A)
+    unordered_map(size_t,  _H, _P, _A)
       -> unordered_map<remove_const_t<typename _A::value_type::first_type>,
                        typename _A::value_type::second_type, _H, _P, _A>;
 
@@ -1900,10 +1898,6 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	               hash<remove_const_t<typename _Alloc::value_type::first_type>>,
                        equal_to<remove_const_t<typename _Alloc::value_type::first_type>>,
                        _Alloc>;
-
-   // Unnecessary if proposed tie breaker is adopted
-   template<typename _K, typename _V, typename _H, typename _P, typename _A>
-     unordered_map(unordered_map<_K, _V, _H, _P, _A>, _A) -> unordered_map<_K, _V, _H, _P, _A>;
 
    template<typename _Key, typename _T,
 	    typename _Hash = hash<_Key>,
