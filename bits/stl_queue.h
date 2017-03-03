@@ -653,30 +653,26 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       }
 #endif // __cplusplus >= 201103L
     };
-
-  template<typename _Compare, typename _Container, typename _Alloc>
-    priority_queue(const _Compare&, const _Container&, const _Alloc &)
-      -> priority_queue<typename _Container::value_type, _Container, _Compare>;
-
-  template<typename _Compare, typename _Container, typename _Alloc>
-    priority_queue(const _Compare&, const _Container&&, const _Alloc &)
-      -> priority_queue<typename _Container::value_type, _Container, _Compare>;
-
-  template<typename _InputIterator, typename _Compare, typename _Container, typename = std::_RequireInputIter<_InputIterator>>
-    priority_queue(_InputIterator, _InputIterator, const _Compare &, const _Container &)
-    -> priority_queue<typename _Container::value_type, _Container, _Compare>;
-
-  template<typename _InputIterator, typename _Compare, typename _Container, typename = std::_RequireInputIter<_InputIterator>>
-    priority_queue(_InputIterator, _InputIterator, const _Compare &, _Container &&)
-    -> priority_queue<typename _Container::value_type, _Container, _Compare>;
-
-   template<typename _InputIterator, typename _Compare, typename = std::_RequireInputIter<_InputIterator>>
-    priority_queue(_InputIterator, _InputIterator, const _Compare &)
-     -> priority_queue<typename iterator_traits<_InputIterator>::value_type, std::vector<typename iterator_traits<_InputIterator>::value_type>, _Compare>;
-
-   template<typename _InputIterator, typename = std::_RequireInputIter<_InputIterator>>
-    priority_queue(_InputIterator, _InputIterator)
-     -> priority_queue<typename iterator_traits<_InputIterator>::value_type>;
+  template <class Compare, class Container>
+  priority_queue(Compare, Container)
+    -> priority_queue<typename Container::value_type, Container, Compare>;
+  
+  template<class InputIterator, 
+           class Compare = less<typename iterator_traits<InputIterator>::value_type>,
+           class Container = vector<typename iterator_traits<InputIterator>::value_type>>
+  priority_queue(InputIterator, InputIterator, Compare = Compare(), Container = Container())
+	  -> priority_queue<typename iterator_traits<InputIterator>::value_type, Container, Compare>;
+  
+  template<class Allocator> 
+  priority_queue(Allocator) -> priority_queue<typename Allocator::value_type>;
+  
+  template<class Compare, class Allocator>
+  priority_queue(Compare, Allocator)
+    -> priority_queue<typename Allocator::value_type, vector<typename Allocator::value_type>, Compare>;
+  
+  template<class Compare, class Container, class Allocator>
+  priority_queue(Compare, Container, Allocator)
+    -> priority_queue<typename Container::value_type, Container, Compare>;
 
   // No equality/comparison operators are provided for priority_queue.
 
