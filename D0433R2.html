@@ -53,8 +53,8 @@ deduction for class templates into the standard library</title>
 </head>
 
 <body>
-<p>Document number: D0433R2 <br>
-Date: 2017-02-24<br>
+<p>Document number: P0433R2 <br>
+Date: 2017-03-03<br>
 Reply-To:<br>
 &nbsp;&nbsp;&nbsp;Mike Spertus, Symantec (<a href="mailto:mike_spertus@symantec.com">mike_spertus@symantec.com</a>)<br>
 &nbsp;&nbsp;&nbsp;Walter E. Brown (<a href="mailto:webrown.cpp@gmail.com"> webrown.cpp@gmail.com</a>)<br>
@@ -797,7 +797,7 @@ add the following <em>deduction-guide</em>s:
 </blockquote>
 Add the following paragraph to the end of &sect;23.5.4.1 [unord.map.overview]:
 <blockquote><span class="ins">A <tt>size_type</tt> parameter type in an <tt>unordered_map</tt> deduction 
-    guide refers to the <tt>size_type</tt> member type of the primary <tt>unordered_map</tt> template.</span></blockquote>
+    guide refers to the <tt>size_type</tt> member type of the type deduced by the deduction guide.</span></blockquote>
 At the end of the definition of class <tt>unordered_multimap</tt> in &sect;23.5.5.1 [unord.multimap.overview],
 add the following <em>deduction-guide</em>s
 </p><blockquote><pre>    void reserve(size_type n);
@@ -846,7 +846,7 @@ add the following <em>deduction-guide</em>s
 </blockquote>
 Add the following paragraph to the end of &sect;23.5.5.1 [unord.multimap.overview]:
 <blockquote><span class="ins">A <tt>size_type</tt> parameter type in an <tt>unordered_multimap</tt> deduction 
-    guide refers to the <tt>size_type</tt> member type of the primary <tt>unordered_multimap</tt> template.</span></blockquote>
+    guide refers to the <tt>size_type</tt> member type of the type deduced by deduction guide.</span></blockquote>
 At the end of the definition of class <tt>unordered_set</tt> in &sect;23.5.6.1 [unord.set.overview],
 add the following <em>deduction-guide</em>s:
 <blockquote><pre>    void reserve(size_type n);
@@ -856,37 +856,37 @@ add the following <em>deduction-guide</em>s:
 	   class Hash = hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 	   class Pred = equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 	   class Allocator = allocator&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;&gt;
-  unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type = <em>see below</em>,
+  unordered_set(InputIterator, InputIterator, typename <em>see below</em>::size_type = <em>see below</em>,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
 		     Hash, Pred, Allocator&gt;;
   
   template&lt;class T, class Hash = hash&lt;T&gt;,
             class Pred = equal_to&lt;T&gt;, class Allocator = allocator&lt;T&gt;&gt;
-  unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type = <em>see below</em>,
+  unordered_set(initializer_list&lt;T&gt;, typename <em>see below</em>::size_type = <em>see below</em>,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_set&lt;T, Hash, Pred, Allocator&gt;;
   
   template&lt;class InputIterator,  class Allocator&gt;
-  unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type, Allocator)
+  unordered_set(InputIterator, InputIterator, typename <em>see below</em>::size_type, Allocator)
     -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
 		     hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 		     Allocator&gt;;
   
   template&lt;class InputIterator, class Hash, class Allocator&gt;
-  unordered_set(InputIterator, InputIterator, <em>see below</em>::size_type,
+  unordered_set(InputIterator, InputIterator, typename <em>see below</em>::size_type,
 		 Hash, Allocator)
     -&gt; unordered_set&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
 		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 		     Allocator&gt;;
   
   template&lt;class T, class Allocator&gt;
-  unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Allocator)
+  unordered_set(initializer_list&lt;T&gt;, typename <em>see below</em>::size_type, Allocator)
     -&gt; unordered_set&lt;T, hash&lt;T&gt;, equal_to&lt;T&gt;, Allocator&gt;;
   
   template&lt;class T, class Hash, class Allocator&gt;
-  unordered_set(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Hash, Allocator)
+  unordered_set(initializer_list&lt;T&gt;, typename <em>see below</em>::size_type, Hash, Allocator)
     -&gt; unordered_set&lt;T, Hash, equal_to&lt;T&gt;, Allocator&gt;;
 </span>
 </pre></blockquote>
@@ -910,29 +910,29 @@ add the following <em>deduction-guide</em>s:
   
   template&lt;class T, class Hash = hash&lt;T&gt;,
             class Pred = equal_to&lt;T&gt;, class Allocator = allocator&lt;T&gt;&gt;
-  unordered_multiset(initializer_list&lt;T&gt;, <em>see below</em>::size_type = <em>see below</em>,
+  unordered_multiset(initializer_list&lt;T&gt;, typename <em>see below</em>::size_type = <em>see below</em>,
 		  Hash = Hash(), Pred = Pred(), Allocator = Allocator())
     -&gt; unordered_multiset&lt;T, Hash, Pred, Allocator&gt;;
   
   template&lt;class InputIterator,  class Allocator&gt;
-  unordered_multiset(InputIterator, InputIterator, <em>see below</em>::size_type, Allocator)
+  unordered_multiset(InputIterator, InputIterator, typename <em>see below</em>::size_type, Allocator)
     -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type,
 		     hash&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;,
 		     Allocator&gt;;
   
   template&lt;class InputIterator,  class Hash, class Allocator&gt;
-  unordered_multiset(InputIterator, InputIterator, <em>see below</em>::size_type,
+  unordered_multiset(InputIterator, InputIterator, typename <em>see below</em>::size_type,
 		 Hash, Allocator)
     -&gt; unordered_multiset&lt;typename iterator_traits&lt;InputIterator&gt;::value_type, Hash,
 		     equal_to&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;, Allocator&gt;;
   
   template&lt;class T, class Allocator&gt;
-  unordered_multiset(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Allocator)
+  unordered_multiset(initializer_list&lt;T&gt;, typename <em>see below</em>::size_type, Allocator)
     -&gt; unordered_multiset&lt;T, hash&lt;T&gt;, equal_to&lt;T&gt;, Allocator&gt;;
   
   template&lt;class T, class Hash, class Allocator&gt;
-  unordered_multiset(initializer_list&lt;T&gt;, <em>see below</em>::size_type, Hash, Allocator)
+  unordered_multiset(initializer_list&lt;T&gt;, typename <em>see below</em>::size_type, Hash, Allocator)
     -&gt; unordered_multiset&lt;T, Hash, equal_to&lt;T&gt;, Allocator&gt;;
 </span>
 </pre></blockquote>
@@ -1055,7 +1055,7 @@ At the end of the definition class <tt>lock_guard</tt> in [thread.lock.guard], a
 <span class="ins">template&lt;class M&gt; lock_guard(lock_guard&lt;M&gt;) -&gt; lock_guard&lt;M&gt;;</span></pre>
 </blockquote>
 
-At the end of the definition class <tt>scoped_lock</tt> in [thread.scoped.lock], add
+At the end of the definition class <tt>scoped_lock</tt> in [thread.lock.scoped], add
 <blockquote><pre>  };
 
 <span class="ins">template&lt;class... M&gt; scoped_lock(scoped_lock&lt;M...&gt;) -&gt; scoped_lock&lt;M...&gt;;</span></pre>
@@ -1072,8 +1072,8 @@ At the end of the definition class <tt>shared_lock</tt> in [thread.lock.shared],
 
 <span class="ins">template&lt;class M&gt; shared_lock(shared_lock&lt;M&gt;) -&gt; shared_lock&lt;M&gt;;</span></pre>
 </blockquote>
-
-
+<h2>Feature test macro</h2>
+The recommended feature test macro for this feature is <tt>__cpp_lib_deduction_guides</tt>
 </blockquote>
 <!--<h2>TODO:</h2> <ul><li>Is LWG Issue 181 relevant? </li>
 <li>Can I use return type deduction for <tt>make_pair</tt> to simplify standard language?</li>
