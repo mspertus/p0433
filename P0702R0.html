@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+  <style type="text/css">
+
+.comment { color: #999999; font-style: italic; }
+.pre { color: #000099; }
+.string { color: #009900; }
+.char { color: #009900; }
+.float { color: #996600; }
+.int { color: #999900; }
+.bool { color: #000000; font-weight: bold; }
+.type { color: #FF6633; }
+.flow { color: #FF0000; }
+.keyword { color: #990000; }
+.operator { color: #663300; font-weight: bold; }
+.operator { color: #663300; font-weight: bold; }
+pre.code {
+    border: 2px solid #666;
+    background-color: #F4F4F4;
+    padding-left: 10px;
+    padding-top: 0px;
+}
+code {
+    border: 2px solid #d0d0d0;
+    background-color: LightYellow;
+    padding: 2px;
+    padding-left: 10px;
+    display:table;
+    white-space:pre;
+    margin:2px;
+    margin-bottom:10px;
+}
+dt {
+    font-weight: bold;
+}
+.ins {
+    background-color:#A0FFA0;
+}
+.del {
+    background-color:#FFA0A0;
+    text-decoration:line-through
+}
+.TODO {
+    background-color: LightYellow;
+    color: red;
+}
+	  
+</style>
+
+<title>Language support for Constructor Template Argument Deduction</title>
+</head>
+
+<body>
+<p>Document number: P0702R0 <br>
+Date: 2017-06-18<br>
+Reply-To: Mike Spertus, Symantec (<a href="mailto:mike_spertus@symantec.com">mike_spertus@symantec.com</a>)<br>
+Audience: {Evolution, Core} Working Group
+</p>
+
+<h1>Language support for Constructor Template Argument Deduction</h1>
+<h2>Introduction</h2>
+<p>
+This paper details some language considerations that emerged in the course of 
+    integrating Class Template Argument Deduction into the standard library as
+adopted in <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0433r2.html">p0433r2</a>
+on which we hope to receive clarification from the committee.</p>
+
+
+<h2>List vs direct initialization</h2>
+The current standard wording implies the following:
+    <code>tuple t{tuple{1, 2}};<span class="comment">   // Deduces tuple&lt;int, int&gt;</span>
+vector v{vector{1, 2}}; <span class="comment">// Deduces vector&lt;vector&lt;int&gt;&gt;</span></code>
+    
+We find it seems inconsistent and difficult to teach that <tt>vector</tt> prefers list initialization while such similar code
+    for <tt>tuple</tt> prefers copy initialization. In Kona, EWG <a href="http://wiki.edg.com/bin/view/Wg21kona2017/P0091R4">voted</a> (wg21-only link) 
+    to prefer copy initialization, but it is not clear whether the intent was that this apply
+    to cases like <tt>vector</tt> as well.
+<p>We would like EWG to clarify what was intended in this case and, if necessary, apply any change as a DR. 
+In light of the example above as well as &sect;11.6.4p3.8 [dcl.init.list], we recommend that
+    the copy deduction candidate be preferred to (implicit) list initialization when initializing
+    from a list consisting of a single element if it
+    would deduce a type that is reference-compatible with the argument.
+<p>As a related issue, the following code due to Jonathan Wakely is rejected by Clang and g++
+<code>int a[1]{};
+vector v{a, a, allocator&lt;int&gt;()};       <span class="comment">// Compile error</span>
+vector&lt;int&gt; v{a, a, allocator&lt;int&gt;()};  <span class="comment">// OK</span>   </code>
+We also suggest that this be accepted for consistency in supporting uniform initialization
+    as the uniform initialization arguments here have different types that cannot possibly be formed into an initializer list.
+<h2>Clarifying overload precedence  between rvalue reference and forwarding reference</h2>
+As Barry Revzin described in the <a href="https://groups.google.com/a/isocpp.org/forum/m/#!topic/std-discussion/QuwEdnyzLT0">Potential in temp.deduct.partial with forwarding references and deduction guides</a> discussion thread on isocpp.org, constructor template overload
+    depends on the currently unspecified precedence between rvalue reference and forwarding reference as in the following example taken from the thread:
+<code>template &lt;typename T&gt;
+struct A {
+    A(const T&amp;); // #1
+    A(T&amp;&amp;);      // #2
+};
+
+
+template &lt;typename U&gt;
+A(U&amp;&amp;) -> A&lt;double&gt;; // #3
+
+
+int main() {
+    int i = 0;
+    const int ci = 0;
+
+
+    A a1(0);
+    A a2(i);
+    A a3(ci); // Unspecified whether #2 or #3 is selected  
+}
+</code>
+Our recommendation is that forwarding reference be preferred to rvalue reference so that it is possible to override rvalue reference constructors via a deduction guide as Richard points out in the aforementioned discussion thread.
+</body></html>
